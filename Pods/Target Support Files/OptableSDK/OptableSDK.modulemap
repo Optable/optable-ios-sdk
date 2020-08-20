@@ -1,6 +1,0 @@
-framework module OptableSDK {
-  umbrella header "OptableSDK-umbrella.h"
-
-  export *
-  module * { export * }
-}
