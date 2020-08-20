@@ -4,7 +4,7 @@ Swift SDK for integrating with optable-sandbox from an iOS application.
 
 ## Build Demo App
 
-[Cocoapods](https://cocoapods.org/) is required to build demo-ios-swift. Simply run:
+[Cocoapods](https://cocoapods.org/) is required to build demo-ios-swift. After cloning the repo, simply run:
 
 ```
 pod install
