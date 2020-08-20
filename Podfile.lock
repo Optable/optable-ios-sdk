@@ -1,0 +1,16 @@
+PODS:
+  - OptableSDK (0.0.1)
+
+DEPENDENCIES:
+  - OptableSDK (from `.`)
+
+EXTERNAL SOURCES:
+  OptableSDK:
+    :path: "."
+
+SPEC CHECKSUMS:
+  OptableSDK: 1f4703aa472ef3a45015d4cccf8b6c1937cb58d1
+
+PODFILE CHECKSUM: 279f75653ff0441b201623c6a37693ef11d77300
+
+COCOAPODS: 1.10.0.beta.2
