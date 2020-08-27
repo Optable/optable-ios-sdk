@@ -23,6 +23,7 @@ public class OptableSDK: NSObject {
 
     public enum OptableError: Error {
         case identify(String)
+        case targeting(String)
     }
 
     var config: Config
@@ -66,6 +67,36 @@ public class OptableSDK: NSObject {
                 return
             }
             completion(.success(response))
+        }.resume()
+    }
+
+    //
+    //  targeting(completion) calls the Optable Sandbox "targeting" API, which returns the key-value targeting
+    //  data matching the user/device/app. It is asynchronous, and on completion it will call the specified completion handler,
+    //  passing it either the NSDictionary targeting data on success, or an OptablError on failure.
+    //
+    public func targeting(_ completion: @escaping (Result<NSDictionary,OptableError>) -> Void) throws -> Void {
+        try Targeting(config: self.config, client: self.client) { (data, response, error) in
+            guard let response = response as? HTTPURLResponse, error == nil else {
+                completion(.failure(OptableError.targeting("Session error: \(error!)")))
+                return
+            }
+            guard 200 ..< 300 ~= response.statusCode else {
+                var msg = "HTTP response.statusCode: \(response.statusCode)"
+                do {
+                    let json = try JSONSerialization.jsonObject(with: data!, options: [])
+                    msg += ", data: \(json)"
+                } catch {}
+                completion(.failure(OptableError.targeting(msg)))
+                return
+            }
+
+            do {
+                let result = try JSONSerialization.jsonObject(with: data!, options: []) as? NSDictionary
+                completion(.success(result!))
+            } catch {
+                completion(.failure(OptableError.targeting("Error parsing JSON response: \(error)")))
+            }
         }.resume()
     }
 }

@@ -28,7 +28,7 @@ func buildIdentifyRequest(config: Config, client: Client, ids: [String: Any]) th
     let url = config.edgeURL("identify")
     guard let reqURL = url else { return nil; }
 
-    let req = try client.buildRequest(url: reqURL, data: rids)
+    let req = try client.postRequest(url: reqURL, data: rids)
     return req
 }
 

@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  IdentifyViewController.swift
 //  demo-ios-swift
 //
 //  Created by Bosko Milekic on 2020-08-06.
@@ -10,7 +10,7 @@ import UIKit
 import CryptoKit
 import AdSupport
 
-class ViewController: UIViewController {
+class IdentifyViewController: UIViewController {
 
     //MARK: Properties
     @IBOutlet weak var identifyInput: UITextField!
@@ -52,7 +52,7 @@ class ViewController: UIViewController {
             }
 
         } catch {
-            print("[dispatchIdentity] Exception: \(error)")
+            print("[OptableSDK] Exception: \(error)")
             identifyOutput.text += "EXCEPTION: \(error)"
         }
     }
@@ -79,4 +79,5 @@ class ViewController: UIViewController {
 
         identifyOutput.text += output
     }
+
 }
