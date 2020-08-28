@@ -6,6 +6,7 @@ target 'demo-ios-swift' do
   use_frameworks!
 
   pod 'OptableSDK', :path => '.'
+  pod 'Google-Mobile-Ads-SDK'
 
   target 'demo-ios-swiftTests' do
     inherit! :search_paths

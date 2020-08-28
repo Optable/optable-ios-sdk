@@ -38,7 +38,7 @@ class Client {
         }
     }
 
-    func buildRequest(url: URL, data: [String]) throws -> URLRequest? {
+    func postRequest(url: URL, data: [String]) throws -> URLRequest? {
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
 
@@ -59,6 +59,24 @@ class Client {
         return req
     }
     
+    func getRequest(url: URL) throws -> URLRequest? {
+        var req = URLRequest(url: url)
+        req.httpMethod = "GET"
+
+        req.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.addValue("application/json", forHTTPHeaderField: "Accept")
+
+        if let passport: String = self.storage.getPassport() {
+            req.addValue(passport, forHTTPHeaderField: self.passportHeader)
+        }
+
+        if self.ua != nil {
+            req.addValue(self.ua!, forHTTPHeaderField: "User-Agent")
+        }
+
+        return req
+    }
+
     func userAgent(callback: @escaping(_ useragent: String) -> Void) {
         var wkUserAgent: String = ""
         let myGroup = DispatchGroup()
