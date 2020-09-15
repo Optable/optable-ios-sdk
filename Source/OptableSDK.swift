@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import CryptoKit
+import AdSupport
 
 //
 //  OptableSDK exposes an API that is used by an iOS app developer integrating with an Optable Sandbox.
@@ -38,21 +40,12 @@ public class OptableSDK: NSObject {
     }
 
     //
-    //  identify(identifiers, completion) issues a call to the Optable Sandbox "identify" API, passing the specified
-    //  dictionary of identifiers. It is asynchronous, and on completion it will call the specified completion handler, passing
+    //  identify(ids, completion) issues a call to the Optable Sandbox "identify" API, passing the specified
+    //  list of type-prefixed IDs. It is asynchronous, and on completion it will call the specified completion handler, passing
     //  it either the HTTPURLResponse on success, or an OptableError on failure.
     //
-    //  The input identifiers dictionary should have the following form:
-    //  [
-    //      "id_type": "id_value",
-    //      "id_type": [ "id_value1", "id_value2", ... ]
-    //      ...
-    //  ]
-    //
-    //  The id types supported are: eid, idfa, gaid, and others. Refer to Optable's identify API documentation for details.
-    //
-    public func identify(_ identifiers: [String: Any], _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
-        try Identify(config: self.config, client: self.client, ids: identifiers) { (data, response, error) in
+    public func identify(ids: [String], _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
+        try Identify(config: self.config, client: self.client, ids: ids) { (data, response, error) in
             guard let response = response as? HTTPURLResponse, error == nil else {
                 completion(.failure(OptableError.identify("Session error: \(error!)")))
                 return
@@ -71,9 +64,29 @@ public class OptableSDK: NSObject {
     }
 
     //
+    //  identify(email, aaid, completion) issues a call to the Optable Sandbox "identify" API, passing it the SHA-256
+    //  of the caller-provided 'email' and, when specified via the 'aaid' Boolean, the Apple ID For Advertising (IDFA)
+    //  associated with the device. It is asynchronous, and on completion it will call the specified completion handler, passing
+    //  it either the HTTPURLResponse on success, or an OptableError on failure.
+    //
+    public func identify(email: String, aaid: Bool = false, _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
+        var ids = [String]()
+
+        if (email != "") {
+            ids.append("e:" + self.eid(email))
+        }
+
+        if aaid && ASIdentifierManager.shared().isAdvertisingTrackingEnabled {
+            ids.append("a:" + ASIdentifierManager.shared().advertisingIdentifier.uuidString)
+        }
+
+        try self.identify(ids: ids, completion)
+    }
+
+    //
     //  targeting(completion) calls the Optable Sandbox "targeting" API, which returns the key-value targeting
     //  data matching the user/device/app. It is asynchronous, and on completion it will call the specified completion handler,
-    //  passing it either the NSDictionary targeting data on success, or an OptablError on failure.
+    //  passing it either the NSDictionary targeting data on success, or an OptableError on failure.
     //
     public func targeting(_ completion: @escaping (Result<NSDictionary,OptableError>) -> Void) throws -> Void {
         try Targeting(config: self.config, client: self.client) { (data, response, error) in
@@ -98,5 +111,12 @@ public class OptableSDK: NSObject {
                 completion(.failure(OptableError.targeting("Error parsing JSON response: \(error)")))
             }
         }.resume()
+    }
+
+    // eid(email) is a helper that returns SHA256(downcase(email))
+    private func eid(_ email: String) -> String {
+        return SHA256.hash(data: Data(email.lowercased().utf8)).compactMap {
+            String(format: "%02x", $0)
+        }.joined()
     }
 }

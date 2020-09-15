@@ -7,8 +7,6 @@
 //
 
 import UIKit
-import CryptoKit
-import AdSupport
 
 class IdentifyViewController: UIViewController {
 
@@ -28,26 +26,28 @@ class IdentifyViewController: UIViewController {
     // a call to the OptableSDK.identify() API and prints debugging information to the UI and debug console.
     @IBAction func dispatchIdentify(_ sender: UIButton) {
         do {
-            let email = identifyInput.text!
-            var ids = [String: Any]()
+            let email = identifyInput.text! as String
+            let aaid = identifyIDFA.isOn as Bool
 
-            if email != "" {
-                ids["eid"] = eid(email)
+            identifyOutput.text = "Calling /identify API with:\n\n"
+            if (email != "") {
+                identifyOutput.text += "Email: " + email + "\n"
             }
+            identifyOutput.text += "IDFA: " + String(aaid) + "\n"
 
-            if identifyIDFA.isOn && ASIdentifierManager.shared().isAdvertisingTrackingEnabled {
-                ids["idfa"] = ASIdentifierManager.shared().advertisingIdentifier.uuidString
-            }
-
-            identifyOutput.text = "Calling /identify API with these IDs:\n\n"
-            displayIdentifyIDs(ids)
-
-            try OPTABLE!.identify(ids) { result in
+            try OPTABLE!.identify(email: email, aaid: aaid) { result in
                 switch result {
                 case .success(let response):
                     print("[OptableSDK] Success on /identify API call: response.statusCode = \(response.statusCode)")
+                    DispatchQueue.main.async {
+                        self.identifyOutput.text += "\nSuccess."
+                    }
+
                 case .failure(let error):
                     print("[OptableSDK] Error on /identify API call: \(error)")
+                    DispatchQueue.main.async {
+                        self.identifyOutput.text += "\nError: \(error)"
+                    }
                 }
             }
 
@@ -56,28 +56,4 @@ class IdentifyViewController: UIViewController {
             identifyOutput.text += "EXCEPTION: \(error)"
         }
     }
-
-    // eid(email) is a helper that returns SHA256(downcase(email))
-    private func eid(_ email: String) -> String {
-        return SHA256.hash(data: Data(email.lowercased().utf8)).compactMap {
-            String(format: "%02x", $0)
-        }.joined()
-    }
-
-    // displayIdentifyIDs(ids) is a helper that prints the 'ids' dictionary which is the input to our OptableSDK.identify() call
-    private func displayIdentifyIDs(_ ids: [String: Any]) {
-        var output: String = ""
-        for (type, typeids) in ids {
-            if typeids is Array<String> {
-                for id in (typeids as! Array<String>) {
-                    output += "\(type) = \(id)\n\n"
-                }
-            } else if typeids is String {
-                output += "\(type) = \(typeids as! String)\n\n"
-            }
-        }
-
-        identifyOutput.text += output
-    }
-
 }

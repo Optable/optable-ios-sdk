@@ -44,6 +44,9 @@ class GAMBannerViewController: UIViewController {
 
                 case .failure(let error):
                     print("[OptableSDK] Error on /targeting API call: \(error)")
+                    DispatchQueue.main.async {
+                        self.targetingOutput.text += "Error: \(error)\n"
+                    }
                 }
             }
         } catch {
