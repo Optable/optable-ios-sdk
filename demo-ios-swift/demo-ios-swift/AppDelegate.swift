@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         
         // See comment further above on why we are initializing OptableSDK() from here:
-        OPTABLE = OptableSDK(host: "localhost", app: "ios-sdk-demo", insecure: true)
+        OPTABLE = OptableSDK(host: "sandbox.optable.co", app: "ios-sdk-demo")
 
         return true
     }
