@@ -2,8 +2,8 @@
 //  SceneDelegate.swift
 //  demo-ios-swift
 //
-//  Created by Bosko Milekic on 2020-08-06.
-//  Copyright © 2020 Bosko Milekic. All rights reserved.
+//  Copyright © 2020 Optable Technologies Inc. All rights reserved.
+//  See LICENSE for details.
 //
 
 import UIKit

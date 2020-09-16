@@ -2,8 +2,8 @@
 //  OptableSDK.h
 //  OptableSDK
 //
-//  Created by Bosko Milekic on 2020-08-17.
-//  Copyright © 2020 Optable Technologies, Inc. All rights reserved.
+//  Copyright © 2020 Optable Technologies Inc. All rights reserved.
+//  See LICENSE for details.
 //
 
 #import <Foundation/Foundation.h>

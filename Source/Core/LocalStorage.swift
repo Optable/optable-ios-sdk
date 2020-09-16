@@ -5,8 +5,8 @@
 //  The OptableSDK keeps some state in UserDefaults (https://developer.apple.com/documentation/foundation/userdefaults), a key/value store persisted
 //  across launches of the app.  The state is therefore unique to the app+device, and not globally unique to the app across devices.
 //
-//  Created by Bosko Milekic on 2020-08-18.
-//  Copyright © 2020 Optable Technologies, Inc. All rights reserved.
+//  Copyright © 2020 Optable Technologies Inc. All rights reserved.
+//  See LICENSE for details.
 //
 
 import Foundation

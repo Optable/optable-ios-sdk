@@ -2,8 +2,8 @@
 //  Identify.swift
 //  OptableSDK
 //
-//  Created by Bosko Milekic on 2020-08-18.
-//  Copyright © 2020 Optable Technologies, Inc. All rights reserved.
+//  Copyright © 2020 Optable Technologies Inc. All rights reserved.
+//  See LICENSE for details.
 //
 
 import Foundation
