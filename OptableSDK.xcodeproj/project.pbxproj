@@ -15,6 +15,7 @@
 		6358779924EC68E8008EE46B /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6358779824EC68E8008EE46B /* Client.swift */; };
 		6358779B24EC6A47008EE46B /* LocalStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6358779A24EC6A47008EE46B /* LocalStorage.swift */; };
 		6358779E24EC6C00008EE46B /* Identify.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6358779D24EC6C00008EE46B /* Identify.swift */; };
+		63643F49251D0AFB007BD90F /* Targeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63643F48251D0AFB007BD90F /* Targeting.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,6 +40,7 @@
 		6358779824EC68E8008EE46B /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
 		6358779A24EC6A47008EE46B /* LocalStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStorage.swift; sourceTree = "<group>"; };
 		6358779D24EC6C00008EE46B /* Identify.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identify.swift; sourceTree = "<group>"; };
+		63643F48251D0AFB007BD90F /* Targeting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Targeting.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +114,7 @@
 		6358779C24EC6BF0008EE46B /* Edge */ = {
 			isa = PBXGroup;
 			children = (
+				63643F48251D0AFB007BD90F /* Targeting.swift */,
 				6358779D24EC6C00008EE46B /* Identify.swift */,
 			);
 			path = Edge;
@@ -228,6 +231,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6352AB1624EAD488002E66EB /* OptableSDK.swift in Sources */,
+				63643F49251D0AFB007BD90F /* Targeting.swift in Sources */,
 				6358779E24EC6C00008EE46B /* Identify.swift in Sources */,
 				6358779B24EC6A47008EE46B /* LocalStorage.swift in Sources */,
 				6358779024EC666C008EE46B /* Config.swift in Sources */,

@@ -113,10 +113,24 @@ public class OptableSDK: NSObject {
         }.resume()
     }
 
-    // eid(email) is a helper that returns SHA256(downcase(email))
-    private func eid(_ email: String) -> String {
+    //
+    //  eid(email) is a helper that returns SHA256(downcase(email))
+    //
+    public func eid(_ email: String) -> String {
         return SHA256.hash(data: Data(email.lowercased().utf8)).compactMap {
             String(format: "%02x", $0)
         }.joined()
+    }
+
+    //
+    //  OptableSDK.version returns the SDK version as a String. The version is based on the short version string set
+    //  in the SDK project CFBundleShortVersionString. When the SDK is included via Cocoapods, it will be set
+    //  automatically on `pod install` according to the podspec version.
+    //
+    public static var version: String {
+        guard let version = Bundle(for: OptableSDK.self).infoDictionary?["CFBundleShortVersionString"] as? String else {
+            return "ios-unknown"
+        }
+        return "ios-" + version
     }
 }
