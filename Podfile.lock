@@ -1,14 +1,14 @@
 PODS:
-  - Google-Mobile-Ads-SDK (7.64.0):
+  - Google-Mobile-Ads-SDK (7.65.0):
     - GoogleAppMeasurement (~> 6.0)
     - GoogleUserMessagingPlatform (~> 1.1)
-  - GoogleAppMeasurement (6.7.2):
+  - GoogleAppMeasurement (6.8.3):
     - GoogleUtilities/AppDelegateSwizzler (~> 6.7)
     - GoogleUtilities/MethodSwizzler (~> 6.7)
     - GoogleUtilities/Network (~> 6.7)
     - "GoogleUtilities/NSData+zlib (~> 6.7)"
-    - nanopb (~> 1.30905.0)
-  - GoogleUserMessagingPlatform (1.1.0)
+    - nanopb (~> 1.30906.0)
+  - GoogleUserMessagingPlatform (1.2.0)
   - GoogleUtilities/AppDelegateSwizzler (6.7.2):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
@@ -26,19 +26,21 @@ PODS:
   - "GoogleUtilities/NSData+zlib (6.7.2)"
   - GoogleUtilities/Reachability (6.7.2):
     - GoogleUtilities/Logger
-  - nanopb (1.30905.0):
-    - nanopb/decode (= 1.30905.0)
-    - nanopb/encode (= 1.30905.0)
-  - nanopb/decode (1.30905.0)
-  - nanopb/encode (1.30905.0)
+  - nanopb (1.30906.0):
+    - nanopb/decode (= 1.30906.0)
+    - nanopb/encode (= 1.30906.0)
+  - nanopb/decode (1.30906.0)
+  - nanopb/encode (1.30906.0)
   - OptableSDK (0.1.0)
   - PromisesObjC (1.2.10)
 
 DEPENDENCIES:
   - Google-Mobile-Ads-SDK
-  - OptableSDK (from `.`)
+  - OptableSDK
 
 SPEC REPOS:
+  "git@github.com:Optable/optable-cocoapods.git":
+    - OptableSDK
   trunk:
     - Google-Mobile-Ads-SDK
     - GoogleAppMeasurement
@@ -47,19 +49,15 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
 
-EXTERNAL SOURCES:
-  OptableSDK:
-    :path: "."
-
 SPEC CHECKSUMS:
-  Google-Mobile-Ads-SDK: aec52559ce73ddf1e6478d1904dd71a741f1bc61
-  GoogleAppMeasurement: 3def7652b1f5b5a576178dc332e2a36a260fbef6
-  GoogleUserMessagingPlatform: 9dc714d2e1f0aa727b9cc52d266dc1b155f4c3f2
+  Google-Mobile-Ads-SDK: af735e001ee534d9dd2ce0a87cd8c355b19844b5
+  GoogleAppMeasurement: 966e88df9d19c15715137bb2ddaf52373f111436
+  GoogleUserMessagingPlatform: c85530d930ba509583aa5a6d50a10aca22cf8502
   GoogleUtilities: 7f2f5a07f888cdb145101d6042bc4422f57e70b3
-  nanopb: c43f40fadfe79e8b8db116583945847910cbabc9
-  OptableSDK: 2fc34f8d637c280f11825a31406209287495c501
+  nanopb: 59317e09cf1f1a0af72f12af412d54edf52603fc
+  OptableSDK: d1408d246612d77e8e951efbde6edfbfe4f64e69
   PromisesObjC: b14b1c6b68e306650688599de8a45e49fae81151
 
-PODFILE CHECKSUM: 07d4ff7037b186ba7b3e1768008eb8d2913be71d
+PODFILE CHECKSUM: d31b8958d9beef0dfaafc7e3b1ffdca5728c5961
 
 COCOAPODS: 1.10.0.beta.2
