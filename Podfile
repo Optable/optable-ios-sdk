@@ -1,6 +1,7 @@
 platform :ios, '13.0'
 
 source 'git@github.com:Optable/optable-cocoapods.git'
+source 'https://cdn.cocoapods.org/'
 
 project 'demo-ios-swift/demo-ios-swift.xcodeproj'
 

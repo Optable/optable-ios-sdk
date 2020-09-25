@@ -8,6 +8,7 @@
 
 import Foundation
 import CryptoKit
+import AppTrackingTransparency
 import AdSupport
 
 //
@@ -76,8 +77,18 @@ public class OptableSDK: NSObject {
             ids.append("e:" + self.eid(email))
         }
 
-        if aaid && ASIdentifierManager.shared().isAdvertisingTrackingEnabled {
-            ids.append("a:" + ASIdentifierManager.shared().advertisingIdentifier.uuidString)
+        if aaid {
+            if #available(iOS 14, *) {
+                ATTrackingManager.requestTrackingAuthorization(completionHandler: { status in
+                    if status == .authorized {
+                        ids.append("a:" + ASIdentifierManager.shared().advertisingIdentifier.uuidString)
+                    }
+                })
+            } else {
+                if ASIdentifierManager.shared().isAdvertisingTrackingEnabled {
+                    ids.append("a:" + ASIdentifierManager.shared().advertisingIdentifier.uuidString)
+                }
+            }
         }
 
         try self.identify(ids: ids, completion)
