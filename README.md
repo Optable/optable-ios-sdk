@@ -57,17 +57,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 Note that while the `OPTABLE` variable is global, we initialize it with an instance of `OptableSDK` in the `application()` method which runs at app launch, and not at the time it is declared. This is done because Swift's lazy-loading otherwise delays initialization to the first use of the variable. Both approaches work, though forcing early initialization allows the SDK to configure itself early. In particular, as part of its internal configuration the SDK will attempt to read the User-Agent string exposed by WebView and, since this is an asynchronous operation, it is best done as early as possible in the application lifecycle.
 
+You can call various SDK APIs on the instance as shown in the examples below. It's also possible to configure multiple instances of `OptableSDK` in order to connect to other (e.g., partner) sandboxes and/or reference other configured application slug IDs.
+
 Note that all SDK communication with Optable sandboxes is done over TLS. The only exception to this is if you instantiate the `OptableSDK` class with a third optional boolean parameter, `insecure`, set to `true`. For example:
 
 ```swift
 OPTABLE = OptableSDK(host: "sandbox.customer.com", app: "my-app", insecure: true)
 ```
 
-However, since production sandboxes only listen to TLS traffic, so the above is really only useful for developers of `optable-sandbox` running the sandbox locally for testing.
+However, since production sandboxes only listen to TLS traffic, the above is really only useful for developers of `optable-sandbox` running the sandbox locally for testing.
 
 ### Identify API
 
-To associate a user device with an authenticated identifier such as an Email address, or with other known IDs such as the Apple ID for Advertising (IDFA), or even your own vendor or app level `PPID`, you can invoke the `identify` API as follows:
+To associate a user device with an authenticated identifier such as an Email address, or with other known IDs such as the Apple ID for Advertising (IDFA), or even your own vendor or app level `PPID`, you can call the `identify` API as follows:
 
 ```swift
 let emailString = "some.email@address.com"
@@ -89,7 +91,7 @@ do {
 
 The SDK `identify()` method will asynchronously connect to the configured sandbox and send IDs for resolution. The provided callback can be used to understand successful completion or errors.
 
-Note that in the above example, the SDK will compute the SHA-256 hash of the Email address on the client-side and send the hashed value to the sandbox. The Email address is never sent from the device in plain text.
+> :warning: **Client-Side Email Hashing**: The SDK will compute the SHA-256 hash of the Email address on the client-side and send the hashed value to the sandbox. The Email address is **not** sent by the device in plain text.
 
 Since the `sendIDFA` value provided to `identify()` via the `aaid` (Apple Advertising ID or IDFA) boolean parameter is `true`, the SDK will attempt to fetch and send the Apple IDFA in the call to `identify` too, unless the user has turned on "Limit ad tracking" in their iOS device privacy settings.
 
@@ -166,4 +168,4 @@ By default, the demo application will connect to the [Optable](https://optable.c
 pod install
 ```
 
-Then open up the generated `demo-ios-swift.xcworkspace` in [Xcode](https://developer.apple.com/xcode/), and build and run from there.
+Then open the generated `demo-ios-swift.xcworkspace` in [Xcode](https://developer.apple.com/xcode/), and build and run from there.
