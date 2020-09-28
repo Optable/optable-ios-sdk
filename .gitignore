@@ -5,3 +5,5 @@ DerivedData/
 build/
 xcuserdata
 **/xcuserdata/*
+Pods/
+demo-ios-swift.xcworkspace
