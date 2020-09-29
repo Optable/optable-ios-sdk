@@ -65,30 +65,36 @@ public class OptableSDK: NSObject {
     }
 
     //
-    //  identify(email, aaid, completion) issues a call to the Optable Sandbox "identify" API, passing it the SHA-256
+    //  identify(email, aaid, ppid, completion) issues a call to the Optable Sandbox "identify" API, passing it the SHA-256
     //  of the caller-provided 'email' and, when specified via the 'aaid' Boolean, the Apple ID For Advertising (IDFA)
-    //  associated with the device. It is asynchronous, and on completion it will call the specified completion handler, passing
+    //  associated with the device. When 'ppid' is provided as a string, it is also sent for identity resolution.
+    //
+    //  The identify method is asynchronous, and on completion it will call the specified completion handler, passing
     //  it either the HTTPURLResponse on success, or an OptableError on failure.
     //
-    public func identify(email: String, aaid: Bool = false, _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
+    public func identify(email: String, aaid: Bool = false, ppid: String = "", _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
         var ids = [String]()
 
         if (email != "") {
-            ids.append("e:" + self.eid(email))
+            ids.append(self.eid(email))
         }
 
         if aaid {
             if #available(iOS 14, *) {
                 ATTrackingManager.requestTrackingAuthorization(completionHandler: { status in
                     if status == .authorized {
-                        ids.append("a:" + ASIdentifierManager.shared().advertisingIdentifier.uuidString)
+                        ids.append(self.aaid(ASIdentifierManager.shared().advertisingIdentifier.uuidString))
                     }
                 })
             } else {
                 if ASIdentifierManager.shared().isAdvertisingTrackingEnabled {
-                    ids.append("a:" + ASIdentifierManager.shared().advertisingIdentifier.uuidString)
+                    ids.append(self.aaid(ASIdentifierManager.shared().advertisingIdentifier.uuidString))
                 }
             }
+        }
+
+        if ppid.count > 0 {
+            ids.append(self.cid(ppid))
         }
 
         try self.identify(ids: ids, completion)
@@ -96,7 +102,9 @@ public class OptableSDK: NSObject {
 
     //
     //  targeting(completion) calls the Optable Sandbox "targeting" API, which returns the key-value targeting
-    //  data matching the user/device/app. It is asynchronous, and on completion it will call the specified completion handler,
+    //  data matching the user/device/app.
+    //
+    //  The targeting method is asynchronous, and on completion it will call the specified completion handler,
     //  passing it either the NSDictionary targeting data on success, or an OptableError on failure.
     //
     public func targeting(_ completion: @escaping (Result<NSDictionary,OptableError>) -> Void) throws -> Void {
@@ -125,12 +133,26 @@ public class OptableSDK: NSObject {
     }
 
     //
-    //  eid(email) is a helper that returns SHA256(downcase(email))
+    //  eid(email) is a helper that returns type-prefixed SHA256(downcase(email))
     //
     public func eid(_ email: String) -> String {
-        return SHA256.hash(data: Data(email.lowercased().utf8)).compactMap {
+        return "e:" + SHA256.hash(data: Data(email.lowercased().utf8)).compactMap {
             String(format: "%02x", $0)
         }.joined()
+    }
+
+    //
+    //  aaid(idfa) is a helper that returns the type-prefixed Apple ID For Advertising
+    //
+    public func aaid(_ idfa: String) -> String {
+        return "a:" + idfa.lowercased()
+    }
+
+    //
+    //  cid(ppid) is a helper that returns custom type-prefixed origin-provided PPID
+    //
+    public func cid(_ ppid: String) -> String {
+        return "c:" + ppid
     }
 
     //
