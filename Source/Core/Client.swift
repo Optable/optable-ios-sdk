@@ -38,7 +38,7 @@ class Client {
         }
     }
 
-    func postRequest(url: URL, data: [String]) throws -> URLRequest? {
+    func postRequest(url: URL, data: Any) throws -> URLRequest? {
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
 

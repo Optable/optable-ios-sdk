@@ -60,6 +60,26 @@ class GAMBannerViewController: UIViewController {
         let req = DFPRequest()
         req.customTargeting = keyvalues as! [String: Any]
         bannerView.load(req)
+
+        do {
+            try OPTABLE!.witness(event: "GAMBannerViewController.loadBannerClicked", properties: ["example": "value"]) { result in
+                switch result {
+                case .success(let response):
+                    print("[OptableSDK] Success on /witness API call: response.statusCode = \(response.statusCode)")
+                    DispatchQueue.main.async {
+                        self.targetingOutput.text += "\nSuccess calling witness API to log loadBannerClicked event.\n"
+                    }
+
+                case .failure(let error):
+                    print("[OptableSDK] Error on /witness API call: \(error)")
+                    DispatchQueue.main.async {
+                        self.targetingOutput.text += "\nError: \(error)"
+                    }
+                }
+            }
+        } catch {
+            print("[OptableSDK] Exception: \(error)")
+        }
     }
 
     private func addBannerViewToView(_ bannerView: DFPBannerView) {
