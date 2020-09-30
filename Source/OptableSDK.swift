@@ -27,6 +27,7 @@ public class OptableSDK: NSObject {
     public enum OptableError: Error {
         case identify(String)
         case targeting(String)
+        case witness(String)
     }
 
     var config: Config
@@ -129,6 +130,33 @@ public class OptableSDK: NSObject {
             } catch {
                 completion(.failure(OptableError.targeting("Error parsing JSON response: \(error)")))
             }
+        }.resume()
+    }
+
+    //
+    //  witness(event, properties, completion) calls the Optable Sandbox "witness" API in order to log
+    //  a specified 'event' (e.g., "app.screenView", "ui.buttonPressed"), with the specified keyvalue
+    //  NSDictionary 'properties', which can be subsequently used for audience assembly.
+    //
+    //  The witness method is asynchronous, and on completion it will call the specified completion handler,
+    //  passing it either the HTTPURLResponse on success, or an OptableError on failure.
+    //
+    public func witness(event: String, properties: NSDictionary, _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
+        try Witness(config: self.config, client: self.client, event: event, properties: properties) { (data, response, error) in
+            guard let response = response as? HTTPURLResponse, error == nil else {
+                completion(.failure(OptableError.witness("Session error: \(error!)")))
+                return
+            }
+            guard 200 ..< 300 ~= response.statusCode else {
+                var msg = "HTTP response.statusCode: \(response.statusCode)"
+                do {
+                    let json = try JSONSerialization.jsonObject(with: data!, options: [])
+                    msg += ", data: \(json)"
+                } catch {}
+                completion(.failure(OptableError.witness(msg)))
+                return
+            }
+            completion(.success(response))
         }.resume()
     }
 

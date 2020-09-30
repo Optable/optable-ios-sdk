@@ -122,6 +122,30 @@ do {
 
 On success, the resulting key values are typically sent as part of a subsequent ad call. Therefore we recommend that you either call `targeting()` before each ad call, or in parallel periodically, caching the resulting key values which you then provide in ad calls.
 
+### Witness API
+
+To send real-time event data from the user's device to the sandbox for eventual audience assembly, you can call the witness API as follows:
+
+```swift
+do {
+    try OPTABLE!.witness(event: "example.event.type",
+                         properties: ["example": "value"]) { result in
+        switch (result) {
+        case .success(let response):
+            // witness API success, response.statusCode is HTTP response status 200
+        case .failure(let error):
+            // handle witness API failure in `error`
+        }
+    }
+} catch {
+    // handle thrown exception in `error`
+}
+```
+
+The specified event type and properties are associated with the logged event and which can be used for matching during audience assembly.
+
+Note that event properties are of type `NSDictionary` and should consist only of string keyvalue pairs.
+
 ### Integrating GAM360
 
 We can further extend the above `targeting` example to show an integration with a [Google Ad Manager 360](https://admanager.google.com/home/) ad server account:
