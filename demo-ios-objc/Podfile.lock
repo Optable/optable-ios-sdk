@@ -2,7 +2,7 @@ PODS:
   - Google-Mobile-Ads-SDK (7.66.0):
     - GoogleAppMeasurement (~> 6.0)
     - GoogleUserMessagingPlatform (~> 1.1)
-  - GoogleAppMeasurement (6.8.3):
+  - GoogleAppMeasurement (6.9.0):
     - GoogleUtilities/AppDelegateSwizzler (~> 6.7)
     - GoogleUtilities/MethodSwizzler (~> 6.7)
     - GoogleUtilities/Network (~> 6.7)
@@ -31,14 +31,16 @@ PODS:
     - nanopb/encode (= 1.30906.0)
   - nanopb/decode (1.30906.0)
   - nanopb/encode (1.30906.0)
-  - OptableSDK (0.2.0)
-  - PromisesObjC (1.2.10)
+  - OptableSDK (0.3.0)
+  - PromisesObjC (1.2.11)
 
 DEPENDENCIES:
   - Google-Mobile-Ads-SDK
-  - OptableSDK (from `../`)
+  - OptableSDK
 
 SPEC REPOS:
+  "git@github.com:Optable/optable-cocoapods.git":
+    - OptableSDK
   trunk:
     - Google-Mobile-Ads-SDK
     - GoogleAppMeasurement
@@ -47,19 +49,15 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
 
-EXTERNAL SOURCES:
-  OptableSDK:
-    :path: "../"
-
 SPEC CHECKSUMS:
   Google-Mobile-Ads-SDK: 7d7074359c040f5add4e0963bf860e14690060d0
-  GoogleAppMeasurement: 966e88df9d19c15715137bb2ddaf52373f111436
+  GoogleAppMeasurement: a6a3a066369828db64eda428cb2856dc1cdc7c4e
   GoogleUserMessagingPlatform: c85530d930ba509583aa5a6d50a10aca22cf8502
   GoogleUtilities: 7f2f5a07f888cdb145101d6042bc4422f57e70b3
   nanopb: 59317e09cf1f1a0af72f12af412d54edf52603fc
-  OptableSDK: c76f2ca34e496140907625aca6c9f0584ba0b1d9
-  PromisesObjC: b14b1c6b68e306650688599de8a45e49fae81151
+  OptableSDK: 26a249e5e4605a6593567d6a39463c220c9b3a49
+  PromisesObjC: 8c196f5a328c2cba3e74624585467a557dcb482f
 
-PODFILE CHECKSUM: ee1c2b34e44b22fab92f41831e48e629f64429d8
+PODFILE CHECKSUM: 522fa503db86cd52f64367f41fa4f1a6ada1c250
 
 COCOAPODS: 1.10.0.beta.2
