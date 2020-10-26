@@ -31,8 +31,22 @@ class Client {
                 completionHandler(data, response, error)
                 return
             }
-            if let passport = res.value(forHTTPHeaderField: self.passportHeader) {
-                self.storage.setPassport(passport)
+            if #available(iOS 13.0, *) {
+                if let passport = res.value(forHTTPHeaderField: self.passportHeader) {
+                    self.storage.setPassport(passport)
+                }
+            } else {
+                // In older versions of iOS, we have to resort searching through headers via res.allHeaderFields
+                // Unlike res.value(forHTTPHeaderField:...) which was introduced in iOS 13.0, allHeaderFields is
+                // case-sensitive, so we need to take special care to perform a case-INsensitive search:
+                for (key, value) in res.allHeaderFields {
+                    let header = key as! String
+                    let result: ComparisonResult = header.compare(self.passportHeader, options: NSString.CompareOptions.caseInsensitive)
+                    if result == .orderedSame {
+                        self.storage.setPassport(value as! String)
+                        break
+                    }
+                }
             }
             completionHandler(data, response, error)
         }

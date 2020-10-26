@@ -69,7 +69,7 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Identify" image="person.badge.plus.fill" catalog="system" selectedImage="person.badge.plus.fill" id="elC-Fm-1B7"/>
+                    <tabBarItem key="tabBarItem" title="Identify" image="person.fill.badge.plus" catalog="system" selectedImage="person.fill.badge.plus" id="elC-Fm-1B7"/>
                     <connections>
                         <outlet property="identifyButton" destination="b7v-UN-xAf" id="JgO-1H-l2i"/>
                         <outlet property="identifyIDFA" destination="2Eg-c7-IVu" id="Edv-UW-vxZ"/>
@@ -144,7 +144,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="person.badge.plus.fill" catalog="system" width="128" height="116"/>
+        <image name="person.fill.badge.plus" catalog="system" width="128" height="116"/>
         <image name="rectangle.3.offgrid.fill" catalog="system" width="128" height="81"/>
     </resources>
 </document>
