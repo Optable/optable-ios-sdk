@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CommonCrypto
 import CryptoKit
 import AppTrackingTransparency
 import AdSupport
@@ -262,9 +263,22 @@ public class OptableSDK: NSObject {
     //
     @objc
     public func eid(_ email: String) -> String {
-        return "e:" + SHA256.hash(data: Data(email.lowercased().utf8)).compactMap {
-            String(format: "%02x", $0)
-        }.joined()
+        let pfx = "e:"
+        let normEmail = Data(email.lowercased().utf8)
+
+        if #available(iOS 13.0, *) {
+            return pfx + SHA256.hash(data: normEmail).compactMap {
+                String(format: "%02x", $0)
+            }.joined()
+        } else {
+            var digest = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+            normEmail.withUnsafeBytes { bytes in
+                _ = CC_SHA256(bytes.baseAddress, CC_LONG(normEmail.count), &digest)
+            }
+            return pfx + digest.makeIterator().compactMap {
+                String(format: "%02x", $0)
+            }.joined()
+        }
     }
 
     //
