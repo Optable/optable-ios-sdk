@@ -51,5 +51,9 @@ workflows:
   tests-and-demo-app-builds:
     jobs:
       - tests
-      - build-demo-swift
-      - build-demo-objc
+      - build-demo-swift:
+          requires:
+            - tests
+      - build-demo-objc:
+          requires:
+            - tests

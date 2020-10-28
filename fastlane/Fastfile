@@ -20,6 +20,7 @@ platform :ios do
     end
     gym(workspace: "demo-ios-swift/demo-ios-swift.xcworkspace",
         scheme: "demo-ios-swift",
+        clean: true,
         skip_codesigning: true,
         skip_archive: true)
   end
@@ -32,6 +33,7 @@ platform :ios do
     end
     gym(workspace: "demo-ios-objc/demo-ios-objc.xcworkspace",
         scheme: "demo-ios-objc",
+        clean: true,
         skip_codesigning: true,
         skip_archive: true)
   end
