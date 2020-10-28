@@ -8,3 +8,6 @@ xcuserdata
 Pods/
 demo-ios-swift.xcworkspace
 demo-ios-objc.xcworkspace
+fastlane/README.md
+fastlane/report.xml
+fastlane/test_output/
