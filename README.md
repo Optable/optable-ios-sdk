@@ -1,4 +1,4 @@
-# Optable iOS SDK
+# Optable iOS SDK [![CircleCI](https://circleci.com/gh/Optable/optable-ios-sdk.svg?style=shield&circle-token=08842d5bffbe92f278b666f51f306076201e2839)](https://app.circleci.com/pipelines/github/Optable/optable-ios-sdk)
 
 Swift SDK for integrating with optable-sandbox from an iOS application.
 
