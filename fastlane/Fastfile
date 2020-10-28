@@ -1,0 +1,40 @@
+default_platform :ios
+
+platform :ios do
+  before_all do
+    setup_circle_ci
+  end
+
+  desc "Runs all the OptableSDK tests"
+  lane :tests do
+    run_tests(project: "OptableSDK.xcodeproj",
+              scheme: "OptableSDK",
+              clean: true)
+  end
+
+  desc "Builds the demo-ios-swift application"
+  lane :demo_swift do
+    Dir.chdir("../demo-ios-swift/.") do
+      sh("pod install")
+      sh("pod update")
+    end
+    gym(workspace: "demo-ios-swift/demo-ios-swift.xcworkspace",
+        scheme: "demo-ios-swift",
+        clean: true,
+        skip_codesigning: true,
+        skip_archive: true)
+  end
+
+  desc "Builds the demo-ios-objc application"
+  lane :demo_objc do
+    Dir.chdir("../demo-ios-objc/.") do
+      sh("pod install")
+      sh("pod update")
+    end
+    gym(workspace: "demo-ios-objc/demo-ios-objc.xcworkspace",
+        scheme: "demo-ios-objc",
+        clean: true,
+        skip_codesigning: true,
+        skip_archive: true)
+  end
+end
