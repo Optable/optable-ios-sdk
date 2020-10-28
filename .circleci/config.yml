@@ -71,7 +71,7 @@ jobs:
           tag_pattern: .+
 
 workflows:
-  tests-and-demo-app-builds:
+  untagged-build:
     jobs:
       - tests:
           context: slack-secrets
@@ -83,3 +83,24 @@ workflows:
           requires:
             - tests
           context: slack-secrets
+  release-build:
+    jobs:
+      - tests:
+          context: slack-secrets
+          filters:
+            tags:
+              only: /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/
+      - build-demo-swift:
+          requires:
+            - tests
+          context: slack-secrets
+          filters:
+            tags:
+              only: /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/
+      - build-demo-objc:
+          requires:
+            - tests
+          context: slack-secrets
+          filters:
+            tags:
+              only: /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/
