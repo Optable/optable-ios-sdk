@@ -22,7 +22,7 @@ jobs:
           event: fail
           template: basic_fail_1
       - slack/notify:
-          event: pass
+          event: always
           template: success_tagged_deploy_1
           tag_pattern: .+
 
