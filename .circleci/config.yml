@@ -1,8 +1,10 @@
 version: 2.1
+
 orbs:
   slack: circleci/slack@4.1.1
+
 jobs:
-  tests:
+  sdk-tests:
     macos:
       xcode: 12.1.0
     environment:
@@ -21,9 +23,6 @@ jobs:
       - slack/notify:
           event: fail
           template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
 
   build-demo-swift:
     macos:
@@ -42,9 +41,6 @@ jobs:
       - slack/notify:
           event: fail
           template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
 
   build-demo-objc:
     macos:
@@ -63,28 +59,36 @@ jobs:
       - slack/notify:
           event: fail
           template: basic_fail_1
+
+  success-slack-notify:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: Success
+          command: |
+            exit 0
       - slack/notify:
           event: pass
           template: success_tagged_deploy_1
 
 workflows:
-
   standard-build:
     jobs:
-      - tests:
+      - sdk-tests:
           context: slack-secrets
       - build-demo-swift:
           requires:
-            - tests
+            - sdk-tests
           context: slack-secrets
       - build-demo-objc:
           requires:
-            - tests
+            - sdk-tests
           context: slack-secrets
 
   release-build:
     jobs:
-      - tests:
+      - sdk-tests:
           context: slack-secrets
           filters:
             branches:
@@ -93,7 +97,7 @@ workflows:
               only: /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/
       - build-demo-swift:
           requires:
-            - tests
+            - sdk-tests
           context: slack-secrets
           filters:
             branches:
@@ -102,10 +106,15 @@ workflows:
               only: /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/
       - build-demo-objc:
           requires:
-            - tests
+            - sdk-tests
           context: slack-secrets
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/
+      - success-slack-notify:
+          requires:
+            - build-demo-swift
+            - build-demo-objc
+          context: slack-secrets
