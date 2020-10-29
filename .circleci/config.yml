@@ -88,6 +88,8 @@ workflows:
       - tests:
           context: slack-secrets
           filters:
+            branches:
+              ignore: /.*/
             tags:
               only: /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/
       - build-demo-swift:
@@ -95,6 +97,8 @@ workflows:
             - tests
           context: slack-secrets
           filters:
+            branches:
+              ignore: /.*/
             tags:
               only: /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/
       - build-demo-objc:
@@ -102,5 +106,7 @@ workflows:
             - tests
           context: slack-secrets
           filters:
+            branches:
+              ignore: /.*/
             tags:
               only: /^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/
