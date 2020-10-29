@@ -24,7 +24,6 @@ jobs:
       - slack/notify:
           event: pass
           template: success_tagged_deploy_1
-          tag_pattern: .+
 
   build-demo-swift:
     macos:
@@ -46,7 +45,6 @@ jobs:
       - slack/notify:
           event: pass
           template: success_tagged_deploy_1
-          tag_pattern: .+
 
   build-demo-objc:
     macos:
@@ -68,10 +66,10 @@ jobs:
       - slack/notify:
           event: pass
           template: success_tagged_deploy_1
-          tag_pattern: .+
 
 workflows:
-  untagged-build:
+
+  standard-build:
     jobs:
       - tests:
           context: slack-secrets
@@ -83,6 +81,7 @@ workflows:
           requires:
             - tests
           context: slack-secrets
+
   release-build:
     jobs:
       - tests:
