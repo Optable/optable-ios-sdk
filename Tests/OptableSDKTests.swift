@@ -64,6 +64,34 @@ class OptableSDKTests: XCTestCase {
         XCTAssertNotEqual(unexpected, sdk.cid("foobarBAZ-01234#98765.!!!"))
     }
 
+    func test_eidFromURL_isCorrect() throws {
+        let url = "http://some.domain.com/some/path?some=query&something=else&oeid=a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3&foo=bar&baz"
+        let expected = "e:a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
+
+        XCTAssertEqual(expected, sdk.eidFromURL(url))
+    }
+
+    func test_eidFromURL_returnsEmptyWhenOeidAbsent() throws {
+        let url = "http://some.domain.com/some/path?some=query&something=else"
+        let expected = ""
+
+        XCTAssertEqual(expected, sdk.eidFromURL(url))
+    }
+
+    func test_eidFromURL_expectsSHA256() throws {
+        let url = "http://some.domain.com/some/path?some=query&something=else&oeid=AAAAAAAa665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3&foo=bar&baz"
+        let expected = ""
+
+        XCTAssertEqual(expected, sdk.eidFromURL(url))
+    }
+
+    func test_eidFromURL_ignoresCase() throws {
+        let url = "http://some.domain.com/some/path?some=query&something=else&oEId=A665A45920422F9D417E4867EFDC4FB8A04A1F3FFF1FA07E998E86f7f7A27AE3&foo=bar&baz"
+        let expected = "e:a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
+
+        XCTAssertEqual(expected, sdk.eidFromURL(url))
+    }
+
     func testPerformanceExample() throws {
         // This is an example of a performance test case.
         self.measure {
