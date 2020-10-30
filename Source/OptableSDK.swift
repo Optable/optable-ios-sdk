@@ -146,8 +146,8 @@ public class OptableSDK: NSObject {
     }
 
     //
-    //  identify(ids) is the "delegate variant" of the identify(email, aaid, ppid, completion) method. It wraps the
-    //  latter with a delegator callback.
+    //  identify(email, aaid, ppid) is the "delegate variant" of the identify(email, aaid, ppid, completion) method.
+    //  It wraps the latter with a delegator callback.
     //
     //  This is the Objective-C compatible version of the identify(email, aaid, ppid, completion) API.
     //
@@ -264,7 +264,7 @@ public class OptableSDK: NSObject {
     @objc
     public func eid(_ email: String) -> String {
         let pfx = "e:"
-        let normEmail = Data(email.lowercased().utf8)
+        let normEmail = Data(email.lowercased().trimmingCharacters(in: .whitespacesAndNewlines).utf8)
 
         if #available(iOS 13.0, *) {
             return pfx + SHA256.hash(data: normEmail).compactMap {
@@ -286,7 +286,7 @@ public class OptableSDK: NSObject {
     //
     @objc
     public func aaid(_ idfa: String) -> String {
-        return "a:" + idfa.lowercased()
+        return "a:" + idfa.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     //
@@ -294,7 +294,7 @@ public class OptableSDK: NSObject {
     //
     @objc
     public func cid(_ ppid: String) -> String {
-        return "c:" + ppid
+        return "c:" + ppid.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     //
