@@ -298,6 +298,61 @@ public class OptableSDK: NSObject {
     }
 
     //
+    //  eidFromURL(urlString) is a helper that returns a type-prefixed ID based on
+    //  the query string oeid=sha256value parameter in the specified urlString, if
+    //  one is found. Otherwise, it returns an empty string.
+    //
+    //  The use for this is when handling incoming universal links which might
+    //  contain an "oeid" value with the SHA256(downcase(email)) of a user, such as
+    //  encoded links in newsletter Emails sent by the application developer. Such
+    //  hashed Email values can be used in calls to identify()
+    //
+    @objc
+    public func eidFromURL(_ urlString: String) -> String {
+        let url = URL(string: urlString)
+        let urlc = URLComponents(url: url!, resolvingAgainstBaseURL: false)
+
+        // Look for an oeid parameter in the urlString:
+        var oeid = ""
+        for qi: URLQueryItem in (urlc?.queryItems)! {
+            if qi.value == nil {
+                continue
+            }
+            if qi.name.lowercased() == "oeid" {
+                oeid = qi.value!
+                break
+            }
+        }
+
+        // Check that oeid looks like a valid SHA256:
+        let range = NSRange(location: 0, length: oeid.utf16.count)
+        let regex = try! NSRegularExpression(pattern: "[a-f0-9]{64}", options: .caseInsensitive)
+        if (oeid.count != 64) || (regex.firstMatch(in: oeid, options: [], range: range) == nil) {
+            return ""
+        }
+
+        return "e:" + oeid.lowercased()
+    }
+
+    //
+    //  tryIdentifyFromURL(urlString) is a helper that attempts to find a valid-looking
+    //  "oeid" parameter in the specified urlString's query string parameters and, if found,
+    //  calls self.identify([oeid]).
+    //
+    //  The use for this is when handling incoming universal links which might contain an
+    //  "oeid" value with the SHA256(downcase(email)) of an incoming user, such as encoded
+    //  links in newsletter Emails sent by the application developer.
+    //
+    @objc
+    public func tryIdentifyFromURL(_ urlString: String) throws -> Void {
+        let oeid = self.eidFromURL(urlString)
+
+        if (oeid.count > 0) {
+            try self.identify(ids: [oeid]) { _ in /* no-op */ }
+        }
+    }
+
+    //
     //  OptableSDK.version returns the SDK version as a String. The version is based on the short
     //  version string set in the SDK project CFBundleShortVersionString. When the SDK is included via
     //  Cocoapods, it will be set automatically on `pod install` according to the podspec version.
