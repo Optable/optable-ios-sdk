@@ -7,12 +7,12 @@ It's possible to use the SDK functionality from either a Swift or Objective-C iO
 ## Contents
 
 - [Installing](#installing)
-- [Using (Swift)](#using--swift-)
+- [Using (Swift)](#using-swift)
   - [Identify API](#identify-api)
   - [Targeting API](#targeting-api)
   - [Witness API](#witness-api)
   - [Integrating GAM360](#integrating-gam360)
-- [Using (Objective-C)](#using--objective-c-)
+- [Using (Objective-C)](#using-objective-c)
   - [Identify API](#identify-api-1)
   - [Targeting API](#targeting-api-1)
   - [Witness API](#witness-api-1)
