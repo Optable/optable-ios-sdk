@@ -38,6 +38,10 @@
     });
 }
 - (void)targetingErr:(NSError *)error {
+    // Update the GAM banner view without targeting data:
+    DFPRequest *request = [DFPRequest request];
+    [self.bannerView loadRequest:request];
+
     NSLog(@"[OptableSDK] Error on /targeting API call: %@", [error localizedDescription]);
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.targetingOutput setText:[NSString stringWithFormat:@"Error: %@\n", [error localizedDescription]]];

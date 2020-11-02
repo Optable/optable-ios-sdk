@@ -32,11 +32,13 @@ class GAMBannerViewController: UIViewController {
             targetingOutput.text = "Calling /targeting API...\n\n"
 
             try OPTABLE!.targeting() { result in
+                var tdata: NSDictionary = [:]
+
                 switch result {
                 case .success(let keyvalues):
                     print("[OptableSDK] Success on /targeting API call: \(keyvalues)")
 
-                    self.loadBanner(adUnitID: "/22081946781/ios-sdk-demo/mobile-leaderboard", keyvalues: keyvalues)
+                    tdata = keyvalues
 
                     DispatchQueue.main.async {
                         self.targetingOutput.text += "Data: \(keyvalues)\n"
@@ -48,6 +50,8 @@ class GAMBannerViewController: UIViewController {
                         self.targetingOutput.text += "Error: \(error)\n"
                     }
                 }
+
+                self.loadBanner(adUnitID: "/22081946781/ios-sdk-demo/mobile-leaderboard", keyvalues: tdata)
             }
         } catch {
             print("[OptableSDK] Exception: \(error)")

@@ -170,7 +170,9 @@ Note that event properties are of type `NSDictionary` and should consist only of
 
 ### Integrating GAM360
 
-We can further extend the above `targeting` example to show an integration with a [Google Ad Manager 360](https://admanager.google.com/home/) ad server account:
+We can further extend the above `targeting` example to show an integration with a [Google Ad Manager 360](https://admanager.google.com/home/) ad server account.
+
+It's suggested to load the GAM banner view with an ad even when the call to your sandbox `targeting()` method results in failure:
 
 ```swift
 import GoogleMobileAds
@@ -178,20 +180,25 @@ import GoogleMobileAds
 
 do {
     try OPTABLE!.targeting() { result in
+        var tdata: NSDictionary = [:]
+
         switch result {
         case .success(let keyvalues):
-            // We assume bannerView is a DFPBannerView() instance that has already been
-            // initialized and added to our view:
-            bannerView.adUnitID = "/12345/some-ad-unit-id/in-your-gam360-account"
-
-            // Build GAM ad request with key values and load banner:
-            let req = DFPRequest()
-            req.customTargeting = keyvalues as! [String: Any]
-            bannerView.load(req)
+            // Save targeting data in `tdata`:
+            tdata = keyvalues
 
         case .failure(let error):
             // handle targeting API failure in `error`
         }
+
+        // We assume bannerView is a DFPBannerView() instance that has already been
+        // initialized and added to our view:
+        bannerView.adUnitID = "/12345/some-ad-unit-id/in-your-gam360-account"
+
+        // Build GAM ad request with key values and load banner:
+        let req = DFPRequest()
+        req.customTargeting = tdata as! [String: Any]
+        bannerView.load(req)
     }
 } catch {
     // handle thrown exception in `error`
@@ -316,7 +323,9 @@ NSError *error = nil;
 
 ### Integrating GAM360
 
-We can further extend the above `targetingOk` example delegate implementation to show an integration with a [Google Ad Manager 360](https://admanager.google.com/home/) ad server account, which uses the [Google Mobile Ads SDK's targeting capability](https://developers.google.com/ad-manager/mobile-ads-sdk/ios/targeting):
+We can further extend the above `targetingOk` example delegate implementation to show an integration with a [Google Ad Manager 360](https://admanager.google.com/home/) ad server account, which uses the [Google Mobile Ads SDK's targeting capability](https://developers.google.com/ad-manager/mobile-ads-sdk/ios/targeting).
+
+We also extend the `targetingErr` delegate handler to load a GAM ad without targeting data in case of `targeting` API failure.
 
 ```objective-c
 @implementation OptableSDKDelegate
@@ -326,6 +335,11 @@ We can further extend the above `targetingOk` example delegate implementation to
     DFPRequest *request = [DFPRequest request];
     request.customTargeting = result;
     [self.bannerView loadRequest:request];
+}
+- (void)targetingErr:(NSError *)error {
+    // Load GAM banner even in case of targeting API error:
+    DFPRequest *request = [DFPRequest request];
+    [self.bannerView loadRequest: request];
 }
   ...
 @end
