@@ -349,7 +349,7 @@ It's assumed in the above code snippet that `self.bannerView` is a pointer to a 
 
 ## Identifying visitors arriving from Email newsletters
 
-If you send Email newsletters that contain links to your application (e.g., universal links), then you may want to automatically _identify_ visitors that have clicked on any such links via their Email address. Incoming application traffic which is originating from a subscriber click on a link in a newsletter is considered to be implicitly authenticated by the recipient of the Email, therefore serving as an excellent source of linking of online user identifies.
+If you send Email newsletters that contain links to your application (e.g., universal links), then you may want to automatically _identify_ visitors that have clicked on any such links via their Email address. Incoming application traffic which is originating from a subscriber click on a link in a newsletter is considered to be implicitly authenticated by the recipient of the Email, therefore serving as an excellent source of linking of online user identities.
 
 ### Insert oeid into your Email newsletter template
 
