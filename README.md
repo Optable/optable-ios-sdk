@@ -373,7 +373,7 @@ When iOS launches your app after a user taps a universal link, you receive an `N
 
 ```swift
 func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
-	if userActivity.activityType == NSUserActivityTypeBrowsingWeb {
+  if userActivity.activityType == NSUserActivityTypeBrowsingWeb {
     let url = userActivity.webpageURL!
     try OPTABLE!.tryIdentifyFromURL(url)
   }
@@ -386,13 +386,13 @@ func application(_ application: UIApplication, continue userActivity: NSUserActi
 ```objective-c
 -(BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray * _Nullable))restorationHandler {
 
-	if ([userActivity.activityType isEqualToString: NSUserActivityTypeBrowsingWeb]) {
+  if ([userActivity.activityType isEqualToString: NSUserActivityTypeBrowsingWeb]) {
     NSURL *url = userActivity.webpageURL;
     NSError *error = nil;
-		[OPTABLE tryIdentifyFromURL :url.absoluteString error:&error];
+    [OPTABLE tryIdentifyFromURL :url.absoluteString error:&error];
     ...
   }
-	...
+  ...
 
 }
 ```
