@@ -23,7 +23,7 @@
     delegate.identifyOutput = self.identifyOutput;
 }
 
-- (void)dispatchIdentify:(id)sender {
+- (IBAction)dispatchIdentify:(id)sender {
     NSString *email = [_identifyInput text];
     bool aaid = [_identifyIDFA isOn];
     NSMutableString *output;
