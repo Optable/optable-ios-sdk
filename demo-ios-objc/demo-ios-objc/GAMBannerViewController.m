@@ -31,13 +31,40 @@
     delegate.targetingOutput = self.targetingOutput;
 }
 
-- (void)loadBannerWithTargeting:(id)sender {
+- (IBAction)loadBannerWithTargeting:(id)sender {
     NSError *error = nil;
 
     [_targetingOutput setText:@"Calling /targeting API...\n\n"];
 
     [OPTABLE targetingAndReturnError:&error];
     [OPTABLE witness:@"GAMBannerViewController.loadBannerClicked" properties:@{ @"example": @"value" } error:&error];
+}
+
+- (IBAction)loadBannerWithTargetingFromCache:(id)sender {
+    NSError *error = nil;
+    DFPRequest *request = [DFPRequest request];
+    NSDictionary *keyvals = nil;
+
+    [_targetingOutput setText:@"Checking local targeting cache...\n\n"];
+
+    keyvals = [OPTABLE targetingFromCache];
+
+    if (keyvals != nil) {
+        request.customTargeting = keyvals;
+        NSLog(@"[OptableSDK] Cached targeting values found: %@", keyvals);
+        [_targetingOutput setText:[NSString stringWithFormat:@"%@\nFound cached data: %@\n", [_targetingOutput text], keyvals]];
+    } else {
+        [_targetingOutput setText:[NSString stringWithFormat:@"%@\nCache empty.\n",
+            [_targetingOutput text]]];
+    }
+
+    [self.bannerView loadRequest:request];
+    [OPTABLE witness:@"GAMBannerViewController.loadBannerClicked" properties:@{ @"example": @"value" } error:&error];
+}
+
+- (IBAction)clearTargetingCache:(id)sender {
+    [_targetingOutput setText:@"Clearing local targeting cache.\n\n"];
+    [OPTABLE targetingClearCache];
 }
 
 - (void)addBannerViewToView:(UIView *)bannerView {

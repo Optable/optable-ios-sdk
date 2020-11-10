@@ -2,7 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="9KB-Po-ioE">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -43,7 +43,7 @@
                                         <rect key="frame" x="0.0" y="138" width="374" height="30"/>
                                         <state key="normal" title="Identify"/>
                                         <connections>
-                                            <action selector="dispatchIdentify:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Sae-rS-iHh"/>
+                                            <action selector="dispatchIdentify:" destination="BYZ-38-t0r" eventType="touchUpInside" id="CNy-Db-Mwd"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -92,30 +92,52 @@
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x4k-D7-Mvh">
                                 <rect key="frame" x="50" y="94" width="314" height="30"/>
-                                <state key="normal" title="Load Banner"/>
+                                <state key="normal" title="Load Targeting and Banner"/>
                                 <connections>
-                                    <action selector="loadBannerWithTargeting:" destination="qnL-ha-uwz" eventType="touchUpInside" id="hBs-SW-Fgz"/>
+                                    <action selector="loadBannerWithTargeting:" destination="qnL-ha-uwz" eventType="touchUpInside" id="2sa-1R-eGT"/>
                                 </connections>
                             </button>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="c00-PY-Cdm">
-                                <rect key="frame" x="50" y="157" width="314" height="370"/>
+                                <rect key="frame" x="50" y="210" width="314" height="401"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <color key="textColor" systemColor="labelColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hXv-1T-mbc">
+                                <rect key="frame" x="50" y="126" width="314" height="30"/>
+                                <state key="normal" title="Cached Targeting and Banner"/>
+                                <connections>
+                                    <action selector="loadBannerWithTargetingFromCache:" destination="qnL-ha-uwz" eventType="touchUpInside" id="dWK-eA-gis"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1Jw-Ws-T0T">
+                                <rect key="frame" x="50" y="158" width="314" height="30"/>
+                                <state key="normal" title="Clear Targeting Cache"/>
+                                <connections>
+                                    <action selector="clearTargetingCache:" destination="qnL-ha-uwz" eventType="touchUpInside" id="Ll8-bx-lvM"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Cyy-8b-GCg"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="1Jw-Ws-T0T" firstAttribute="top" secondItem="hXv-1T-mbc" secondAttribute="bottom" constant="2" id="C0X-HG-eYe"/>
+                            <constraint firstItem="hXv-1T-mbc" firstAttribute="top" secondItem="x4k-D7-Mvh" secondAttribute="bottom" constant="2" id="D1p-oM-m1D"/>
+                            <constraint firstItem="1Jw-Ws-T0T" firstAttribute="leading" secondItem="Cyy-8b-GCg" secondAttribute="leading" constant="50" id="Kbz-TZ-d9K"/>
+                            <constraint firstItem="Cyy-8b-GCg" firstAttribute="trailing" secondItem="hXv-1T-mbc" secondAttribute="trailing" constant="50" id="Qrd-np-QV1"/>
+                            <constraint firstItem="hXv-1T-mbc" firstAttribute="leading" secondItem="Cyy-8b-GCg" secondAttribute="leading" constant="50" id="XW9-qT-dp9"/>
                             <constraint firstItem="x4k-D7-Mvh" firstAttribute="top" secondItem="Cyy-8b-GCg" secondAttribute="top" constant="50" id="djs-hu-hJD"/>
+                            <constraint firstItem="Cyy-8b-GCg" firstAttribute="trailing" secondItem="1Jw-Ws-T0T" secondAttribute="trailing" constant="50" id="haI-Rw-Lg7"/>
                             <constraint firstItem="Cyy-8b-GCg" firstAttribute="trailing" secondItem="x4k-D7-Mvh" secondAttribute="trailing" constant="50" id="mJB-PI-zyh"/>
                             <constraint firstItem="x4k-D7-Mvh" firstAttribute="leading" secondItem="Cyy-8b-GCg" secondAttribute="leading" constant="50" id="wPd-LN-GBn"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="GAM Banner" image="rectangle.3.offgrid.fill" catalog="system" selectedImage="rectangle.3.offgrid.fill" id="WaP-P0-dwN"/>
                     <connections>
+                        <outlet property="cachedBannerButton" destination="hXv-1T-mbc" id="G6q-wE-nPC"/>
+                        <outlet property="clearTargetingCacheButton" destination="1Jw-Ws-T0T" id="Kk2-ip-LUl"/>
                         <outlet property="loadBannerButton" destination="x4k-D7-Mvh" id="Yre-Zn-37w"/>
                         <outlet property="targetingOutput" destination="c00-PY-Cdm" id="qBw-qG-iVR"/>
                     </connections>

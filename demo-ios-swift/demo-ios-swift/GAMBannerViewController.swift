@@ -15,6 +15,8 @@ class GAMBannerViewController: UIViewController {
 
     //MARK: Properties
     @IBOutlet weak var loadBannerButton: UIButton!
+    @IBOutlet weak var loadBannerFromCacheButton: UIButton!
+    @IBOutlet weak var clearTargetingCacheButton: UIButton!
     @IBOutlet weak var targetingOutput: UITextView!
 
     override func viewDidLoad() {
@@ -56,6 +58,28 @@ class GAMBannerViewController: UIViewController {
         } catch {
             print("[OptableSDK] Exception: \(error)")
         }
+    }
+
+    @IBAction func loadBannerWithTargetingFromCache(_ sender: UIButton) {
+        var tdata: NSDictionary = [:]
+
+        targetingOutput.text = "Checking local targeting cache...\n\n"
+
+        let cachedValues = OPTABLE!.targetingFromCache()
+        if (cachedValues != nil) {
+            print("[OptableSDK] Cached targeting values found: \(cachedValues!)")
+            targetingOutput.text += "Found cached data: \(cachedValues!)\n"
+            tdata = cachedValues!
+        } else {
+            targetingOutput.text += "Cache empty.\n"
+        }
+
+        self.loadBanner(adUnitID: "/22081946781/ios-sdk-demo/mobile-leaderboard", keyvalues: tdata)
+    }
+
+    @IBAction func clearTargetingCache(_ sender: UIButton) {
+        targetingOutput.text = "Clearing local targeting cache.\n"
+        OPTABLE!.targetingClearCache()
     }
 
     private func loadBanner(adUnitID: String, keyvalues: NSDictionary) {

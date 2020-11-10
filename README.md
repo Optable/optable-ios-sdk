@@ -144,6 +144,25 @@ do {
 
 On success, the resulting key values are typically sent as part of a subsequent ad call. Therefore we recommend that you either call `targeting()` before each ad call, or in parallel periodically, caching the resulting key values which you then provide in ad calls.
 
+#### Caching Targeting Data
+
+The `targeting` API will automatically cache resulting key value data in client storage on success. You can subsequently retrieve the cached key value data as follows:
+
+```swift
+let cachedTargetingData = OPTABLE!.targetingFromCache()
+if (cachedTargetingData != nil) {
+  // cachedTargetingData! is an NSDictionary which you can cast as! [String: Any]
+}
+```
+
+You can also clear the locally cached targeting data:
+
+```swift
+OPTABLE!.targetingClearCache()
+```
+
+Note that both `targetingFromCache()` and `targetingClearCache()` are synchronous.
+
 ### Witness API
 
 To send real-time event data from the user's device to the sandbox for eventual audience assembly, you can call the witness API as follows:
@@ -309,6 +328,30 @@ To get the targeting key values associated by the configured sandbox with the de
 NSError *error = nil;
 [OPTABLE targetingAndReturnError:&error];
 ```
+
+#### Caching Targeting Data
+
+The `targetingAndReturnError` method will automatically cache resulting key value data in client storage on success. You can subsequently retrieve the cached key value data as follows:
+
+```objective-c
+@import OptableSDK;
+...
+NSDictionary *cachedTargetingData = nil;
+cachedTargetingData = [OPTABLE targetingFromCache];
+if (cachedTargetingData != nil) {
+  // cachedTargetingData! is an NSDictionary
+}
+```
+
+You can also clear the locally cached targeting data:
+
+```objective-c
+@import OptableSDK;
+...
+[OPTABLE targetingClearCache];
+```
+
+Note that both `targetingFromCache` and `targetingClearCache` are synchronous.
 
 ### Witness API
 

@@ -170,6 +170,9 @@ public class OptableSDK: NSObject {
     //  The targeting method is asynchronous, and on completion it will call the specified completion handler,
     //  passing it either the NSDictionary targeting data on success, or an OptableError on failure.
     //
+    //  On success, this method will also cache the resulting targeting data in client storage, which can
+    //  be access using targetingFromCache(), and cleared using targetingClearCache().
+    //
     public func targeting(_ completion: @escaping (Result<NSDictionary,OptableError>) -> Void) throws -> Void {
         try Targeting(config: self.config, client: self.client) { (data, response, error) in
             guard let response = response as? HTTPURLResponse, error == nil else {
@@ -187,7 +190,12 @@ public class OptableSDK: NSObject {
             }
 
             do {
-                let result = try JSONSerialization.jsonObject(with: data!, options: []) as? NSDictionary
+                let keyvalues = try JSONSerialization.jsonObject(with: data!, options: [])
+                let result = keyvalues as? NSDictionary
+
+                // We cache the latest targeting result in client storage for targetingFromCache() users:
+                self.client.storage.setTargeting(keyvalues as! [String: Any])
+
                 completion(.success(result!))
             } catch {
                 completion(.failure(OptableError.targeting("Error parsing JSON response: \(error)")))
@@ -211,6 +219,26 @@ public class OptableSDK: NSObject {
                 self.delegate?.targetingErr(error)
             }
         }
+    }
+
+    //
+    //  targetingFromCache() returns the previously cached targeting data, if any.
+    //
+    @objc
+    public func targetingFromCache() -> NSDictionary? {
+        let keyvalues = self.client.storage.getTargeting()
+        if (keyvalues == nil) {
+            return nil
+        }
+        return (keyvalues! as NSDictionary)
+    }
+
+    //
+    //  targetingClearCache() clears any previously cached targeting data.
+    //
+    @objc
+    public func targetingClearCache() -> Void {
+        self.client.storage.clearTargeting()
     }
 
     //

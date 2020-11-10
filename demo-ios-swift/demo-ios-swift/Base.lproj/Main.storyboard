@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.3" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="9KB-Po-ioE">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="9KB-Po-ioE">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -19,7 +20,7 @@
                                 <rect key="frame" x="20" y="64" width="374" height="168"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Email Address:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2fu-DR-6Hn">
-                                        <rect key="frame" x="0.0" y="0.0" width="113" height="20.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="112" height="20.5"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -30,7 +31,7 @@
                                         <textInputTraits key="textInputTraits"/>
                                     </textField>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Include IDFA:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="78R-3b-x29">
-                                        <rect key="frame" x="0.0" y="70.5" width="101" height="20.5"/>
+                                        <rect key="frame" x="0.0" y="70.5" width="100.5" height="20.5"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -38,7 +39,7 @@
                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Eg-c7-IVu">
                                         <rect key="frame" x="0.0" y="99" width="51" height="31"/>
                                     </switch>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="b7v-UN-xAf">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="b7v-UN-xAf">
                                         <rect key="frame" x="0.0" y="138" width="374" height="30"/>
                                         <state key="normal" title="Identify"/>
                                         <connections>
@@ -55,19 +56,19 @@
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="pQa-vV-MeS">
                                 <rect key="frame" x="20" y="256" width="343" height="217"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                                <color key="textColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <color key="textColor" systemColor="labelColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="AKp-3F-KNX" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-20" id="HKl-XJ-TO8"/>
                             <constraint firstItem="AKp-3F-KNX" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="SNe-0s-I2Q"/>
                             <constraint firstItem="AKp-3F-KNX" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="UII-5h-4Jn"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <tabBarItem key="tabBarItem" title="Identify" image="person.fill.badge.plus" catalog="system" selectedImage="person.fill.badge.plus" id="elC-Fm-1B7"/>
                     <connections>
@@ -89,33 +90,55 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x4k-D7-Mvh">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x4k-D7-Mvh">
                                 <rect key="frame" x="50" y="94" width="314" height="30"/>
-                                <state key="normal" title="Load Banner"/>
+                                <state key="normal" title="Load Targeting and Banner"/>
                                 <connections>
                                     <action selector="loadBannerWithTargeting:" destination="qnL-ha-uwz" eventType="touchUpInside" id="hBs-SW-Fgz"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5Vm-D1-GlS">
+                                <rect key="frame" x="50" y="126" width="314" height="30"/>
+                                <state key="normal" title="Cached Targeting and Banner"/>
+                                <connections>
+                                    <action selector="loadBannerWithTargetingFromCache:" destination="qnL-ha-uwz" eventType="touchUpInside" id="GCp-rw-Bvc"/>
+                                </connections>
+                            </button>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="c00-PY-Cdm">
-                                <rect key="frame" x="50" y="157" width="314" height="370"/>
+                                <rect key="frame" x="50" y="213" width="314" height="381"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                                <color key="textColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <color key="textColor" systemColor="labelColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="K3l-bf-R5v">
+                                <rect key="frame" x="50" y="158" width="314" height="30"/>
+                                <state key="normal" title="Clear Targeting Cache"/>
+                                <connections>
+                                    <action selector="clearTargetingCache:" destination="qnL-ha-uwz" eventType="touchUpInside" id="kbS-MK-t86"/>
+                                </connections>
+                            </button>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                        <constraints>
-                            <constraint firstItem="x4k-D7-Mvh" firstAttribute="top" secondItem="Cyy-8b-GCg" secondAttribute="top" constant="50" id="djs-hu-hJD"/>
-                            <constraint firstItem="Cyy-8b-GCg" firstAttribute="trailing" secondItem="x4k-D7-Mvh" secondAttribute="trailing" constant="50" id="mJB-PI-zyh"/>
-                            <constraint firstItem="x4k-D7-Mvh" firstAttribute="leading" secondItem="Cyy-8b-GCg" secondAttribute="leading" constant="50" id="wPd-LN-GBn"/>
-                        </constraints>
                         <viewLayoutGuide key="safeArea" id="Cyy-8b-GCg"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="K3l-bf-R5v" firstAttribute="leading" secondItem="Cyy-8b-GCg" secondAttribute="leading" constant="50" id="GT3-Gh-h9q"/>
+                            <constraint firstItem="Cyy-8b-GCg" firstAttribute="trailing" secondItem="5Vm-D1-GlS" secondAttribute="trailing" constant="50" id="K8t-mK-5mT"/>
+                            <constraint firstItem="5Vm-D1-GlS" firstAttribute="top" secondItem="x4k-D7-Mvh" secondAttribute="bottom" constant="2" id="KHV-d6-1bP"/>
+                            <constraint firstItem="x4k-D7-Mvh" firstAttribute="top" secondItem="Cyy-8b-GCg" secondAttribute="top" constant="50" id="djs-hu-hJD"/>
+                            <constraint firstItem="K3l-bf-R5v" firstAttribute="top" secondItem="5Vm-D1-GlS" secondAttribute="bottom" constant="2" id="gVk-jq-hsm"/>
+                            <constraint firstItem="Cyy-8b-GCg" firstAttribute="trailing" secondItem="x4k-D7-Mvh" secondAttribute="trailing" constant="50" id="mJB-PI-zyh"/>
+                            <constraint firstItem="Cyy-8b-GCg" firstAttribute="trailing" secondItem="K3l-bf-R5v" secondAttribute="trailing" constant="50" id="pKU-OC-pbq"/>
+                            <constraint firstItem="x4k-D7-Mvh" firstAttribute="leading" secondItem="Cyy-8b-GCg" secondAttribute="leading" constant="50" id="wPd-LN-GBn"/>
+                            <constraint firstItem="5Vm-D1-GlS" firstAttribute="leading" secondItem="Cyy-8b-GCg" secondAttribute="leading" constant="50" id="y8L-ol-JVK"/>
+                        </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="GAM Banner" image="rectangle.3.offgrid.fill" catalog="system" selectedImage="rectangle.3.offgrid.fill" id="WaP-P0-dwN"/>
                     <connections>
+                        <outlet property="clearTargetingCacheButton" destination="K3l-bf-R5v" id="eYH-ua-b52"/>
                         <outlet property="loadBannerButton" destination="x4k-D7-Mvh" id="oRn-LX-7Gx"/>
+                        <outlet property="loadBannerFromCacheButton" destination="5Vm-D1-GlS" id="3Xc-pA-qXe"/>
                         <outlet property="targetingOutput" destination="c00-PY-Cdm" id="E8P-NS-BGr"/>
                     </connections>
                 </viewController>
@@ -144,7 +167,13 @@
         </scene>
     </scenes>
     <resources>
-        <image name="person.fill.badge.plus" catalog="system" width="128" height="116"/>
+        <image name="person.fill.badge.plus" catalog="system" width="128" height="124"/>
         <image name="rectangle.3.offgrid.fill" catalog="system" width="128" height="81"/>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
 </document>
