@@ -14,7 +14,7 @@ Pod::Spec.new do |spec|
   spec.author        = { "Optable Technologies Inc" => "support@optable.co" }
 
   spec.platform              = :ios
-  spec.ios.deployment_target = "9.3"
+  spec.ios.deployment_target = "9.2"
   spec.swift_version         = "5.0"
 
   spec.source        = { :git => "git@github.com:Optable/optable-ios-sdk.git", :tag => "#{spec.version}" }
