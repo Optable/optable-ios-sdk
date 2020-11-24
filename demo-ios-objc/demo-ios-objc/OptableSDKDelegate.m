@@ -26,6 +26,12 @@
         [self.identifyOutput setText:[NSString stringWithFormat:@"Error: %@\n", [error localizedDescription]]];
     });
 }
+- (void)profileOk:(NSHTTPURLResponse *)result {
+    NSLog(@"[OptableSDK] Success on /profile API call. HTTP Status Code: %ld", result.statusCode);
+}
+- (void)profileErr:(NSError *)error {
+    NSLog(@"[OptableSDK] Error on /profile API call: %@", [error localizedDescription]);
+}
 - (void)targetingOk:(NSDictionary *)result {
     // Update the GAM banner view with result targeting keyvalues:
     DFPRequest *request = [DFPRequest request];

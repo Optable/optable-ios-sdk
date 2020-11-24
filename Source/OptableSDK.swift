@@ -29,6 +29,8 @@ import AdSupport
 public protocol OptableDelegate {
     func identifyOk(_ result: HTTPURLResponse)
     func identifyErr(_ error: NSError)
+    func profileOk(_ result: HTTPURLResponse)
+    func profileErr(_ error: NSError)
     func targetingOk(_ result: NSDictionary)
     func targetingErr(_ error: NSError)
     func witnessOk(_ result: HTTPURLResponse)
@@ -51,6 +53,7 @@ public class OptableSDK: NSObject {
 
     public enum OptableError: Error {
         case identify(String)
+        case profile(String)
         case targeting(String)
         case witness(String)
     }
@@ -282,6 +285,51 @@ public class OptableSDK: NSObject {
                 self.delegate?.witnessOk(response)
             case .failure(let error as NSError):
                 self.delegate?.witnessErr(error)
+            }
+        }
+    }
+
+    //
+    //  profile(traits, completion) calls the Optable Sandbox "profile" API in order to associate
+    //  specified 'traits' (i.e., key-value pairs) with the user's device. The specified
+    //  NSDictionary 'traits' can be subsequently used for audience assembly.
+    //
+    //  The profile method is asynchronous, and on completion it will call the specified completion handler,
+    //  passing it either the HTTPURLResponse on success, or an OptableError on failure.
+    //
+    public func profile(traits: NSDictionary, _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
+        try Profile(config: self.config, client: self.client, traits: traits) { (data, response, error) in
+            guard let response = response as? HTTPURLResponse, error == nil else {
+                completion(.failure(OptableError.profile("Session error: \(error!)")))
+                return
+            }
+            guard 200 ..< 300 ~= response.statusCode else {
+                var msg = "HTTP response.statusCode: \(response.statusCode)"
+                do {
+                    let json = try JSONSerialization.jsonObject(with: data!, options: [])
+                    msg += ", data: \(json)"
+                } catch {}
+                completion(.failure(OptableError.profile(msg)))
+                return
+            }
+            completion(.success(response))
+        }.resume()
+    }
+
+    //
+    //  profile(traits) is the "delegate variant" of the profile(traits, completion) method.
+    //  It wraps the latter with a delegator callback.
+    //
+    //  This is the Objective-C compatible version of the profile(traits, completion) API.
+    //
+    @objc
+    public func profile(traits: NSDictionary) throws -> Void {
+        try self.profile(traits: traits) { result in
+            switch result {
+            case .success(let response):
+                self.delegate?.profileOk(response)
+            case .failure(let error as NSError):
+                self.delegate?.profileErr(error)
             }
         }
     }

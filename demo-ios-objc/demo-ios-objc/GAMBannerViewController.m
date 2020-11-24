@@ -38,6 +38,7 @@
 
     [OPTABLE targetingAndReturnError:&error];
     [OPTABLE witness:@"GAMBannerViewController.loadBannerClicked" properties:@{ @"example": @"value" } error:&error];
+    [OPTABLE profileWithTraits:@{ @"example": @"value", @"anotherExample": @123, @"thirdExample": @YES } error:&error];
 }
 
 - (IBAction)loadBannerWithTargetingFromCache:(id)sender {
@@ -60,6 +61,7 @@
 
     [self.bannerView loadRequest:request];
     [OPTABLE witness:@"GAMBannerViewController.loadBannerClicked" properties:@{ @"example": @"value" } error:&error];
+    [OPTABLE profileWithTraits:@{ @"example": @"value", @"anotherExample": @123, @"thirdExample": @YES } error:&error];
 }
 
 - (IBAction)clearTargetingCache:(id)sender {
