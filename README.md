@@ -9,11 +9,13 @@ It's possible to use the SDK functionality from either a Swift or Objective-C iO
 - [Installing](#installing)
 - [Using (Swift)](#using-swift)
   - [Identify API](#identify-api)
+  - [Profile API](#profile-api)
   - [Targeting API](#targeting-api)
   - [Witness API](#witness-api)
   - [Integrating GAM360](#integrating-gam360)
 - [Using (Objective-C)](#using-objective-c)
   - [Identify API](#identify-api-1)
+  - [Profile API](#profile-api-1)
   - [Targeting API](#targeting-api-1)
   - [Witness API](#witness-api-1)
   - [Integrating GAM360](#integrating-gam360-1)
@@ -121,6 +123,29 @@ Since the `sendIDFA` value provided to `identify()` via the `aaid` (Apple Advert
 
 The frequency of invocation of `identify` is up to you, however for optimal identity resolution we recommended to call the `identify()` method on your SDK instance every time you authenticate a user, as well as periodically, such as for example once every 15 to 60 minutes while the application is being actively used and an internet connection is available.
 
+### Profile API
+
+To associate key value traits with the device, for eventual audience assembly, you can call the profile API as follows:
+
+```swift
+do {
+    try OPTABLE!.profile(traits: ["gender": "F", "age": 38, "hasAccount": true]) { result in
+        switch (result) {
+        case .success(let response):
+            // profile API success, response.statusCode is HTTP response status 200
+        case .failure(let error):
+            // handle profile API failure in `error`
+        }
+    }
+} catch {
+    // handle thrown exception in `error`
+}
+```
+
+The specified traits are associated with the user's device and can be matched during audience assembly.
+
+Note that the traits are of type `NSDictionary` and should consist of key value pairs, where the keys are strings and the values are either strings, numbers, or booleans.
+
 ### Targeting API
 
 To get the targeting key values associated by the configured sandbox with the device in real-time, you can call the `targeting` API as follows:
@@ -185,7 +210,7 @@ do {
 
 The specified event type and properties are associated with the logged event and which can be used for matching during audience assembly.
 
-Note that event properties are of type `NSDictionary` and should consist only of string keyvalue pairs.
+Note that event properties are of type `NSDictionary` and should consist of key value pairs, where the keys are strings and the values are either strings, numbers, or booleans.
 
 ### Integrating GAM360
 
@@ -248,22 +273,28 @@ And in the accompanying `OptableSDKDelegate.m` follows a simple implementation o
 
 @implementation OptableSDKDelegate
 - (void)identifyOk:(NSHTTPURLResponse *)result {
-    NSLog(@"Success on /identify API call. HTTP Status Code: %ld", result.statusCode);
+    NSLog(@"Success on identify API call. HTTP Status Code: %ld", result.statusCode);
 }
 - (void)identifyErr:(NSError *)error {
-    NSLog(@"Error on /identify API call: %@", [error localizedDescription]);
+    NSLog(@"Error on identify API call: %@", [error localizedDescription]);
+}
+- (void)profileOk:(NSHTTPURLResponse *)result {
+    NSLog(@"Success on profile API call. HTTP Status Code: %ld", result.statusCode);
+}
+- (void)profileErr:(NSError *)error {
+    NSLog(@"Error on profile API call: %@", [error localizedDescription]);
 }
 - (void)targetingOk:(NSDictionary *)result {
-    NSLog(@"Success on /targeting API call: %@", result);
+    NSLog(@"Success on targeting API call: %@", result);
 }
 - (void)targetingErr:(NSError *)error {
-    NSLog(@"Error on /targeting API call: %@", [error localizedDescription]);
+    NSLog(@"Error on targeting API call: %@", [error localizedDescription]);
 }
 - (void)witnessOk:(NSHTTPURLResponse *)result {
-    NSLog(@"Success on /witness API call. HTTP Status Code: %ld", result.statusCode);
+    NSLog(@"Success on witness API call. HTTP Status Code: %ld", result.statusCode);
 }
 - (void)witnessErr:(NSError *)error {
-    NSLog(@"Error on /witness API call: %@", [error localizedDescription]);
+    NSLog(@"Error on witness API call: %@", [error localizedDescription]);
 }
 @end
 ```
@@ -318,6 +349,17 @@ NSError *error = nil;
                      [OPTABLE eid:@"some.email@address.com" ]] error:&error];
 ```
 
+### Profile API
+
+To associate key value traits with the device, for eventual audience assembly, you can call the profile API as follows:
+
+```objective-c
+@import OptableSDK;
+...
+NSError *error = nil;
+[OPTABLE profileWithTraits:@{ @"gender": @"F", @"age": @38, @"hasAccount": @YES } error:&error];
+```
+
 ### Targeting API
 
 To get the targeting key values associated by the configured sandbox with the device in real-time, you can call the `targeting` API and expect that on success, the resulting keyvalues to be used for targeting will be sent in the `targetingOk` message to your delegate (see the example delegate implementation above):
@@ -361,7 +403,7 @@ To send real-time event data from the user's device to the sandbox for eventual 
 @import OptableSDK;
 ...
 NSError *error = nil;
-[OPTABLE witness:@"example.event.type" properties:@{ @"example": @"value" } error:&error];
+[OPTABLE witness:@"example.event.type" properties:@{ @"example": @"value", @"example2": @123, @"example3": @NO } error:&error];
 ```
 
 ### Integrating GAM360

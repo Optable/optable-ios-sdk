@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		630E7C0E2523FBBD00AD85C0 /* Witness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630E7C0D2523FBBD00AD85C0 /* Witness.swift */; };
+		63517848256CA65200D6932F /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63517847256CA65200D6932F /* Profile.swift */; };
 		6352AB0524EAD403002E66EB /* OptableSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6352AAFB24EAD403002E66EB /* OptableSDK.framework */; };
 		6352AB0A24EAD403002E66EB /* OptableSDKTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6352AB0924EAD403002E66EB /* OptableSDKTests.swift */; };
 		6352AB0C24EAD403002E66EB /* OptableSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 6352AAFE24EAD403002E66EB /* OptableSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -31,6 +32,7 @@
 
 /* Begin PBXFileReference section */
 		630E7C0D2523FBBD00AD85C0 /* Witness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Witness.swift; sourceTree = "<group>"; };
+		63517847256CA65200D6932F /* Profile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		6352AAFB24EAD403002E66EB /* OptableSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OptableSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6352AAFE24EAD403002E66EB /* OptableSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OptableSDK.h; sourceTree = "<group>"; };
 		6352AAFF24EAD403002E66EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -116,6 +118,7 @@
 		6358779C24EC6BF0008EE46B /* Edge */ = {
 			isa = PBXGroup;
 			children = (
+				63517847256CA65200D6932F /* Profile.swift */,
 				63643F48251D0AFB007BD90F /* Targeting.swift */,
 				6358779D24EC6C00008EE46B /* Identify.swift */,
 				630E7C0D2523FBBD00AD85C0 /* Witness.swift */,
@@ -234,6 +237,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6352AB1624EAD488002E66EB /* OptableSDK.swift in Sources */,
+				63517848256CA65200D6932F /* Profile.swift in Sources */,
 				63643F49251D0AFB007BD90F /* Targeting.swift in Sources */,
 				6358779E24EC6C00008EE46B /* Identify.swift in Sources */,
 				630E7C0E2523FBBD00AD85C0 /* Witness.swift in Sources */,

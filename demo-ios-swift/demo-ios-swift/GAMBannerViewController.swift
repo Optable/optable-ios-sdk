@@ -89,6 +89,11 @@ class GAMBannerViewController: UIViewController {
         req.customTargeting = keyvalues as! [String: Any]
         bannerView.load(req)
 
+        witness()
+        profile()
+    }
+
+    private func witness() {
         do {
             try OPTABLE!.witness(event: "GAMBannerViewController.loadBannerClicked", properties: ["example": "value"]) { result in
                 switch result {
@@ -100,6 +105,28 @@ class GAMBannerViewController: UIViewController {
 
                 case .failure(let error):
                     print("[OptableSDK] Error on /witness API call: \(error)")
+                    DispatchQueue.main.async {
+                        self.targetingOutput.text += "\nError: \(error)"
+                    }
+                }
+            }
+        } catch {
+            print("[OptableSDK] Exception: \(error)")
+        }
+    }
+
+    private func profile() {
+        do {
+            try OPTABLE!.profile(traits: ["example": "value", "anotherExample": 123, "thirdExample": true ]) { result in
+                switch result {
+                case .success(let response):
+                    print("[OptableSDK] Success on /profile API call: response.statusCode = \(response.statusCode)")
+                    DispatchQueue.main.async {
+                        self.targetingOutput.text += "\nSuccess calling profile API to set example traits.\n"
+                    }
+
+                case .failure(let error):
+                    print("[OptableSDK] Error on /profile API call: \(error)")
                     DispatchQueue.main.async {
                         self.targetingOutput.text += "\nError: \(error)"
                     }
