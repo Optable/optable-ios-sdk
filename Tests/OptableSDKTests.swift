@@ -71,8 +71,22 @@ class OptableSDKTests: XCTestCase {
         XCTAssertEqual(expected, sdk.eidFromURL(url))
     }
 
-    func test_eidFromURL_returnsEmptyWhenOeidAbsent() throws {
+    func test_eidFromURL_returnsEmptyWhenArgEmpty() throws {
+        let url = ""
+        let expected = ""
+
+        XCTAssertEqual(expected, sdk.eidFromURL(url))
+    }
+
+    func test_eidFromURL_returnsEmptyWhenOeidAbsentFromQuerystring() throws {
         let url = "http://some.domain.com/some/path?some=query&something=else"
+        let expected = ""
+
+        XCTAssertEqual(expected, sdk.eidFromURL(url))
+    }
+
+    func test_eidFromURL_returnsEmptyWhenQuerystringAbsent() throws {
+        let url = "http://some.domain.com/some/path"
         let expected = ""
 
         XCTAssertEqual(expected, sdk.eidFromURL(url))
