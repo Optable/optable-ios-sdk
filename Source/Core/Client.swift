@@ -16,8 +16,12 @@ class Client {
 
     init(_ config: Config) {
         self.storage = LocalStorage(config)
-        self.userAgent { (realUserAgent) in
-            self.ua = realUserAgent
+        if (config.useragent == nil) {
+            self.userAgent { (realUserAgent) in
+                self.ua = realUserAgent
+            }
+        } else {
+            self.ua = config.useragent
         }
     }
 

@@ -20,7 +20,7 @@ OptableSDK *OPTABLE = nil;
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     
-    OPTABLE = [[OptableSDK alloc] initWithHost: @"sandbox.optable.co" app: @"ios-sdk-demo" insecure: NO];
+    OPTABLE = [[OptableSDK alloc] initWithHost: @"sandbox.optable.co" app: @"ios-sdk-demo" insecure: NO useragent: nil];
     OptableSDKDelegate *delegate = [[OptableSDKDelegate alloc] init];
     OPTABLE.delegate = delegate;
 

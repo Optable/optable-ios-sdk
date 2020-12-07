@@ -65,8 +65,8 @@ public class OptableSDK: NSObject {
     //  OptableSDK(host, app) returns an instance of the SDK configured to talk to the sandbox specified by host & app:
     //
     @objc
-    public init(host: String, app: String, insecure: Bool = false) {
-        self.config = Config(host: host, app: app, insecure: insecure)
+    public init(host: String, app: String, insecure: Bool = false, useragent: String? = nil) {
+        self.config = Config(host: host, app: app, insecure: insecure, useragent: useragent)
         self.client = Client(self.config)
     }
 

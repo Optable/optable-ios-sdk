@@ -91,6 +91,14 @@ OPTABLE = OptableSDK(host: "sandbox.customer.com", app: "my-app", insecure: true
 
 However, since production sandboxes only listen to TLS traffic, the above is really only useful for developers of `optable-sandbox` running the sandbox locally for testing.
 
+By default, the SDK detects the application user agent by sniffing `navigator.userAgent` from a `WKWebView`. The resulting user agent string is sent to your sandbox for analytics purposes. To disable this behavior, you can provide an optional fourth string parameter, `useragent`, which allows you to set whatever user agent string you would like to send instead. For example:
+
+```swift
+OPTABLE = OptableSDK(host: "sandbox.customer.com", app: "my-app", insecure: false, useragent: "custom-ua")
+```
+
+The default value of `nil` for the `useragent` parameter enables the `WKWebView` auto-detection behavior.
+
 ### Identify API
 
 To associate a user device with an authenticated identifier such as an Email address, or with other known IDs such as the Apple ID for Advertising (IDFA), or even your own vendor or app level `PPID`, you can call the `identify` API as follows:
@@ -312,7 +320,8 @@ OptableSDK *OPTABLE = nil;
   ...
     OPTABLE = [[OptableSDK alloc] initWithHost: @"sandbox.optable.co"
                                   app: @"ios-sdk-demo"
-                                  insecure: NO];
+                                  insecure: NO
+                                  useragent: nil];
     OptableSDKDelegate *delegate = [[OptableSDKDelegate alloc] init];
     OPTABLE.delegate = delegate;
   ...
@@ -321,6 +330,8 @@ OptableSDK *OPTABLE = nil;
 ```
 
 You can call various SDK APIs on the instance as shown in the examples below. It's also possible to configure multiple instances of `OptableSDK` in order to connect to other (e.g., partner) sandboxes and/or reference other configured application slug IDs. Note that the `insecure` flag should always be set to `NO` unless you are testing a local instance of the `optable-sandbox` yourself.
+
+You can disable user agent `WKWebView` based auto-detection and provide your own value by setting the `useragent` parameter to a string value, similar to the Swift example.
 
 ### Identify API
 
