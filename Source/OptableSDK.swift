@@ -385,24 +385,25 @@ public class OptableSDK: NSObject {
     //
     @objc
     public func eidFromURL(_ urlString: String) -> String {
-        let url = URL(string: urlString)
-        let urlc = URLComponents(url: url!, resolvingAgainstBaseURL: false)
+        guard let url = URL(string: urlString) else { return "" }
+        guard let urlc = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return "" }
+        guard let urlqis = urlc.queryItems else { return "" }
 
         // Look for an oeid parameter in the urlString:
         var oeid = ""
-        for qi: URLQueryItem in (urlc?.queryItems)! {
-            if qi.value == nil {
+        for qi: URLQueryItem in urlqis {
+            guard let val = qi.value else {
                 continue
             }
             if qi.name.lowercased() == "oeid" {
-                oeid = qi.value!
+                oeid = val
                 break
             }
         }
 
         // Check that oeid looks like a valid SHA256:
         let range = NSRange(location: 0, length: oeid.utf16.count)
-        let regex = try! NSRegularExpression(pattern: "[a-f0-9]{64}", options: .caseInsensitive)
+        guard let regex = try? NSRegularExpression(pattern: "[a-f0-9]{64}", options: .caseInsensitive) else { return "" }
         if (oeid.count != 64) || (regex.firstMatch(in: oeid, options: [], range: range) == nil) {
             return ""
         }
