@@ -31,7 +31,7 @@ PODS:
     - nanopb/encode (= 2.30906.0)
   - nanopb/decode (2.30906.0)
   - nanopb/encode (2.30906.0)
-  - OptableSDK (0.7.1)
+  - OptableSDK (0.8.0)
   - PromisesObjC (1.2.11)
 
 DEPENDENCIES:
@@ -57,7 +57,7 @@ SPEC CHECKSUMS:
   GoogleUserMessagingPlatform: b168e8c46cd8f92aa3e34b584c4ca78a411ce367
   GoogleUtilities: 3dc4ff0d5e4840e2fa8eef0889620e8c33d4218c
   nanopb: 1bf24dd71191072e120b83dd02d08f3da0d65e53
-  OptableSDK: cf788a1482b091e36283a30e0385b626cc4f6d63
+  OptableSDK: b4eab328d49eb90c6650ccb05de2e66ee5ad1167
   PromisesObjC: 8c196f5a328c2cba3e74624585467a557dcb482f
 
 PODFILE CHECKSUM: 0aa38b82b2e42ff7371f3764105ca3242451dcc8
