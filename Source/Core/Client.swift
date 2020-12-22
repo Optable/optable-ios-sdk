@@ -44,11 +44,14 @@ class Client {
                 // Unlike res.value(forHTTPHeaderField:...) which was introduced in iOS 13.0, allHeaderFields is
                 // case-sensitive, so we need to take special care to perform a case-INsensitive search:
                 for (key, value) in res.allHeaderFields {
-                    let header = key as! String
-                    let result: ComparisonResult = header.compare(self.passportHeader, options: NSString.CompareOptions.caseInsensitive)
-                    if result == .orderedSame {
-                        self.storage.setPassport(value as! String)
-                        break
+                    if let header = key as? String {
+                        let result: ComparisonResult = header.compare(self.passportHeader, options: NSString.CompareOptions.caseInsensitive)
+                        if result == .orderedSame {
+                            if let pp = value as? String {
+                                self.storage.setPassport(pp)
+                                break
+                            }
+                        }
                     }
                 }
             }
@@ -56,7 +59,7 @@ class Client {
         }
     }
 
-    func postRequest(url: URL, data: Any) throws -> URLRequest? {
+    func postRequest(url: URL, data: Any) throws -> URLRequest {
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
 
@@ -70,14 +73,14 @@ class Client {
             req.addValue(passport, forHTTPHeaderField: self.passportHeader)
         }
 
-        if self.ua != nil {
-            req.addValue(self.ua!, forHTTPHeaderField: "User-Agent")
+        if let ua = self.ua {
+            req.addValue(ua, forHTTPHeaderField: "User-Agent")
         }
 
         return req
     }
     
-    func getRequest(url: URL) throws -> URLRequest? {
+    func getRequest(url: URL) throws -> URLRequest {
         var req = URLRequest(url: url)
         req.httpMethod = "GET"
 
@@ -88,8 +91,8 @@ class Client {
             req.addValue(passport, forHTTPHeaderField: self.passportHeader)
         }
 
-        if self.ua != nil {
-            req.addValue(self.ua!, forHTTPHeaderField: "User-Agent")
+        if let ua = self.ua {
+            req.addValue(ua, forHTTPHeaderField: "User-Agent")
         }
 
         return req

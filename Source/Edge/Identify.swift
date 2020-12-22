@@ -8,8 +8,8 @@
 
 import Foundation
 
-func Identify(config: Config, client: Client, ids: [String], completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask {
-    let url = config.edgeURL("identify")
-    let req = try client.postRequest(url: url!, data: ids)
-    return client.dispatchRequest(req!, completionHandler)
+func Identify(config: Config, client: Client, ids: [String], completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
+    guard let url = config.edgeURL("identify") else { return nil }
+    let req = try client.postRequest(url: url, data: ids)
+    return client.dispatchRequest(req, completionHandler)
 }
