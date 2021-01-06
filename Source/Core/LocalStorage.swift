@@ -18,10 +18,10 @@ class LocalStorage: NSObject {
 
     init(_ config: Config) {
         // The key used for storage should be unique to the host+app that this instance was initialized with:
-        let utf8str = (config.host + "/" + config.app).data(using: .utf8)!.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
+        let utf8str = (config.host + "/" + config.app).data(using: .utf8)?.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
 
-        self.passportKey = self.keyPfx + "_PASS_" + utf8str
-        self.targetingKey = self.keyPfx + "_TGT_" + utf8str
+        self.passportKey = self.keyPfx + "_PASS_" + (utf8str ?? "UNKNOWN")
+        self.targetingKey = self.keyPfx + "_TGT_" + (utf8str ?? "UNKNOWN")
     }
 
     func getPassport() -> String? {

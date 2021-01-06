@@ -20,7 +20,7 @@ struct Config {
             proto = "http://"
         }
 
-        var components = URLComponents(string: proto + self.host + "/" + self.app + "/" + path)!
+        guard var components = URLComponents(string: proto + self.host + "/" + self.app + "/" + path) else { return nil }
         components.queryItems = [ URLQueryItem(name: "osdk", value: OptableSDK.version) ]
         return components.url
     }

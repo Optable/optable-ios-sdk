@@ -77,21 +77,25 @@ public class OptableSDK: NSObject {
     //
     public func identify(ids: [String], _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
         try Identify(config: self.config, client: self.client, ids: ids) { (data, response, error) in
-            guard let response = response as? HTTPURLResponse, error == nil else {
-                completion(.failure(OptableError.identify("Session error: \(error!)")))
+            guard let response = response as? HTTPURLResponse, error == nil, data != nil else {
+                if let err = error {
+                    completion(.failure(OptableError.identify("Session error: \(err)")))
+                } else {
+                    completion(.failure(OptableError.identify("Session error: Unknown")))
+                }
                 return
             }
             guard 200 ..< 300 ~= response.statusCode else {
                 var msg = "HTTP response.statusCode: \(response.statusCode)"
                 do {
-                    let json = try JSONSerialization.jsonObject(with: data!, options: [])
+                    let json = try JSONSerialization.jsonObject(with: data ?? Data(), options: [])
                     msg += ", data: \(json)"
                 } catch {}
                 completion(.failure(OptableError.identify(msg)))
                 return
             }
             completion(.success(response))
-        }.resume()
+        }?.resume()
     }
 
     //
@@ -178,14 +182,18 @@ public class OptableSDK: NSObject {
     //
     public func targeting(_ completion: @escaping (Result<NSDictionary,OptableError>) -> Void) throws -> Void {
         try Targeting(config: self.config, client: self.client) { (data, response, error) in
-            guard let response = response as? HTTPURLResponse, error == nil else {
-                completion(.failure(OptableError.targeting("Session error: \(error!)")))
+            guard let response = response as? HTTPURLResponse, error == nil, data != nil else {
+                if let err = error {
+                    completion(.failure(OptableError.targeting("Session error: \(err)")))
+                } else {
+                    completion(.failure(OptableError.targeting("Session error: Unknown")))
+                }
                 return
             }
             guard 200 ..< 300 ~= response.statusCode else {
                 var msg = "HTTP response.statusCode: \(response.statusCode)"
                 do {
-                    let json = try JSONSerialization.jsonObject(with: data!, options: [])
+                    let json = try JSONSerialization.jsonObject(with: data ?? Data(), options: [])
                     msg += ", data: \(json)"
                 } catch {}
                 completion(.failure(OptableError.targeting(msg)))
@@ -193,17 +201,17 @@ public class OptableSDK: NSObject {
             }
 
             do {
-                let keyvalues = try JSONSerialization.jsonObject(with: data!, options: [])
-                let result = keyvalues as? NSDictionary
+                let keyvalues = try JSONSerialization.jsonObject(with: data ?? Data(), options: [])
+                let result = keyvalues as? NSDictionary ?? NSDictionary()
 
                 // We cache the latest targeting result in client storage for targetingFromCache() users:
-                self.client.storage.setTargeting(keyvalues as! [String: Any])
+                self.client.storage.setTargeting(keyvalues as? [String: Any] ?? [String: Any]())
 
-                completion(.success(result!))
+                completion(.success(result))
             } catch {
                 completion(.failure(OptableError.targeting("Error parsing JSON response: \(error)")))
             }
-        }.resume()
+        }?.resume()
     }
 
     //
@@ -229,11 +237,10 @@ public class OptableSDK: NSObject {
     //
     @objc
     public func targetingFromCache() -> NSDictionary? {
-        let keyvalues = self.client.storage.getTargeting()
-        if (keyvalues == nil) {
+        guard let keyvalues = self.client.storage.getTargeting() as NSDictionary? else {
             return nil
         }
-        return (keyvalues! as NSDictionary)
+        return keyvalues
     }
 
     //
@@ -255,20 +262,24 @@ public class OptableSDK: NSObject {
     public func witness(event: String, properties: NSDictionary, _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
         try Witness(config: self.config, client: self.client, event: event, properties: properties) { (data, response, error) in
             guard let response = response as? HTTPURLResponse, error == nil else {
-                completion(.failure(OptableError.witness("Session error: \(error!)")))
+                if let err = error {
+                    completion(.failure(OptableError.witness("Session error: \(err)")))
+                } else {
+                    completion(.failure(OptableError.witness("Session error: Unknown")))
+                }
                 return
             }
             guard 200 ..< 300 ~= response.statusCode else {
                 var msg = "HTTP response.statusCode: \(response.statusCode)"
                 do {
-                    let json = try JSONSerialization.jsonObject(with: data!, options: [])
+                    let json = try JSONSerialization.jsonObject(with: data ?? Data(), options: [])
                     msg += ", data: \(json)"
                 } catch {}
                 completion(.failure(OptableError.witness(msg)))
                 return
             }
             completion(.success(response))
-        }.resume()
+        }?.resume()
     }
 
     //
@@ -300,20 +311,24 @@ public class OptableSDK: NSObject {
     public func profile(traits: NSDictionary, _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
         try Profile(config: self.config, client: self.client, traits: traits) { (data, response, error) in
             guard let response = response as? HTTPURLResponse, error == nil else {
-                completion(.failure(OptableError.profile("Session error: \(error!)")))
+                if let err = error {
+                    completion(.failure(OptableError.profile("Session error: \(err)")))
+                } else {
+                    completion(.failure(OptableError.profile("Session error: Unknown")))
+                }
                 return
             }
             guard 200 ..< 300 ~= response.statusCode else {
                 var msg = "HTTP response.statusCode: \(response.statusCode)"
                 do {
-                    let json = try JSONSerialization.jsonObject(with: data!, options: [])
+                    let json = try JSONSerialization.jsonObject(with: data ?? Data(), options: [])
                     msg += ", data: \(json)"
                 } catch {}
                 completion(.failure(OptableError.profile(msg)))
                 return
             }
             completion(.success(response))
-        }.resume()
+        }?.resume()
     }
 
     //
