@@ -50,7 +50,7 @@ You can then run `pod install` to download all of your dependencies and prepare 
 If you would like to reference a specific [release](https://github.com/Optable/optable-ios-sdk/releases), simply append it to the referenced pod. For example:
 
 ```ruby
-pod 'OptableSDK', '0.8.1'
+pod 'OptableSDK', '0.8.2'
 ```
 
 ## Using (Swift)
