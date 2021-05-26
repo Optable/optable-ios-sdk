@@ -1,8 +1,8 @@
 # Optable iOS SDK [![CircleCI](https://circleci.com/gh/Optable/optable-ios-sdk.svg?style=shield&circle-token=08842d5bffbe92f278b666f51f306076201e2839)](https://app.circleci.com/pipelines/github/Optable/optable-ios-sdk)
 
-Swift SDK for integrating with optable-sandbox from an iOS application.
+Swift SDK for integrating with an [Optable Data Connectivity Node (DCN)](https://docs.optable.co) from an iOS application.
 
-It's possible to use the SDK functionality from either a Swift or Objective-C iOS application.
+You can use the SDK functionality from either a Swift or Objective-C iOS application.
 
 ## Contents
 
@@ -55,7 +55,7 @@ pod 'OptableSDK', '0.8.2'
 
 ## Using (Swift)
 
-To configure an instance of the SDK integrating with an [Optable](https://optable.co/) sandbox running at hostname `sandbox.customer.com`, from a configured Swift application origin identified by slug `my-app`, you simply create an instance of the `OptableSDK` class through which you can communicate to the sandbox. For example, from your `AppDelegate`:
+To configure an instance of the SDK integrating with an [Optable](https://optable.co/) DCN running at hostname `dcn.customer.com`, from a configured Swift application origin identified by slug `my-app`, you simply create an instance of the `OptableSDK` class through which you can communicate to the DCN. For example, from your `AppDelegate`:
 
 ```swift
 import OptableSDK
@@ -71,7 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                      didFinishLaunchingWithOptions launchOptions:
                      [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         ...
-        OPTABLE = OptableSDK(host: "sandbox.customer.com", app: "my-app")
+        OPTABLE = OptableSDK(host: "dcn.customer.com", app: "my-app")
         ...
         return true
     }
@@ -81,20 +81,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 Note that while the `OPTABLE` variable is global, we initialize it with an instance of `OptableSDK` in the `application()` method which runs at app launch, and not at the time it is declared. This is done because Swift's lazy-loading otherwise delays initialization to the first use of the variable. Both approaches work, though forcing early initialization allows the SDK to configure itself early. In particular, as part of its internal configuration the SDK will attempt to read the User-Agent string exposed by WebView and, since this is an asynchronous operation, it is best done as early as possible in the application lifecycle.
 
-You can call various SDK APIs on the instance as shown in the examples below. It's also possible to configure multiple instances of `OptableSDK` in order to connect to other (e.g., partner) sandboxes and/or reference other configured application slug IDs.
+You can call various SDK APIs on the instance as shown in the examples below. It's also possible to configure multiple instances of `OptableSDK` in order to connect to other (e.g., partner) DCNs and/or reference other configured application slug IDs.
 
-Note that all SDK communication with Optable sandboxes is done over TLS. The only exception to this is if you instantiate the `OptableSDK` class with a third optional boolean parameter, `insecure`, set to `true`. For example:
+Note that all SDK communication with Optable DCNs is done over TLS. The only exception to this is if you instantiate the `OptableSDK` class with a third optional boolean parameter, `insecure`, set to `true`. For example:
 
 ```swift
-OPTABLE = OptableSDK(host: "sandbox.customer.com", app: "my-app", insecure: true)
+OPTABLE = OptableSDK(host: "dcn.customer.com", app: "my-app", insecure: true)
 ```
 
-However, since production sandboxes only listen to TLS traffic, the above is really only useful for developers of `optable-sandbox` running the sandbox locally for testing.
+However, since production DCNs only listen to TLS traffic, the above is meant for Optable developers running the DCN locally for testing.
 
-By default, the SDK detects the application user agent by sniffing `navigator.userAgent` from a `WKWebView`. The resulting user agent string is sent to your sandbox for analytics purposes. To disable this behavior, you can provide an optional fourth string parameter, `useragent`, which allows you to set whatever user agent string you would like to send instead. For example:
+By default, the SDK detects the application user agent by sniffing `navigator.userAgent` from a `WKWebView`. The resulting user agent string is sent to your DCN for analytics purposes. To disable this behavior, you can provide an optional fourth string parameter, `useragent`, which allows you to set whatever user agent string you would like to send instead. For example:
 
 ```swift
-OPTABLE = OptableSDK(host: "sandbox.customer.com", app: "my-app", insecure: false, useragent: "custom-ua")
+OPTABLE = OptableSDK(host: "dcn.customer.com", app: "my-app", insecure: false, useragent: "custom-ua")
 ```
 
 The default value of `nil` for the `useragent` parameter enables the `WKWebView` auto-detection behavior.
@@ -121,13 +121,13 @@ do {
 }
 ```
 
-The SDK `identify()` method will asynchronously connect to the configured sandbox and send IDs for resolution. The provided callback can be used to understand successful completion or errors.
+The SDK `identify()` method will asynchronously connect to the configured DCN and send IDs for resolution. The provided callback can be used to understand successful completion or errors.
 
-> :warning: **Client-Side Email Hashing**: The SDK will compute the SHA-256 hash of the Email address on the client-side and send the hashed value to the sandbox. The Email address is **not** sent by the device in plain text.
+> :warning: **Client-Side Email Hashing**: The SDK will compute the SHA-256 hash of the Email address on the client-side and send the hashed value to the DCN. The Email address is **not** sent by the device in plain text.
 
 Since the `sendIDFA` value provided to `identify()` via the `aaid` (Apple Advertising ID or IDFA) boolean parameter is `true`, the SDK will attempt to fetch and send the Apple IDFA in the call to `identify` too, unless the user has turned on "Limit ad tracking" in their iOS device privacy settings.
 
-> :warning: **As of iOS 14.0**, Apple has introduced [additional restrictions on IDFA](https://developer.apple.com/app-store/user-privacy-and-data-use/) which will require prompting users to request permission to use IDFA. Therefore, if you intend to set `aaid` to `true` in calls to `identify()` on iOS 14.0 or above, you should expect that the SDK will automatically trigger a user prompt via the `AppTrackingTransparency` framework before it is permitted to send the IDFA value to your sandbox. Additionally, we recommend that you ensure to configure the _Privacy - Tracking Usage Description_ attribute string in your application's `Info.plist`, as it enables you to customize some elements of the resulting user prompt.
+> :warning: **As of iOS 14.0**, Apple has introduced [additional restrictions on IDFA](https://developer.apple.com/app-store/user-privacy-and-data-use/) which will require prompting users to request permission to use IDFA. Therefore, if you intend to set `aaid` to `true` in calls to `identify()` on iOS 14.0 or above, you should expect that the SDK will automatically trigger a user prompt via the `AppTrackingTransparency` framework before it is permitted to send the IDFA value to your DCN. Additionally, we recommend that you ensure to configure the _Privacy - Tracking Usage Description_ attribute string in your application's `Info.plist`, as it enables you to customize some elements of the resulting user prompt.
 
 The frequency of invocation of `identify` is up to you, however for optimal identity resolution we recommended to call the `identify()` method on your SDK instance every time you authenticate a user, as well as periodically, such as for example once every 15 to 60 minutes while the application is being actively used and an internet connection is available.
 
@@ -156,7 +156,7 @@ Note that the traits are of type `NSDictionary` and should consist of key value 
 
 ### Targeting API
 
-To get the targeting key values associated by the configured sandbox with the device in real-time, you can call the `targeting` API as follows:
+To get the targeting key values associated by the configured DCN with the device in real-time, you can call the `targeting` API as follows:
 
 ```swift
 do {
@@ -198,7 +198,7 @@ Note that both `targetingFromCache()` and `targetingClearCache()` are synchronou
 
 ### Witness API
 
-To send real-time event data from the user's device to the sandbox for eventual audience assembly, you can call the witness API as follows:
+To send real-time event data from the user's device to the DCN for eventual audience assembly, you can call the witness API as follows:
 
 ```swift
 do {
@@ -224,7 +224,7 @@ Note that event properties are of type `NSDictionary` and should consist of key 
 
 We can further extend the above `targeting` example to show an integration with a [Google Ad Manager 360](https://admanager.google.com/home/) ad server account.
 
-It's suggested to load the GAM banner view with an ad even when the call to your sandbox `targeting()` method results in failure:
+It's suggested to load the GAM banner view with an ad even when the call to your DCN `targeting()` method results in failure:
 
 ```swift
 import GoogleMobileAds
@@ -307,7 +307,7 @@ And in the accompanying `OptableSDKDelegate.m` follows a simple implementation o
 @end
 ```
 
-You can then configure an instance of the SDK integrating with an [Optable](https://optable.co/) sandbox running at hostname `sandbox.customer.com`, from a configured origin identified by slug `my-app` from your main `AppDelegate.m`, and point it to your delegate implementation as in the following example:
+You can then configure an instance of the SDK integrating with an [Optable](https://optable.co/) DCN running at hostname `dcn.customer.com`, from a configured origin identified by slug `my-app` from your main `AppDelegate.m`, and point it to your delegate implementation as in the following example:
 
 ```objective-c
 #import "OptabletSDKDelegate.h"
@@ -318,7 +318,7 @@ OptableSDK *OPTABLE = nil;
 @implementation AppDelegate
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   ...
-    OPTABLE = [[OptableSDK alloc] initWithHost: @"sandbox.optable.co"
+    OPTABLE = [[OptableSDK alloc] initWithHost: @"dcn.optable.co"
                                   app: @"ios-sdk-demo"
                                   insecure: NO
                                   useragent: nil];
@@ -329,7 +329,7 @@ OptableSDK *OPTABLE = nil;
 @end
 ```
 
-You can call various SDK APIs on the instance as shown in the examples below. It's also possible to configure multiple instances of `OptableSDK` in order to connect to other (e.g., partner) sandboxes and/or reference other configured application slug IDs. Note that the `insecure` flag should always be set to `NO` unless you are testing a local instance of the `optable-sandbox` yourself.
+You can call various SDK APIs on the instance as shown in the examples below. It's also possible to configure multiple instances of `OptableSDK` in order to connect to other (e.g., partner) DCNs and/or reference other configured application slug IDs. Note that the `insecure` flag should always be set to `NO` unless you are testing a local instance of the DCN yourself.
 
 You can disable user agent `WKWebView` based auto-detection and provide your own value by setting the `useragent` parameter to a string value, similar to the Swift example.
 
@@ -347,7 +347,7 @@ NSError *error = nil;
 
 Note that `error` will be set only in case of an internal SDK exception. Otherwise, any configured delegate `identifyOk` or `identifyErr` will be invoked to signal success or failure, respectively. Providing an empty `ppid` as in the above example simply will not send any `ppid`.
 
-> :warning: **As of iOS 14.0**, Apple has introduced [additional restrictions on IDFA](https://developer.apple.com/app-store/user-privacy-and-data-use/) which will require prompting users to request permission to use IDFA. Therefore, if you intend to set `aaid` to `YES` in calls to `identify` on iOS 14.0 or above, you should expect that the SDK will automatically trigger a user prompt via the `AppTrackingTransparency` framework before it is permitted to send the IDFA value to your sandbox. Additionally, we recommend that you ensure to configure the _Privacy - Tracking Usage Description_ attribute string in your application's `Info.plist`, as it enables you to customize some elements of the resulting user prompt.
+> :warning: **As of iOS 14.0**, Apple has introduced [additional restrictions on IDFA](https://developer.apple.com/app-store/user-privacy-and-data-use/) which will require prompting users to request permission to use IDFA. Therefore, if you intend to set `aaid` to `YES` in calls to `identify` on iOS 14.0 or above, you should expect that the SDK will automatically trigger a user prompt via the `AppTrackingTransparency` framework before it is permitted to send the IDFA value to your DCN. Additionally, we recommend that you ensure to configure the _Privacy - Tracking Usage Description_ attribute string in your application's `Info.plist`, as it enables you to customize some elements of the resulting user prompt.
 
 It's also possible to send only an Email ID hash or a custom PPID by using the lower-level `identify` method which accepts a list of pre-constructed identifiers, for example:
 
@@ -373,7 +373,7 @@ NSError *error = nil;
 
 ### Targeting API
 
-To get the targeting key values associated by the configured sandbox with the device in real-time, you can call the `targeting` API and expect that on success, the resulting keyvalues to be used for targeting will be sent in the `targetingOk` message to your delegate (see the example delegate implementation above):
+To get the targeting key values associated by the configured DCN with the device in real-time, you can call the `targeting` API and expect that on success, the resulting keyvalues to be used for targeting will be sent in the `targetingOk` message to your delegate (see the example delegate implementation above):
 
 ```objective-c
 @import OptableSDK;
@@ -408,7 +408,7 @@ Note that both `targetingFromCache` and `targetingClearCache` are synchronous.
 
 ### Witness API
 
-To send real-time event data from the user's device to the sandbox for eventual audience assembly, you can call the witness API as follows:
+To send real-time event data from the user's device to the DCN for eventual audience assembly, you can call the witness API as follows:
 
 ```objective-c
 @import OptableSDK;
@@ -495,9 +495,9 @@ func application(_ application: UIApplication, continue userActivity: NSUserActi
 
 ## Demo Applications
 
-The Swift and Objective-C demo applications show a working example of `identify` , `targeting`, and `witness` APIs, as well as an integration with the [Google Ad Manager 360](https://admanager.google.com/home/) ad server, enabling the targeting of ads served by GAM360 to audiences activated in the [Optable](https://optable.co/) sandbox.
+The Swift and Objective-C demo applications show a working example of `identify` , `targeting`, and `witness` APIs, as well as an integration with the [Google Ad Manager 360](https://admanager.google.com/home/) ad server, enabling the targeting of ads served by GAM360 to audiences activated in the [Optable](https://optable.co/) DCN.
 
-By default, the demo applications will connect to the [Optable](https://optable.co/) demo sandbox at `sandbox.optable.co` and reference application slug `android-sdk-demo`. The demo apps depend on the [GAM Mobile Ads SDK for iOS](https://developers.google.com/ad-manager/mobile-ads-sdk/ios/quick-start) and load ads from a GAM360 account operated by [Optable](https://optable.co/).
+By default, the demo applications will connect to the [Optable](https://optable.co/) demo DCN at `sandbox.optable.co` and reference application slug `android-sdk-demo`. The demo apps depend on the [GAM Mobile Ads SDK for iOS](https://developers.google.com/ad-manager/mobile-ads-sdk/ios/quick-start) and load ads from a GAM360 account operated by [Optable](https://optable.co/).
 
 ### Building
 
