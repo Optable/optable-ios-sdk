@@ -13,7 +13,7 @@
 @import GoogleMobileAds;
 
 @interface GAMBannerViewController ()
-@property(nonatomic, strong) DFPBannerView *bannerView;
+@property(nonatomic, strong) GADBannerView *bannerView;
 @end
 
 @implementation GAMBannerViewController
@@ -21,7 +21,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    self.bannerView = [[DFPBannerView alloc] initWithAdSize:kGADAdSizeBanner];
+    self.bannerView = [[GADBannerView alloc] initWithAdSize:kGADAdSizeBanner];
     self.bannerView.adUnitID = @"/22081946781/ios-sdk-demo/mobile-leaderboard";
     [self addBannerViewToView:self.bannerView];
     self.bannerView.rootViewController = self;
@@ -43,7 +43,7 @@
 
 - (IBAction)loadBannerWithTargetingFromCache:(id)sender {
     NSError *error = nil;
-    DFPRequest *request = [DFPRequest request];
+    GAMRequest *request = [GAMRequest request];
     NSDictionary *keyvals = nil;
 
     [_targetingOutput setText:@"Checking local targeting cache...\n\n"];

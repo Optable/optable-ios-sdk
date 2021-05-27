@@ -34,7 +34,7 @@
 }
 - (void)targetingOk:(NSDictionary *)result {
     // Update the GAM banner view with result targeting keyvalues:
-    DFPRequest *request = [DFPRequest request];
+    GAMRequest *request = [GAMRequest request];
     request.customTargeting = result;
     [self.bannerView loadRequest:request];
 
@@ -45,7 +45,7 @@
 }
 - (void)targetingErr:(NSError *)error {
     // Update the GAM banner view without targeting data:
-    DFPRequest *request = [DFPRequest request];
+    GAMRequest *request = [GAMRequest request];
     [self.bannerView loadRequest:request];
 
     NSLog(@"[OptableSDK] Error on /targeting API call: %@", [error localizedDescription]);
