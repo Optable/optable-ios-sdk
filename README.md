@@ -89,7 +89,7 @@ Note that all SDK communication with Optable DCNs is done over TLS. The only exc
 OPTABLE = OptableSDK(host: "dcn.customer.com", app: "my-app", insecure: true)
 ```
 
-However, since production DCNs only listen to TLS traffic, the above is meant for Optable developers running the DCN locally for testing.
+Note that production DCNs only listen to TLS traffic. The `insecure: true` option is meant to be used by Optable developers running the DCN locally for testing.
 
 By default, the SDK detects the application user agent by sniffing `navigator.userAgent` from a `WKWebView`. The resulting user agent string is sent to your DCN for analytics purposes. To disable this behavior, you can provide an optional fourth string parameter, `useragent`, which allows you to set whatever user agent string you would like to send instead. For example:
 
@@ -445,7 +445,7 @@ It's assumed in the above code snippet that `self.bannerView` is a pointer to a 
 
 ## Identifying visitors arriving from Email newsletters
 
-If you send Email newsletters that contain links to your application (e.g., universal links), then you may want to automatically _identify_ visitors that have clicked on any such links via their Email address. Incoming application traffic which is originating from a subscriber click on a link in a newsletter is considered to be implicitly authenticated by the recipient of the Email, therefore serving as an excellent source of linking of online user identities.
+If you send Email newsletters that contain links to your application (e.g., universal links), then you may want to automatically _identify_ visitors that have clicked on any such links via their Email address.
 
 ### Insert oeid into your Email newsletter template
 
