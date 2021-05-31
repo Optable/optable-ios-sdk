@@ -1,8 +1,5 @@
 platform :ios, '14.0'
 
-# Uncomment line below to use officially released OptableSDK pod:
-#source 'git@github.com:Optable/optable-cocoapods.git'
-
 source 'https://cdn.cocoapods.org/'
 
 project 'demo-ios-swift.xcodeproj'

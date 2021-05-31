@@ -17,7 +17,7 @@ Pod::Spec.new do |spec|
   spec.ios.deployment_target = "9.2"
   spec.swift_version         = "5.0"
 
-  spec.source        = { :git => "git@github.com:Optable/optable-ios-sdk.git", :tag => "#{spec.version}" }
+  spec.source        = { :git => "https://github.com/Optable/optable-ios-sdk.git", :tag => "#{spec.version}" }
   spec.source_files  = "Source/**/*.{h,m,swift}"
 
   spec.framework     = ['Foundation', 'WebKit', 'CryptoKit', 'AdSupport']
