@@ -28,12 +28,19 @@ You can use the SDK functionality from either a Swift or Objective-C iOS applica
 
 ## Installing
 
-This SDK can be installed via the [CocoaPods](https://cocoapods.org/) dependency manager. To install the latest [release](https://github.com/Optable/optable-ios-sdk/releases), you need to source the [optable-cocoapods](https://github.com/Optable/optable-cocoapods) private repository as well as the `OptableSDK` pod from your `Podfile`:
+The SDK can be installed using either the [Swift Package Manager](https://www.swift.org/package-manager/) or the [CocoaPods](https://cocoapods.org) dependency manager.
+
+### Swift Package Manager
+
+You can add this SDK _Package_ to your project. The manifest file is [Package.swift](https://github.com/Optable/optable-ios-sdk/blob/master/Package.swift)
+
+### CocoaPods
+
+This SDK can be installed via the [CocoaPods](https://cocoapods.org/) dependency manager. To install the latest [release](https://github.com/Optable/optable-ios-sdk/releases), you need to source the [public cocoapods](https://cdn.cocoapods.org/) repository as well as the `OptableSDK` pod from your `Podfile`:
 
 ```ruby
 platform :ios, '13.0'
 
-source 'git@github.com:Optable/optable-cocoapods.git'
 source 'https://cdn.cocoapods.org/'
 ...
 
