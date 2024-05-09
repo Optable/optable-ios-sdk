@@ -34,13 +34,14 @@ class IdentifyViewController: UIViewController {
                 identifyOutput.text += "Email: " + email + "\n"
             }
             identifyOutput.text += "IDFA: " + String(aaid) + "\n"
+            identifyOutput.text += "Pre-identify Passport: \n" + OPTABLE!.getPassport() + "\n"
 
             try OPTABLE!.identify(email: email, aaid: aaid) { result in
                 switch result {
                 case .success(let response):
                     print("[OptableSDK] Success on /identify API call: response.statusCode = \(response.statusCode)")
                     DispatchQueue.main.async {
-                        self.identifyOutput.text += "\nSuccess."
+                        self.identifyOutput.text += "\nSuccess. After identify Passport: \n" + (OPTABLE!.getPassport())+"\n"
                     }
 
                 case .failure(let error):

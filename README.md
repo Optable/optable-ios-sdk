@@ -504,7 +504,10 @@ func application(_ application: UIApplication, continue userActivity: NSUserActi
 
 The Swift and Objective-C demo applications show a working example of `identify` , `targeting`, and `witness` APIs, as well as an integration with the [Google Ad Manager 360](https://admanager.google.com/home/) ad server, enabling the targeting of ads served by GAM360 to audiences activated in the [Optable](https://optable.co/) DCN.
 
-By default, the demo applications will connect to the [Optable](https://optable.co/) demo DCN at `sandbox.optable.co` and reference application slug `android-sdk-demo`. The demo apps depend on the [GAM Mobile Ads SDK for iOS](https://developers.google.com/ad-manager/mobile-ads-sdk/ios/quick-start) and load ads from a GAM360 account operated by [Optable](https://optable.co/).
+By default, the demo applications will connect to the [Optable](https://optable.co/) demo DCN at `sandbox.optable.co` and reference application slug `ios-sdk-demo`. The demo apps depend on the [GAM Mobile Ads SDK for iOS](https://developers.google.com/ad-manager/mobile-ads-sdk/ios/quick-start) and load ads from a GAM360 account operated by [Optable](https://optable.co/).
+
+When connecting to a local DCN, you must drag and drop the SSL certificate file into the iPhone simulator which is obtained with the following command:
+`gcloud --project optable-platform-dev secrets versions access latest --secret local-ca-crt > local-ca.cer`
 
 ### Building
 

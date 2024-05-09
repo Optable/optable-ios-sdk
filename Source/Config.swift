@@ -13,6 +13,7 @@ struct Config {
     var app: String
     var insecure: Bool
     var useragent: String?
+    var initPassport: Bool
 
     func edgeURL(_ path: String) -> URL? {
         var proto = "https://"

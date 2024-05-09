@@ -29,6 +29,8 @@ import AdSupport
 //
 @objc
 public protocol OptableDelegate {
+    func initiateOk(_ result: HTTPURLResponse)
+    func initiateErr(_ error: NSError)
     func identifyOk(_ result: HTTPURLResponse)
     func identifyErr(_ error: NSError)
     func profileOk(_ result: HTTPURLResponse)
@@ -54,6 +56,7 @@ public class OptableSDK: NSObject {
     @objc public var delegate: OptableDelegate?
 
     public enum OptableError: Error {
+        case initiate(String)
         case identify(String)
         case profile(String)
         case targeting(String)
@@ -67,11 +70,80 @@ public class OptableSDK: NSObject {
     //  OptableSDK(host, app) returns an instance of the SDK configured to talk to the sandbox specified by host & app:
     //
     @objc
-    public init(host: String, app: String, insecure: Bool = false, useragent: String? = nil) {
-        self.config = Config(host: host, app: app, insecure: insecure, useragent: useragent)
+    public init(host: String, app: String, insecure: Bool = false, useragent: String? = nil, initPassport: Bool = true) {
+        self.config = Config(host: host, app: app, insecure: insecure, useragent: useragent, initPassport: initPassport)
         self.client = Client(self.config)
+        super.init()
+        if self.config.initPassport {
+            do {
+                try self.initiate() { result in
+                    switch result {
+                    case .success(let response):
+                        print("[OptableSDK] Success on /init API call: response.statusCode = \(response.statusCode)")
+                    case .failure(let error):
+                        print("[OptableSDK] Error on /init API call: \(error)")
+                    }
+                }
+            } catch {
+                print("[OptableSDK] Exception: \(error)")
+            }
+        }
     }
 
+    @objc
+    public func getPassport() -> String {
+        if self.client.storage.getPassport() == nil {
+            return "None"
+        }
+        return self.client.storage.getPassport()!
+    }
+    
+    //
+    //  initiate(completion) issues a call to the Optable Sandbox "init" API, writing a passport to LocalStorage.
+    //  It is asynchronous, and on completion it will call the specified completion handler, passing
+    //  it either the HTTPURLResponse on success, or an OptableError on failure.
+    //
+    public func initiate(_ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
+        try Init(config: self.config, client: self.client) { (data, response, error) in
+            guard let response = response as? HTTPURLResponse, error == nil, data != nil else {
+                if let err = error {
+                    completion(.failure(OptableError.identify("Session error: \(err)")))
+                } else {
+                    completion(.failure(OptableError.identify("Session error: Unknown")))
+                }
+                return
+            }
+            guard 200 ..< 300 ~= response.statusCode else {
+                var msg = "HTTP response.statusCode: \(response.statusCode)"
+                do {
+                    let json = try JSONSerialization.jsonObject(with: data ?? Data(), options: [])
+                    msg += ", data: \(json)"
+                } catch {}
+                completion(.failure(OptableError.initiate(msg)))
+                return
+            }
+            completion(.success(response))
+        }?.resume()
+    }
+    
+    //
+    //  initiate() is the "delegate variant" of the identify(ids, completion) method. It wraps the latter with
+    //  a delegator callback.
+    //
+    //  This is the Objective-C compatible version of the initiate(completion) API.
+    //
+    @objc
+    public func initiate() throws -> Void {
+        try self.initiate() { result in
+            switch result {
+            case .success(let response):
+                self.delegate?.initiateOk(response)
+            case .failure(let error as NSError):
+                self.delegate?.initiateErr(error)
+            }
+        }
+    }
+    
     //
     //  identify(ids, completion) issues a call to the Optable Sandbox "identify" API, passing the specified
     //  list of type-prefixed IDs. It is asynchronous, and on completion it will call the specified completion handler, passing

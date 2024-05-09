@@ -28,15 +28,20 @@
     bool aaid = [_identifyIDFA isOn];
     NSMutableString *output;
     NSError *error = nil;
+    NSString *pass = [OPTABLE getPassport];
 
     output = [NSMutableString stringWithFormat:@"Calling /identify API with:\n\n"];
     if ([email length] > 0) {
         [output appendString:[NSString stringWithFormat:@"Email: %@\n", email]];
     }
     [output appendString:[NSString stringWithFormat:@"IDFA: %s\n", aaid ? "true" : "false"]];
-    [_identifyOutput setText:output];
+    [output appendString:[NSString stringWithFormat:@"Old Passport: %@\n", pass]];
 
     [OPTABLE identify :email aaid:aaid ppid:@"" error:&error];
+    [NSThread sleepForTimeInterval:1.0f];
+    NSString *pass2 = [OPTABLE getPassport];
+    [output appendString:[NSString stringWithFormat:@"New Passport: %@\n", pass2]];
+    [_identifyOutput setText:output];
 }
 
 @end
