@@ -30,6 +30,5 @@ jobs:
       - name: Store Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: artifacts
-          path: output/**
- 
+          name: test-results
+          path: ./fastlane/test_output
