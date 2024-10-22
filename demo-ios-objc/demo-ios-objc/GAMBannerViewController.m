@@ -21,7 +21,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    self.bannerView = [[GADBannerView alloc] initWithAdSize:kGADAdSizeBanner];
+    self.bannerView = [[GADBannerView alloc] initWithAdSize:GADAdSizeBanner];
     self.bannerView.adUnitID = @"/22081946781/ios-sdk-demo/mobile-leaderboard";
     [self addBannerViewToView:self.bannerView];
     self.bannerView.rootViewController = self;
@@ -76,7 +76,7 @@
       [NSLayoutConstraint constraintWithItem:bannerView
                                  attribute:NSLayoutAttributeBottom
                                  relatedBy:NSLayoutRelationEqual
-                                    toItem:self.bottomLayoutGuide
+                                    toItem:self.view.safeAreaLayoutGuide.bottomAnchor
                                  attribute:NSLayoutAttributeTop
                                 multiplier:1
                                   constant:0],
