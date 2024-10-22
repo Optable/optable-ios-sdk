@@ -1,0 +1,35 @@
+name: "iOS SDK CI"
+
+on: 
+    pull_request:
+
+jobs:
+  setup:
+    name: "Setup"
+    runs-on: macos-14
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Install ruby and gem dependencies
+        uses: ruby/setup-ruby@v1
+        with:
+            ruby-version: 3.3.5
+            bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+    
+  sdk-tests:
+    name: "SDK Tests"
+    runs-on: macos-14
+    needs: [setup]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Bundle install
+        run: bundle install
+      - name: Run Fastlane
+        run: bundle exec fastlane tests
+      - name: Store Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: output/**
+ 
