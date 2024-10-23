@@ -36,6 +36,8 @@ jobs:
   build-demo-swift:
     name: "Build Demo Swift"
     runs-on: macos-14
+    env:
+      FL_OUTPUT_DIR: output
     needs: [setup, sdk-tests]
     steps:
       - name: Checkout Code
@@ -48,11 +50,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: demo-swift
-          path: output/**
+          path: ./${{ env.FL_OUTPUT_DIR }}/**
 
   build-demo-objc:
     name: "Build Demo Objective-C"
     runs-on: macos-14
+    env:
+      FL_OUTPUT_DIR: output
     needs: [setup, sdk-tests]
     steps:
       - name: Checkout Code
@@ -64,5 +68,5 @@ jobs:
       - name: Store Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: demo-objct
-          path: output/**
+          name: demo-objc
+          path: ./${{ env.FL_OUTPUT_DIR }}/**
