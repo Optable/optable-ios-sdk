@@ -6,7 +6,7 @@ orbs:
 jobs:
   sdk-tests:
     macos:
-      xcode: 12.1.0
+      xcode: 15.4.0
     environment:
       FL_OUTPUT_DIR: output
       FASTLANE_LANE: tests
@@ -26,7 +26,7 @@ jobs:
 
   build-demo-swift:
     macos:
-      xcode: 12.1.0
+      xcode: 15.4.0
     environment:
       FL_OUTPUT_DIR: output
       FASTLANE_LANE: demo_swift
@@ -44,7 +44,7 @@ jobs:
 
   build-demo-objc:
     macos:
-      xcode: 12.1.0
+      xcode: 15.4.0
     environment:
       FL_OUTPUT_DIR: output
       FASTLANE_LANE: demo_objc
