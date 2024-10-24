@@ -13,7 +13,7 @@ jobs:
       - name: Install ruby and gem dependencies
         uses: ruby/setup-ruby@v1
         with:
-            ruby-version: 2.6.10
+            ruby-version: 3.0.0
             bundler-cache: true # runs 'bundle install' and caches installed gems automatically
     
   sdk-tests:
@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: demo-swift
-          path: ./${{ env.FL_OUTPUT_DIR }}/**
+          path: ${{ env.FL_OUTPUT_DIR }}/**
 
   build-demo-objc:
     name: "Build Demo Objective-C"
@@ -69,4 +69,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: demo-objc
-          path: ./${{ env.FL_OUTPUT_DIR }}/**
+          path: ${{ env.FL_OUTPUT_DIR }}/**
