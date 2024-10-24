@@ -138,7 +138,7 @@ Since the `sendIDFA` value provided to `identify()` via the `aaid` (Apple Advert
 
 The frequency of invocation of `identify` is up to you, however for optimal identity resolution we recommended to call the `identify()` method on your SDK instance every time you authenticate a user, as well as periodically, such as for example once every 15 to 60 minutes while the application is being actively used and an internet connection is available.
 
-Note that the `identify()` function also accepts also accepts a list of type prefixed identifiers. For example:
+Note that the `identify()` function also accepts a list of type prefixed identifiers. For example:
 `identify(["e:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890","c:d29c551097b9dd0b82423827f65161232efaf7fc"])`
 
 ### Profile API
