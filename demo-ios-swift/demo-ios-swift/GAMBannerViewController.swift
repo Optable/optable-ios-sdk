@@ -22,7 +22,7 @@ class GAMBannerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        bannerView = GADBannerView(adSize: kGADAdSizeBanner)
+        bannerView = GADBannerView(adSize: GADAdSizeBanner)
         addBannerViewToView(bannerView)
         bannerView.rootViewController = self
     }
@@ -144,7 +144,7 @@ class GAMBannerViewController: UIViewController {
             NSLayoutConstraint(item: bannerView,
                             attribute: .bottom,
                             relatedBy: .equal,
-                            toItem: bottomLayoutGuide,
+                            toItem: view.safeAreaLayoutGuide.bottomAnchor,
                             attribute: .top,
                             multiplier: 1,
                             constant: 0),

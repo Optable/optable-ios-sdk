@@ -1,0 +1,76 @@
+name: "iOS SDK CI"
+
+on: 
+    pull_request:
+    # push: # TODO: To be validated
+    #     branches-ignore: '*'
+    #     tags:
+    #         - '^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$'
+
+jobs:
+  setup:
+    name: "Setup"
+    runs-on: macos-14
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Install ruby and gem dependencies
+        uses: ruby/setup-ruby@v1
+        with:
+            ruby-version: 3.0.7
+            bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+    
+  sdk-tests:
+    name: "SDK Tests"
+    runs-on: macos-14
+    needs: [setup]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Bundle install
+        run: bundle install
+      - name: Run Tests
+        run: bundle exec fastlane tests
+      - name: Store Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ./fastlane/test_output
+
+  build-demo-swift:
+    name: "Build Demo Swift"
+    runs-on: macos-14
+
+    needs: [setup, sdk-tests]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Bundle install
+        run: bundle install
+      - name: Build Demo Swift
+        id: build-demo-swift
+        run: bundle exec fastlane demo_swift
+    #   - name: Store Artifacts
+    #     uses: actions/upload-artifact@v4
+    #     with:
+    #       name: demo-swift
+    #       path:
+
+  build-demo-objc:
+    name: "Build Demo Objective-C"
+    runs-on: macos-14
+    env:
+      FL_OUTPUT_DIR: output
+    needs: [setup, sdk-tests]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Bundle install
+        run: bundle install
+      - name: Build Demo Objective-C
+        run: bundle exec fastlane demo_objc
+    #   - name: Store Artifacts
+    #     uses: actions/upload-artifact@v4
+    #     with:
+    #       name: demo-objc
+    #       path:
