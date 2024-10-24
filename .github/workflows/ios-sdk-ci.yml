@@ -2,6 +2,10 @@ name: "iOS SDK CI"
 
 on: 
     pull_request:
+    # push: # TODO: To be validated
+    #     branches-ignore: '*'
+    #     tags:
+    #         - '^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$'
 
 jobs:
   setup:
@@ -50,7 +54,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: demo-swift
-          path: ${{ env.FL_OUTPUT_DIR }}/**
+          path: ${{ github.workspace }}/${{ env.FL_OUTPUT_DIR }}/**
 
   build-demo-objc:
     name: "Build Demo Objective-C"
@@ -69,4 +73,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: demo-objc
-          path: ${{ env.FL_OUTPUT_DIR }}/**
+          path: ${{ github.workspace }}/${{ env.FL_OUTPUT_DIR }}/**
