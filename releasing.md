@@ -64,17 +64,17 @@ You should see a `demo-ios-{swift,objc}.xcworkspace` file locally in the demo ap
 
 ## Merge release preparation PR
 
-Ensure all release preparation changes have been committed and pushed to the release preparation branch and that the draft PR passes all required checks, including the automated [CircleCI](https://app.circleci.com/pipelines/github/Optable/optable-ios-sdk) builds.
+Ensure all release preparation changes have been committed and pushed to the release preparation branch and that the draft PR passes all required checks, including the automated [Github Actions](https://github.com/Optable/optable-ios-sdk/actions) builds.
 
 Once the PR is ready, squash and merge it into `master` and delete the release preparation branch.
 
 ## Create the release
 
-Ensure that the latest merged changes successfully pass all automated [CircleCI](https://app.circleci.com/pipelines/github/Optable/optable-ios-sdk) builds in `master`.
+Ensure that the latest merged changes successfully pass all automated [Github Actions](https://github.com/Optable/optable-ios-sdk/actions) builds in `master`.
 
 Draft a new release in the [GitHub Releases page](https://github.com/Optable/optable-ios-sdk/releases), specifying a new tag for creation with the tag name equal to the version of the release (example: 0.10.0). The release title should also be set to the release version number, and the description should include a list of important changes since the previous release. Publish the release.
 
-Ensure that the [CircleCI](https://app.circleci.com/pipelines/github/Optable/optable-ios-sdk) release-builds which will run automatically when the release tag is published complete successfully.
+Ensure that the [Github Actions](https://github.com/Optable/optable-ios-sdk/actions) release-builds which will run automatically when the release tag is published complete successfully.
 
 ## Publish latest spec to CocoaPods trunk
 

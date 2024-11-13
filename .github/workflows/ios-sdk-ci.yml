@@ -1,16 +1,15 @@
 name: "iOS SDK CI"
 
 on: 
-    pull_request:
-    # push: # TODO: To be validated
-    #     branches-ignore: '*'
-    #     tags:
-    #         - '^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$'
+  pull_request:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+(-[a-zA-Z0-9]+)?"
 
 jobs:
   setup:
     name: "Setup"
-    runs-on: macos-14
+    runs-on: macos-13
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -19,10 +18,10 @@ jobs:
         with:
             ruby-version: 3.0.7
             bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-    
+
   sdk-tests:
     name: "SDK Tests"
-    runs-on: macos-14
+    runs-on: macos-13
     needs: [setup]
     steps:
       - name: Checkout Code
@@ -40,7 +39,6 @@ jobs:
   build-demo-swift:
     name: "Build Demo Swift"
     runs-on: macos-14
-
     needs: [setup, sdk-tests]
     steps:
       - name: Checkout Code
@@ -50,11 +48,19 @@ jobs:
       - name: Build Demo Swift
         id: build-demo-swift
         run: bundle exec fastlane demo_swift
-    #   - name: Store Artifacts
-    #     uses: actions/upload-artifact@v4
-    #     with:
-    #       name: demo-swift
-    #       path:
+      - name: find output
+        run: ls -R
+      - name: Store Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-swift
+          path: ./demo-ios-swift/Pods
+      - name: Store build log
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-swift
+          path: /Users/runner/Library/Logs/gym
+
 
   build-demo-objc:
     name: "Build Demo Objective-C"
@@ -69,8 +75,13 @@ jobs:
         run: bundle install
       - name: Build Demo Objective-C
         run: bundle exec fastlane demo_objc
-    #   - name: Store Artifacts
-    #     uses: actions/upload-artifact@v4
-    #     with:
-    #       name: demo-objc
-    #       path:
+      - name: Store Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-objc
+          path: ./demo-ios-objc/Pods
+      - name: Store build log
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-objc
+          path: /Users/runner/Library/Logs/gym

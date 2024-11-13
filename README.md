@@ -1,4 +1,4 @@
-# Optable iOS SDK [![CircleCI](https://circleci.com/gh/Optable/optable-ios-sdk.svg?style=shield&circle-token=08842d5bffbe92f278b666f51f306076201e2839)](https://app.circleci.com/pipelines/github/Optable/optable-ios-sdk)
+# Optable iOS SDK [![Github Actions](https://github.com/Optable/optable-ios-sdk/actions)](https://github.com/Optable/optable-ios-sdk/actions)
 
 Swift SDK for integrating with an [Optable Data Connectivity Node (DCN)](https://docs.optable.co) from an iOS application.
 
@@ -6,25 +6,33 @@ You can use the SDK functionality from either a Swift or Objective-C iOS applica
 
 ## Contents
 
-- [Installing](#installing)
-- [Using (Swift)](#using-swift)
-  - [Identify API](#identify-api)
-  - [Profile API](#profile-api)
-  - [Targeting API](#targeting-api)
-  - [Witness API](#witness-api)
-  - [Integrating GAM360](#integrating-gam360)
-- [Using (Objective-C)](#using-objective-c)
-  - [Identify API](#identify-api-1)
-  - [Profile API](#profile-api-1)
-  - [Targeting API](#targeting-api-1)
-  - [Witness API](#witness-api-1)
-  - [Integrating GAM360](#integrating-gam360-1)
-- [Identifying visitors arriving from Email newsletters](#identifying-visitors-arriving-from-email-newsletters)
-  - [Insert oeid into your Email newsletter template](#insert-oeid-into-your-email-newsletter-template)
-  - [Capture clicks on universal links in your application](#capture-clicks-on-universal-links-in-your-application)
-  - [Call tryIdentifyFromURL SDK API](#call-tryidentifyfromurl-sdk-api)
-- [Demo Applications](#demo-applications)
-  - [Building](#building)
+- [Optable iOS SDK ](#optable-ios-sdk-)
+  - [Contents](#contents)
+  - [Installing](#installing)
+    - [Swift Package Manager](#swift-package-manager)
+    - [CocoaPods](#cocoapods)
+  - [Using (Swift)](#using-swift)
+    - [Identify API](#identify-api)
+    - [Profile API](#profile-api)
+    - [Targeting API](#targeting-api)
+      - [Caching Targeting Data](#caching-targeting-data)
+    - [Witness API](#witness-api)
+    - [Integrating GAM360](#integrating-gam360)
+  - [Using (Objective-C)](#using-objective-c)
+    - [Identify API](#identify-api-1)
+    - [Profile API](#profile-api-1)
+    - [Targeting API](#targeting-api-1)
+      - [Caching Targeting Data](#caching-targeting-data-1)
+    - [Witness API](#witness-api-1)
+    - [Integrating GAM360](#integrating-gam360-1)
+  - [Identifying visitors arriving from Email newsletters](#identifying-visitors-arriving-from-email-newsletters)
+    - [Insert oeid into your Email newsletter template](#insert-oeid-into-your-email-newsletter-template)
+    - [Capture clicks on universal links in your application](#capture-clicks-on-universal-links-in-your-application)
+    - [Call tryIdentifyFromURL SDK API](#call-tryidentifyfromurl-sdk-api)
+      - [Swift](#swift)
+      - [Objective-C](#objective-c)
+  - [Demo Applications](#demo-applications)
+    - [Building](#building)
 
 ## Installing
 
