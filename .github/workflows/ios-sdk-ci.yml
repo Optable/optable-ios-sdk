@@ -48,8 +48,6 @@ jobs:
       - name: Build Demo Swift
         id: build-demo-swift
         run: bundle exec fastlane demo_swift
-      - name: find output
-        run: ls -R
       - name: Store Artifacts
         uses: actions/upload-artifact@v4
         with:
