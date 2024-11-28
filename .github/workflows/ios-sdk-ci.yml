@@ -83,3 +83,61 @@ jobs:
         with:
           name: build-log-objc
           path: /Users/runner/Library/Logs/gym
+
+  slack-notification:
+    runs-on: ubuntu-22.04
+    needs: [build-demo-swift, build-demo-objc]
+    permissions:
+      id-token: write
+    steps:
+      - name: Successful Release Post to Slack
+        uses: slackapi/slack-github-action@v2.0.0
+        if: ${{ success() && (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) }}
+        with:
+          method: chat.postMessage
+          token: "${{ secrets.SLACK_MESSENGER_APP_TOKEN }}"
+          payload: |
+            channel: "${{ secrets.ALERTS_SLACK_CHANNEL_ID }}"
+            text: "iOS SDK release: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            blocks:
+              - type: "header"
+                text:
+                  type: "plain_text"
+                  text: ":certified: iOS SDK release"
+                  emoji: true
+              - type: "section"
+                fields:
+                  - type: "mrkdwn"
+                    text: "*Status:*\n${{ job.status }}"
+                  - type: "mrkdwn"
+                    text: "*Branch:*\n${{ github.ref_name }}"
+                  - type: "mrkdwn"
+                    text: "*Author:*\n${{ github.actor || github.triggering_actor }}"
+                  - type: "mrkdwn"
+                    text: ":white_check_mark: *iOS SDK release:*\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      - name: Build failure Post to Slack
+        uses: slackapi/slack-github-action@v2.0.0
+        if: ${{ failure() && github.event_name == 'pull_request' }}
+        with:
+          method: chat.postMessage
+          token: "${{ secrets.SLACK_MESSENGER_APP_TOKEN }}"
+          payload: |
+            channel: "${{ secrets.ALERTS_SLACK_CHANNEL_ID }}"
+            text: "iOS SDK release: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            blocks:
+              - type: "header"
+                text:
+                  type: "plain_text"
+                  text: ":certified: iOS SDK release"
+                  emoji: true
+              - type: "section"
+                fields:
+                  - type: "mrkdwn"
+                    text: "*Status:*\n${{ job.status }}"
+                  - type: "mrkdwn"
+                    text: "*Branch:*\n${{ github.event.pull_request.head.ref }}"
+                  - type: "mrkdwn"
+                    text: "*Author:*\n${{ github.actor || github.triggering_actor }}"
+                  - type: "mrkdwn"
+                    text: ":x: *iOS SDK release:*\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
