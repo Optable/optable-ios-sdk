@@ -98,7 +98,7 @@ jobs:
           token: "${{ secrets.SLACK_MESSENGER_APP_TOKEN }}"
           payload: |
             channel: "${{ secrets.ALERTS_SLACK_CHANNEL_ID }}"
-            text: "iOS SDK release: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            text: "iOS SDK release: Success\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             blocks:
               - type: "header"
                 text:
@@ -108,7 +108,7 @@ jobs:
               - type: "section"
                 fields:
                   - type: "mrkdwn"
-                    text: "*Status:*\n${{ job.status }}"
+                    text: "*Status:*\nSuccess"
                   - type: "mrkdwn"
                     text: "*Branch:*\n${{ github.ref_name }}"
                   - type: "mrkdwn"
@@ -123,7 +123,7 @@ jobs:
           token: "${{ secrets.SLACK_MESSENGER_APP_TOKEN }}"
           payload: |
             channel: "${{ secrets.ALERTS_SLACK_CHANNEL_ID }}"
-            text: "iOS SDK release: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            text: "iOS SDK release: Failure\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             blocks:
               - type: "header"
                 text:
@@ -133,7 +133,7 @@ jobs:
               - type: "section"
                 fields:
                   - type: "mrkdwn"
-                    text: "*Status:*\n${{ job.status }}"
+                    text: "*Status:*\nFailure"
                   - type: "mrkdwn"
                     text: "*Branch:*\n${{ github.event.pull_request.head.ref }}"
                   - type: "mrkdwn"
