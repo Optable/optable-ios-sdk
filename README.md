@@ -1,4 +1,4 @@
-# Optable iOS SDK [![Github Actions](https://github.com/Optable/optable-ios-sdk/actions)](https://github.com/Optable/optable-ios-sdk/actions)
+# Optable iOS SDK [![iOS SDK CI](https://github.com/Optable/optable-ios-sdk/actions/workflows/ios-sdk-ci.yml/badge.svg)](https://github.com/Optable/optable-ios-sdk/actions/workflows/ios-sdk-ci.yml)
 
 Swift SDK for integrating with an [Optable Data Connectivity Node (DCN)](https://docs.optable.co) from an iOS application.
 
