@@ -36,6 +36,7 @@ jobs:
         with:
           name: test-results
           path: ./fastlane/test_output
+          retention-days: 1
 
   build-demo-swift:
     name: "Build Demo Swift"
@@ -54,12 +55,13 @@ jobs:
         with:
           name: demo-swift
           path: ./demo-ios-swift/Pods
+          retention-days: 1
       - name: Store build log
         uses: actions/upload-artifact@v4
         with:
           name: build-log-swift
           path: /Users/runner/Library/Logs/gym
-
+          retention-days: 1
 
   build-demo-objc:
     name: "Build Demo Objective-C"
@@ -79,11 +81,13 @@ jobs:
         with:
           name: demo-objc
           path: ./demo-ios-objc/Pods
+          retention-days: 1
       - name: Store build log
         uses: actions/upload-artifact@v4
         with:
           name: build-log-objc
           path: /Users/runner/Library/Logs/gym
+          retention-days: 1
 
   slack-notification:
     runs-on: ubuntu-22.04
