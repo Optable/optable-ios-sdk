@@ -72,22 +72,11 @@
 - (void)addBannerViewToView:(UIView *)bannerView {
     bannerView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:bannerView];
-    [self.view addConstraints:@[
-      [NSLayoutConstraint constraintWithItem:bannerView
-                                 attribute:NSLayoutAttributeBottom
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.view.safeAreaLayoutGuide.bottomAnchor
-                                 attribute:NSLayoutAttributeTop
-                                multiplier:1
-                                  constant:0],
-      [NSLayoutConstraint constraintWithItem:bannerView
-                                 attribute:NSLayoutAttributeCenterX
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.view
-                                 attribute:NSLayoutAttributeCenterX
-                                multiplier:1
-                                  constant:0]
-                                  ]];
+    
+    [NSLayoutConstraint activateConstraints:@[
+        [bannerView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor],
+        [bannerView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor]
+    ]];
 }
 
 @end
