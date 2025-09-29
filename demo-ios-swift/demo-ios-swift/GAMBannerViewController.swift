@@ -13,7 +13,9 @@ class GAMBannerViewController: UIViewController {
     
     var bannerView: GADBannerView!
     
-    //MARK: Properties
+    // MARK: Properties
+    
+    @IBOutlet weak var adPlaceholder: UIView!
     @IBOutlet weak var loadBannerButton: UIButton!
     @IBOutlet weak var loadBannerFromCacheButton: UIButton!
     @IBOutlet weak var clearTargetingCacheButton: UIButton!
@@ -49,7 +51,7 @@ class GAMBannerViewController: UIViewController {
                 case .failure(let error):
                     print("[OptableSDK] Error on /targeting API call: \(error)")
                     DispatchQueue.main.async {
-                        self.targetingOutput.text += "Error: \(error)\n"
+                        self.targetingOutput.text += "🚫 Error: \(error)\n"
                     }
                 }
                 
@@ -68,17 +70,17 @@ class GAMBannerViewController: UIViewController {
         let cachedValues = OPTABLE!.targetingFromCache()
         if (cachedValues != nil) {
             print("[OptableSDK] Cached targeting values found: \(cachedValues!)")
-            targetingOutput.text += "Found cached data: \(cachedValues!)\n"
+            targetingOutput.text += "\nFound cached data: \(cachedValues!)\n"
             tdata = cachedValues!
         } else {
-            targetingOutput.text += "Cache empty.\n"
+            targetingOutput.text += "\nCache empty.\n"
         }
         
         self.loadBanner(adUnitID: "/22081946781/ios-sdk-demo/mobile-leaderboard", keyvalues: tdata)
     }
     
     @IBAction func clearTargetingCache(_ sender: UIButton) {
-        targetingOutput.text = "Clearing local targeting cache.\n"
+        targetingOutput.text = "🧹 Clearing local targeting cache.\n"
         OPTABLE!.targetingClearCache()
     }
     
@@ -100,13 +102,13 @@ class GAMBannerViewController: UIViewController {
                 case .success(let response):
                     print("[OptableSDK] Success on /witness API call: response.statusCode = \(response.statusCode)")
                     DispatchQueue.main.async {
-                        self.targetingOutput.text += "\nSuccess calling witness API to log loadBannerClicked event.\n"
+                        self.targetingOutput.text += "\n✅ Success calling witness API to log loadBannerClicked event.\n"
                     }
                     
                 case .failure(let error):
                     print("[OptableSDK] Error on /witness API call: \(error)")
                     DispatchQueue.main.async {
-                        self.targetingOutput.text += "\nError: \(error)"
+                        self.targetingOutput.text += "\n🚫 Error: \(error)"
                     }
                 }
             }
@@ -122,13 +124,13 @@ class GAMBannerViewController: UIViewController {
                 case .success(let response):
                     print("[OptableSDK] Success on /profile API call: response.statusCode = \(response.statusCode)")
                     DispatchQueue.main.async {
-                        self.targetingOutput.text += "\nSuccess calling profile API to set example traits.\n"
+                        self.targetingOutput.text += "\n✅ Success calling profile API to set example traits.\n"
                     }
                     
                 case .failure(let error):
                     print("[OptableSDK] Error on /profile API call: \(error)")
                     DispatchQueue.main.async {
-                        self.targetingOutput.text += "\nError: \(error)"
+                        self.targetingOutput.text += "\n🚫 Error: \(error)"
                     }
                 }
             }
@@ -139,11 +141,11 @@ class GAMBannerViewController: UIViewController {
     
     private func addBannerViewToView(_ bannerView: GADBannerView) {
         bannerView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(bannerView)
+        adPlaceholder.addSubview(bannerView)
         
         NSLayoutConstraint.activate([
-            bannerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            bannerView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            bannerView.centerXAnchor.constraint(equalTo: adPlaceholder.centerXAnchor),
+            bannerView.centerYAnchor.constraint(equalTo: adPlaceholder.centerYAnchor)
         ])
     }
 }

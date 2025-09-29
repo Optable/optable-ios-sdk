@@ -133,8 +133,8 @@
 			children = (
 				6352AA5A24DC7AE9002E66EB /* AppDelegate.swift */,
 				6352AA5C24DC7AE9002E66EB /* SceneDelegate.swift */,
-				6352AA5E24DC7AE9002E66EB /* IdentifyViewController.swift */,
 				631466EC24F7F555007DCA5D /* GAMBannerViewController.swift */,
+				6352AA5E24DC7AE9002E66EB /* IdentifyViewController.swift */,
 				6352AA6024DC7AE9002E66EB /* Main.storyboard */,
 				6352AA6324DC7AEC002E66EB /* Assets.xcassets */,
 				6352AA6524DC7AEC002E66EB /* LaunchScreen.storyboard */,
