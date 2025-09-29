@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="9KB-Po-ioE">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24128" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="9KB-Po-ioE">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -17,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="AKp-3F-KNX">
-                                <rect key="frame" x="20" y="64" width="374" height="168"/>
+                                <rect key="frame" x="20" y="116" width="374" height="165"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Email Address:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2fu-DR-6Hn">
                                         <rect key="frame" x="0.0" y="0.0" width="112" height="20.5"/>
@@ -37,10 +38,10 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Eg-c7-IVu">
-                                        <rect key="frame" x="0.0" y="99" width="51" height="31"/>
+                                        <rect key="frame" x="0.0" y="99" width="63" height="28"/>
                                     </switch>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="b7v-UN-xAf">
-                                        <rect key="frame" x="0.0" y="138" width="374" height="30"/>
+                                        <rect key="frame" x="0.0" y="135" width="374" height="30"/>
                                         <state key="normal" title="Identify"/>
                                         <connections>
                                             <action selector="dispatchIdentify:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Sae-rS-iHh"/>
@@ -91,14 +92,14 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x4k-D7-Mvh">
-                                <rect key="frame" x="50" y="94" width="314" height="30"/>
+                                <rect key="frame" x="50" y="146" width="314" height="30"/>
                                 <state key="normal" title="Load Targeting and Banner"/>
                                 <connections>
                                     <action selector="loadBannerWithTargeting:" destination="qnL-ha-uwz" eventType="touchUpInside" id="hBs-SW-Fgz"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5Vm-D1-GlS">
-                                <rect key="frame" x="50" y="126" width="314" height="30"/>
+                                <rect key="frame" x="50" y="178" width="314" height="30"/>
                                 <state key="normal" title="Cached Targeting and Banner"/>
                                 <connections>
                                     <action selector="loadBannerWithTargetingFromCache:" destination="qnL-ha-uwz" eventType="touchUpInside" id="GCp-rw-Bvc"/>
@@ -113,7 +114,7 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="K3l-bf-R5v">
-                                <rect key="frame" x="50" y="158" width="314" height="30"/>
+                                <rect key="frame" x="50" y="210" width="314" height="30"/>
                                 <state key="normal" title="Clear Targeting Cache"/>
                                 <connections>
                                     <action selector="clearTargetingCache:" destination="qnL-ha-uwz" eventType="touchUpInside" id="kbS-MK-t86"/>
@@ -134,7 +135,7 @@
                             <constraint firstItem="5Vm-D1-GlS" firstAttribute="leading" secondItem="Cyy-8b-GCg" secondAttribute="leading" constant="50" id="y8L-ol-JVK"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="GAM Banner" image="rectangle.3.offgrid.fill" catalog="system" selectedImage="rectangle.3.offgrid.fill" id="WaP-P0-dwN"/>
+                    <tabBarItem key="tabBarItem" title="GAM Banner" image="rectangle.3.group.fill" catalog="system" selectedImage="rectangle.3.group.fill" id="WaP-P0-dwN"/>
                     <connections>
                         <outlet property="clearTargetingCacheButton" destination="K3l-bf-R5v" id="eYH-ua-b52"/>
                         <outlet property="loadBannerButton" destination="x4k-D7-Mvh" id="oRn-LX-7Gx"/>
@@ -167,8 +168,8 @@
         </scene>
     </scenes>
     <resources>
-        <image name="person.fill.badge.plus" catalog="system" width="128" height="124"/>
-        <image name="rectangle.3.offgrid.fill" catalog="system" width="128" height="81"/>
+        <image name="person.fill.badge.plus" catalog="system" width="128" height="126"/>
+        <image name="rectangle.3.group.fill" catalog="system" width="128" height="81"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
