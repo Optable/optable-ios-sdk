@@ -11,7 +11,7 @@ import GoogleMobileAds
 
 class GAMBannerViewController: UIViewController {
     
-    var bannerView: GADBannerView!
+    var bannerView: BannerView!
     
     // MARK: Properties
     
@@ -24,7 +24,7 @@ class GAMBannerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        bannerView = GADBannerView(adSize: GADAdSizeBanner)
+        bannerView = BannerView(adSize: AdSizeBanner)
         addBannerViewToView(bannerView)
         bannerView.rootViewController = self
     }
@@ -87,7 +87,7 @@ class GAMBannerViewController: UIViewController {
     private func loadBanner(adUnitID: String, keyvalues: NSDictionary) {
         bannerView.adUnitID = adUnitID
         
-        let req = GAMRequest()
+        let req = AdManagerRequest()
         req.customTargeting = keyvalues as? [String: String]
         bannerView.load(req)
         
@@ -139,7 +139,7 @@ class GAMBannerViewController: UIViewController {
         }
     }
     
-    private func addBannerViewToView(_ bannerView: GADBannerView) {
+    private func addBannerViewToView(_ bannerView: BannerView) {
         bannerView.translatesAutoresizingMaskIntoConstraints = false
         adPlaceholder.addSubview(bannerView)
         
