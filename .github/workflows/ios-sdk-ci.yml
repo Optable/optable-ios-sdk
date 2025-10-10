@@ -10,10 +10,10 @@ on:
 jobs:
   sdk-tests:
     name: "SDK Tests"
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Bundle install
         run: bundle install
       - name: Run Tests
@@ -27,11 +27,11 @@ jobs:
 
   build-demo-swift:
     name: "Build Demo Swift"
-    runs-on: macos-14
+    runs-on: macos-15
     needs: [sdk-tests]
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Bundle install
         run: bundle install
       - name: Build Demo Swift
@@ -52,7 +52,7 @@ jobs:
 
   build-demo-objc:
     name: "Build Demo Objective-C"
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       FL_OUTPUT_DIR: output
     needs: [sdk-tests]
@@ -77,12 +77,12 @@ jobs:
           retention-days: 1
 
   slack-notification:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [build-demo-swift, build-demo-objc]
     if: ${{ !cancelled() }}
     steps:
       - name: Successful Release Post to Slack
-        uses: slackapi/slack-github-action@v2.0.0
+        uses: slackapi/slack-github-action@v2.1.1
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && needs.build-demo-swift.result == 'success' && needs.build-demo-swift.result == 'success' }}
         with:
           method: chat.postMessage
@@ -107,7 +107,7 @@ jobs:
                   - type: "mrkdwn"
                     text: ":white_check_mark: *iOS SDK release:*\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
       - name: Build failure Post to Slack
-        uses: slackapi/slack-github-action@v2.0.0
+        uses: slackapi/slack-github-action@v2.1.1
         if: ${{ github.event_name == 'pull_request' && (needs.build-demo-swift.result != 'success' || needs.build-demo-swift.result != 'success')}}
         with:
           method: chat.postMessage
