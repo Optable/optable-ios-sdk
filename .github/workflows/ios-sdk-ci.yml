@@ -8,22 +8,9 @@ on:
       - v[0-9]+.[0-9]+.[0-9]+-*
 
 jobs:
-  setup:
-    name: "Setup"
-    runs-on: macos-13
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-      - name: Install ruby and gem dependencies
-        uses: ruby/setup-ruby@v1
-        with:
-            ruby-version: 3.0.7
-            bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-
   sdk-tests:
     name: "SDK Tests"
     runs-on: macos-13
-    needs: [setup]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -41,7 +28,7 @@ jobs:
   build-demo-swift:
     name: "Build Demo Swift"
     runs-on: macos-14
-    needs: [setup, sdk-tests]
+    needs: [sdk-tests]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -68,7 +55,7 @@ jobs:
     runs-on: macos-14
     env:
       FL_OUTPUT_DIR: output
-    needs: [setup, sdk-tests]
+    needs: [sdk-tests]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
