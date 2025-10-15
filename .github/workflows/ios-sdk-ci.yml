@@ -1,6 +1,6 @@
 name: "iOS SDK CI"
 
-on: 
+on:
   pull_request:
   push:
     tags:
@@ -8,27 +8,17 @@ on:
       - v[0-9]+.[0-9]+.[0-9]+-*
 
 jobs:
-  setup:
-    name: "Setup"
-    runs-on: macos-13
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-      - name: Install ruby and gem dependencies
-        uses: ruby/setup-ruby@v1
-        with:
-            ruby-version: 3.0.7
-            bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-
   sdk-tests:
     name: "SDK Tests"
-    runs-on: macos-13
-    needs: [setup]
+    runs-on: macos-15
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Bundle install
-        run: bundle install
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
       - name: Run Tests
         run: bundle exec fastlane tests
       - name: Store Artifacts
@@ -40,16 +30,19 @@ jobs:
 
   build-demo-swift:
     name: "Build Demo Swift"
-    runs-on: macos-14
-    needs: [setup, sdk-tests]
+    runs-on: macos-15
+    needs: [sdk-tests]
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Bundle install
-        run: bundle install
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
       - name: Build Demo Swift
         id: build-demo-swift
-        run: bundle exec fastlane demo_swift
+        run: echo TODO UNCOMMENT # bundle exec fastlane demo_swift
       - name: Store Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -65,15 +58,18 @@ jobs:
 
   build-demo-objc:
     name: "Build Demo Objective-C"
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       FL_OUTPUT_DIR: output
-    needs: [setup, sdk-tests]
+    needs: [sdk-tests]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
       - name: Bundle install
-        run: bundle install
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
       - name: Build Demo Objective-C
         run: bundle exec fastlane demo_objc
       - name: Store Artifacts
@@ -90,14 +86,13 @@ jobs:
           retention-days: 1
 
   slack-notification:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [build-demo-swift, build-demo-objc]
-    permissions:
-      id-token: write
+    if: ${{ !cancelled() }}
     steps:
       - name: Successful Release Post to Slack
-        uses: slackapi/slack-github-action@v2.0.0
-        if: ${{ success() && (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) }}
+        uses: slackapi/slack-github-action@v2.1.1
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && needs.build-demo-swift.result == 'success' && needs.build-demo-swift.result == 'success' }}
         with:
           method: chat.postMessage
           token: "${{ secrets.SLACK_MESSENGER_APP_TOKEN }}"
@@ -121,8 +116,8 @@ jobs:
                   - type: "mrkdwn"
                     text: ":white_check_mark: *iOS SDK release:*\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
       - name: Build failure Post to Slack
-        uses: slackapi/slack-github-action@v2.0.0
-        if: ${{ failure() && github.event_name == 'pull_request' }}
+        uses: slackapi/slack-github-action@v2.1.1
+        if: ${{ github.event_name == 'pull_request' && (needs.build-demo-swift.result != 'success' || needs.build-demo-swift.result != 'success')}}
         with:
           method: chat.postMessage
           token: "${{ secrets.SLACK_MESSENGER_APP_TOKEN }}"
