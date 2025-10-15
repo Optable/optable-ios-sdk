@@ -1,6 +1,6 @@
 name: "iOS SDK CI"
 
-on: 
+on:
   pull_request:
   push:
     tags:
@@ -15,7 +15,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v5
       - name: Bundle install
-        run: bundle install
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
       - name: Run Tests
         run: bundle exec fastlane tests
       - name: Store Artifacts
@@ -33,7 +36,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v5
       - name: Bundle install
-        run: bundle install
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
       - name: Build Demo Swift
         id: build-demo-swift
         run: bundle exec fastlane demo_swift
@@ -60,7 +66,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
       - name: Bundle install
-        run: bundle install
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
       - name: Build Demo Objective-C
         run: bundle exec fastlane demo_objc
       - name: Store Artifacts
