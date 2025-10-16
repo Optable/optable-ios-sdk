@@ -97,6 +97,7 @@ class PrebidBannerViewController: UIViewController {
                 print("[PrebidMobile SDK] Prebid fetch demand was not successful: \(status.name())")
             }
             
+            // TODO: - Where should keyvalues go in Prebid and GAM(?) ?
             if let keyvalues = keyvalues as? [String: String] {
                 request.customTargeting?.merge(keyvalues, uniquingKeysWith: { $1 })
             }

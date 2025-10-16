@@ -44,17 +44,17 @@
     // Update the GAM banner view with result targeting keyvalues:
     GAMRequest *request = [GAMRequest request];
     request.customTargeting = result;
-    [self.bannerView loadRequest:request];
+    [self.adManagerBannerView loadRequest:request];
 
     NSLog(@"[OptableSDK] Success on /targeting API call: %@", result);
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.targetingOutput setText:[NSString stringWithFormat:@"%@\nData: %@\n", [self.targetingOutput text], result]];
+        [self.targetingOutput setText:[NSString stringWithFormat:@"%@\n✅ Data: %@\n", [self.targetingOutput text], result]];
     });
 }
 - (void)targetingErr:(NSError *)error {
     // Update the GAM banner view without targeting data:
     GAMRequest *request = [GAMRequest request];
-    [self.bannerView loadRequest:request];
+    [self.adManagerBannerView loadRequest:request];
 
     NSLog(@"[OptableSDK] Error on /targeting API call: %@", [error localizedDescription]);
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -75,4 +75,29 @@
         [self.targetingOutput setText:[NSString stringWithFormat:@"%@\n🚫 Error: %@\n", [self.targetingOutput text], [error localizedDescription]]];
     });
 }
+
+- (void)loadBannerWithKeyValues:(NSDictionary<NSString *, NSString *> * _Nullable)keyValues {
+    GAMRequest *request = [GAMRequest request];
+    
+    if (self.pbmBannerAdUnit) {
+        __weak typeof(self) weakSelf = self;
+        [self.pbmBannerAdUnit fetchDemandWithAdObject:request completion:^(enum ResultCode status) {
+            if (status != ResultCodePrebidDemandFetchSuccess) {
+                NSLog(@"[PrebidMobile SDK] Prebid fetch demand failed: %ld", (long)status);
+            }
+            if (keyValues.count > 0) {
+                NSMutableDictionary *merged = [request.customTargeting mutableCopy] ?: [NSMutableDictionary dictionary];
+                [merged addEntriesFromDictionary:keyValues];
+                request.customTargeting = merged;
+            }
+            [weakSelf.adManagerBannerView loadRequest:request];
+        }];
+    } else {
+        if (keyValues.count > 0) {
+            request.customTargeting = keyValues;
+        }
+        [self.adManagerBannerView loadRequest:request];
+    }
+}
+
 @end

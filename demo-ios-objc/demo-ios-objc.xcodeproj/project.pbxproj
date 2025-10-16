@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		10F4BF742EFDE899E4AE482F /* Pods_demo_ios_objc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35D48072B3533132ACEA0D21 /* Pods_demo_ios_objc.framework */; };
 		11D09485910F1A1EB9871E8E /* Pods_demo_ios_objcTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB5262E52B5F4397F9533E61 /* Pods_demo_ios_objcTests.framework */; };
+		536D9E992EA0EE06006D86BE /* PrebidBannerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 536D9E982EA0EE06006D86BE /* PrebidBannerViewController.m */; };
 		6320EEFE2535F92300F76877 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6320EEFD2535F92300F76877 /* AppDelegate.m */; };
 		6320EF012535F92300F76877 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6320EF002535F92300F76877 /* SceneDelegate.m */; };
 		6320EF042535F92300F76877 /* IdentifyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6320EF032535F92300F76877 /* IdentifyViewController.m */; };
@@ -47,6 +48,8 @@
 		35D48072B3533132ACEA0D21 /* Pods_demo_ios_objc.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_demo_ios_objc.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		45728C7558D469A46F00466E /* Pods-demo-ios-objc-demo-ios-objcUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-demo-ios-objc-demo-ios-objcUITests.debug.xcconfig"; path = "Target Support Files/Pods-demo-ios-objc-demo-ios-objcUITests/Pods-demo-ios-objc-demo-ios-objcUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		523A0EFF3A972FC18833C15D /* Pods-demo-ios-objc-demo-ios-objcUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-demo-ios-objc-demo-ios-objcUITests.release.xcconfig"; path = "Target Support Files/Pods-demo-ios-objc-demo-ios-objcUITests/Pods-demo-ios-objc-demo-ios-objcUITests.release.xcconfig"; sourceTree = "<group>"; };
+		536D9E972EA0EE06006D86BE /* PrebidBannerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrebidBannerViewController.h; sourceTree = "<group>"; };
+		536D9E982EA0EE06006D86BE /* PrebidBannerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PrebidBannerViewController.m; sourceTree = "<group>"; };
 		5C562AA9ABB1162DB4C0814E /* Pods_demo_ios_objc_demo_ios_objcUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_demo_ios_objc_demo_ios_objcUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6320EEF92535F92300F76877 /* demo-ios-objc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "demo-ios-objc.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6320EEFC2535F92300F76877 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -149,6 +152,8 @@
 				6320EF032535F92300F76877 /* IdentifyViewController.m */,
 				63B5A8C52536704F000CA436 /* GAMBannerViewController.h */,
 				63B5A8C025366FE8000CA436 /* GAMBannerViewController.m */,
+				536D9E972EA0EE06006D86BE /* PrebidBannerViewController.h */,
+				536D9E982EA0EE06006D86BE /* PrebidBannerViewController.m */,
 				6320EF052535F92300F76877 /* Main.storyboard */,
 				6320EF082535F92500F76877 /* Assets.xcassets */,
 				6320EF0A2535F92500F76877 /* LaunchScreen.storyboard */,
@@ -479,6 +484,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				536D9E992EA0EE06006D86BE /* PrebidBannerViewController.m in Sources */,
 				63B5A91E2536825A000CA436 /* IdentifyViewController.h in Sources */,
 				6320EF042535F92300F76877 /* IdentifyViewController.m in Sources */,
 				63B5A91A25368252000CA436 /* GAMBannerViewController.h in Sources */,
