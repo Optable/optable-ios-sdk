@@ -14,19 +14,19 @@ import CryptoKit
 import AppTrackingTransparency
 import AdSupport
 
-//
-//  OptableDelegate is a delegate protocol that the caller may optionally use. Swift applications can choose to integrate using
-//  callbacks or the delegator pattern, whereas Objective-C apps must use the delegator pattern.
-//
-//  The OptableDelegate protocol consists of implementing *Ok() and *Err() event handlers. The *Ok() handler will
-//  receive an NSDictionary when the delegate variant of the targeting() API is called, and an HTTPURLResponse in all other
-//  SDK APIs that do not return actual data on success (e.g., identify(), witness(), etc.)
-//
-//  The *Err() handlers will be called with an NSError instance on SDK API errors.
-//
-//  Finally note that for the delegate variant of SDK API methods, internal exceptions will result in setting the NSError
-//  object passed which is passed by reference to the method, and not calling the delegate.
-//
+///
+///  OptableDelegate is a delegate protocol that the caller may optionally use. Swift applications can choose to integrate using
+///  callbacks or the delegator pattern, whereas Objective-C apps must use the delegator pattern.
+///
+///  The OptableDelegate protocol consists of implementing *Ok() and *Err() event handlers. The *Ok() handler will
+///  receive an NSDictionary when the delegate variant of the targeting() API is called, and an HTTPURLResponse in all other
+///  SDK APIs that do not return actual data on success (e.g., identify(), witness(), etc.)
+///
+///  The *Err() handlers will be called with an NSError instance on SDK API errors.
+///
+///  Finally note that for the delegate variant of SDK API methods, internal exceptions will result in setting the NSError
+///  object passed which is passed by reference to the method, and not calling the delegate.
+///
 @objc
 public protocol OptableDelegate {
     func identifyOk(_ result: HTTPURLResponse)
@@ -39,16 +39,16 @@ public protocol OptableDelegate {
     func witnessErr(_ error: NSError)
 }
 
-//
-//  OptableSDK exposes an API that is used by an iOS app developer integrating with an Optable Sandbox.
-//
-//  An instance of OptableSDK refers to an Optable Sandbox specified by the caller via `host` and `app` arguments provided to the constructor.
-//
-//  It is possible to create multiple instances of OptableSDK, should the developer want to integrate with multiple Sandboxes.
-//
-//  The OptableSDK keeps some state in UserDefaults (https://developer.apple.com/documentation/foundation/userdefaults), a key/value store persisted
-//  across launches of the app.  The state is therefore unique to the app+device, and not globally unique to the app across devices.
-//
+///
+///  OptableSDK exposes an API that is used by an iOS app developer integrating with an Optable Sandbox.
+///
+///  An instance of OptableSDK refers to an Optable Sandbox specified by the caller via `host` and `app` arguments provided to the constructor.
+///
+///  It is possible to create multiple instances of OptableSDK, should the developer want to integrate with multiple Sandboxes.
+///
+///  The OptableSDK keeps some state in UserDefaults (https:///developer.apple.com/documentation/foundation/userdefaults), a key/value store persisted
+///  across launches of the app.  The state is therefore unique to the app+device, and not globally unique to the app across devices.
+///
 @objc
 public class OptableSDK: NSObject {
     @objc public var delegate: OptableDelegate?
@@ -63,20 +63,20 @@ public class OptableSDK: NSObject {
     var config: Config
     var client: Client
 
-    //
-    //  OptableSDK(host, app) returns an instance of the SDK configured to talk to the sandbox specified by host & app:
-    //
+    ///
+    ///  OptableSDK(host, app) returns an instance of the SDK configured to talk to the sandbox specified by host & app:
+    ///
     @objc
     public init(host: String, app: String, insecure: Bool = false, useragent: String? = nil) {
         self.config = Config(host: host, app: app, insecure: insecure, useragent: useragent)
         self.client = Client(self.config)
     }
 
-    //
-    //  identify(ids, completion) issues a call to the Optable Sandbox "identify" API, passing the specified
-    //  list of type-prefixed IDs. It is asynchronous, and on completion it will call the specified completion handler, passing
-    //  it either the HTTPURLResponse on success, or an OptableError on failure.
-    //
+    ///
+    ///  identify(ids, completion) issues a call to the Optable Sandbox "identify" API, passing the specified
+    ///  list of type-prefixed IDs. It is asynchronous, and on completion it will call the specified completion handler, passing
+    ///  it either the HTTPURLResponse on success, or an OptableError on failure.
+    ///
     public func identify(ids: [String], _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
         try Identify(config: self.config, client: self.client, ids: ids) { (data, response, error) in
             guard let response = response as? HTTPURLResponse, error == nil, data != nil else {
@@ -100,12 +100,12 @@ public class OptableSDK: NSObject {
         }?.resume()
     }
 
-    //
-    //  identify(ids) is the "delegate variant" of the identify(ids, completion) method. It wraps the latter with
-    //  a delegator callback.
-    //
-    //  This is the Objective-C compatible version of the identify(ids, completion) API.
-    //
+    ///
+    ///  identify(ids) is the "delegate variant" of the identify(ids, completion) method. It wraps the latter with
+    ///  a delegator callback.
+    ///
+    ///  This is the Objective-C compatible version of the identify(ids, completion) API.
+    ///
     @objc
     public func identify(_ ids: [String]) throws -> Void {
         try self.identify(ids: ids) { result in
@@ -118,14 +118,14 @@ public class OptableSDK: NSObject {
         }
     }
 
-    //
-    //  identify(email, aaid, ppid, completion) issues a call to the Optable Sandbox "identify" API, passing it the SHA-256
-    //  of the caller-provided 'email' and, when specified via the 'aaid' Boolean, the Apple ID For Advertising (IDFA)
-    //  associated with the device. When 'ppid' is provided as a string, it is also sent for identity resolution.
-    //
-    //  The identify method is asynchronous, and on completion it will call the specified completion handler, passing
-    //  it either the HTTPURLResponse on success, or an OptableError on failure.
-    //
+    ///
+    ///  identify(email, aaid, ppid, completion) issues a call to the Optable Sandbox "identify" API, passing it the SHA-256
+    ///  of the caller-provided 'email' and, when specified via the 'aaid' Boolean, the Apple ID For Advertising (IDFA)
+    ///  associated with the device. When 'ppid' is provided as a string, it is also sent for identity resolution.
+    ///
+    ///  The identify method is asynchronous, and on completion it will call the specified completion handler, passing
+    ///  it either the HTTPURLResponse on success, or an OptableError on failure.
+    ///
     public func identify(email: String, aaid: Bool = false, ppid: String = "", _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
         var ids = [String]()
 
@@ -154,12 +154,12 @@ public class OptableSDK: NSObject {
         try self.identify(ids: ids, completion)
     }
 
-    //
-    //  identify(email, aaid, ppid) is the "delegate variant" of the identify(email, aaid, ppid, completion) method.
-    //  It wraps the latter with a delegator callback.
-    //
-    //  This is the Objective-C compatible version of the identify(email, aaid, ppid, completion) API.
-    //
+    ///
+    ///  identify(email, aaid, ppid) is the "delegate variant" of the identify(email, aaid, ppid, completion) method.
+    ///  It wraps the latter with a delegator callback.
+    ///
+    ///  This is the Objective-C compatible version of the identify(email, aaid, ppid, completion) API.
+    ///
     @objc
     public func identify(_ email: String, aaid: Bool = false, ppid: String = "") throws -> Void {
         try self.identify(email: email, aaid: aaid, ppid: ppid) { result in
@@ -172,16 +172,16 @@ public class OptableSDK: NSObject {
         }
     }
 
-    //
-    //  targeting(completion) calls the Optable Sandbox "targeting" API, which returns the key-value targeting
-    //  data matching the user/device/app.
-    //
-    //  The targeting method is asynchronous, and on completion it will call the specified completion handler,
-    //  passing it either the NSDictionary targeting data on success, or an OptableError on failure.
-    //
-    //  On success, this method will also cache the resulting targeting data in client storage, which can
-    //  be access using targetingFromCache(), and cleared using targetingClearCache().
-    //
+    ///
+    ///  targeting(completion) calls the Optable Sandbox "targeting" API, which returns the key-value targeting
+    ///  data matching the user/device/app.
+    ///
+    ///  The targeting method is asynchronous, and on completion it will call the specified completion handler,
+    ///  passing it either the NSDictionary targeting data on success, or an OptableError on failure.
+    ///
+    ///  On success, this method will also cache the resulting targeting data in client storage, which can
+    ///  be access using targetingFromCache(), and cleared using targetingClearCache().
+    ///
     public func targeting(_ completion: @escaping (Result<NSDictionary,OptableError>) -> Void) throws -> Void {
         try Targeting(config: self.config, client: self.client) { (data, response, error) in
             guard let response = response as? HTTPURLResponse, error == nil, data != nil else {
@@ -206,7 +206,7 @@ public class OptableSDK: NSObject {
                 let keyvalues = try JSONSerialization.jsonObject(with: data ?? Data(), options: [])
                 let result = keyvalues as? NSDictionary ?? NSDictionary()
 
-                // We cache the latest targeting result in client storage for targetingFromCache() users:
+                /// We cache the latest targeting result in client storage for targetingFromCache() users:
                 self.client.storage.setTargeting(keyvalues as? [String: Any] ?? [String: Any]())
 
                 completion(.success(result))
@@ -216,12 +216,12 @@ public class OptableSDK: NSObject {
         }?.resume()
     }
 
-    //
-    //  targeting() is the "delegate variant" of the targeting(completion) method. It wraps the latter with
-    //  a delegator callback.
-    //
-    //  This is the Objective-C compatible version of the targeting(completion) API.
-    //
+    ///
+    ///  targeting() is the "delegate variant" of the targeting(completion) method. It wraps the latter with
+    ///  a delegator callback.
+    ///
+    ///  This is the Objective-C compatible version of the targeting(completion) API.
+    ///
     @objc
     public func targeting() throws -> Void {
         try self.targeting() { result in
@@ -234,9 +234,9 @@ public class OptableSDK: NSObject {
         }
     }
 
-    //
-    //  targetingFromCache() returns the previously cached targeting data, if any.
-    //
+    ///
+    ///  targetingFromCache() returns the previously cached targeting data, if any.
+    ///
     @objc
     public func targetingFromCache() -> NSDictionary? {
         guard let keyvalues = self.client.storage.getTargeting() as NSDictionary? else {
@@ -245,22 +245,22 @@ public class OptableSDK: NSObject {
         return keyvalues
     }
 
-    //
-    //  targetingClearCache() clears any previously cached targeting data.
-    //
+    ///
+    ///  targetingClearCache() clears any previously cached targeting data.
+    ///
     @objc
     public func targetingClearCache() -> Void {
         self.client.storage.clearTargeting()
     }
 
-    //
-    //  witness(event, properties, completion) calls the Optable Sandbox "witness" API in order to log
-    //  a specified 'event' (e.g., "app.screenView", "ui.buttonPressed"), with the specified keyvalue
-    //  NSDictionary 'properties', which can be subsequently used for audience assembly.
-    //
-    //  The witness method is asynchronous, and on completion it will call the specified completion handler,
-    //  passing it either the HTTPURLResponse on success, or an OptableError on failure.
-    //
+    ///
+    ///  witness(event, properties, completion) calls the Optable Sandbox "witness" API in order to log
+    ///  a specified 'event' (e.g., "app.screenView", "ui.buttonPressed"), with the specified keyvalue
+    ///  NSDictionary 'properties', which can be subsequently used for audience assembly.
+    ///
+    ///  The witness method is asynchronous, and on completion it will call the specified completion handler,
+    ///  passing it either the HTTPURLResponse on success, or an OptableError on failure.
+    ///
     public func witness(event: String, properties: NSDictionary, _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
         try Witness(config: self.config, client: self.client, event: event, properties: properties) { (data, response, error) in
             guard let response = response as? HTTPURLResponse, error == nil else {
@@ -284,12 +284,12 @@ public class OptableSDK: NSObject {
         }?.resume()
     }
 
-    //
-    //  witness(event, properties) is the "delegate variant" of the witness(event, properties, completion) method.
-    //  It wraps the latter with a delegator callback.
-    //
-    //  This is the Objective-C compatible version of the witness(event, properties, completion) API.
-    //
+    ///
+    ///  witness(event, properties) is the "delegate variant" of the witness(event, properties, completion) method.
+    ///  It wraps the latter with a delegator callback.
+    ///
+    ///  This is the Objective-C compatible version of the witness(event, properties, completion) API.
+    ///
     @objc
     public func witness(_ event: String, properties: NSDictionary) throws -> Void {
         try self.witness(event: event, properties: properties) { result in
@@ -302,14 +302,14 @@ public class OptableSDK: NSObject {
         }
     }
 
-    //
-    //  profile(traits, completion) calls the Optable Sandbox "profile" API in order to associate
-    //  specified 'traits' (i.e., key-value pairs) with the user's device. The specified
-    //  NSDictionary 'traits' can be subsequently used for audience assembly.
-    //
-    //  The profile method is asynchronous, and on completion it will call the specified completion handler,
-    //  passing it either the HTTPURLResponse on success, or an OptableError on failure.
-    //
+    ///
+    ///  profile(traits, completion) calls the Optable Sandbox "profile" API in order to associate
+    ///  specified 'traits' (i.e., key-value pairs) with the user's device. The specified
+    ///  NSDictionary 'traits' can be subsequently used for audience assembly.
+    ///
+    ///  The profile method is asynchronous, and on completion it will call the specified completion handler,
+    ///  passing it either the HTTPURLResponse on success, or an OptableError on failure.
+    ///
     public func profile(traits: NSDictionary, _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
         try Profile(config: self.config, client: self.client, traits: traits) { (data, response, error) in
             guard let response = response as? HTTPURLResponse, error == nil else {
@@ -333,12 +333,12 @@ public class OptableSDK: NSObject {
         }?.resume()
     }
 
-    //
-    //  profile(traits) is the "delegate variant" of the profile(traits, completion) method.
-    //  It wraps the latter with a delegator callback.
-    //
-    //  This is the Objective-C compatible version of the profile(traits, completion) API.
-    //
+    ///
+    ///  profile(traits) is the "delegate variant" of the profile(traits, completion) method.
+    ///  It wraps the latter with a delegator callback.
+    ///
+    ///  This is the Objective-C compatible version of the profile(traits, completion) API.
+    ///
     @objc
     public func profile(traits: NSDictionary) throws -> Void {
         try self.profile(traits: traits) { result in
@@ -351,9 +351,9 @@ public class OptableSDK: NSObject {
         }
     }
 
-    //
-    //  eid(email) is a helper that returns type-prefixed SHA256(downcase(email))
-    //
+    ///
+    ///  eid(email) is a helper that returns type-prefixed SHA256(downcase(email))
+    ///
     @objc
     public func eid(_ email: String) -> String {
         let pfx = "e:"
@@ -383,39 +383,39 @@ public class OptableSDK: NSObject {
         }.joined()
     }
 
-    //
-    //  aaid(idfa) is a helper that returns the type-prefixed Apple ID For Advertising
-    //
+    ///
+    ///  aaid(idfa) is a helper that returns the type-prefixed Apple ID For Advertising
+    ///
     @objc
     public func aaid(_ idfa: String) -> String {
         return "a:" + idfa.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    //
-    //  cid(ppid) is a helper that returns custom type-prefixed origin-provided PPID
-    //
+    ///
+    ///  cid(ppid) is a helper that returns custom type-prefixed origin-provided PPID
+    ///
     @objc
     public func cid(_ ppid: String) -> String {
         return "c:" + ppid.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    //
-    //  eidFromURL(urlString) is a helper that returns a type-prefixed ID based on
-    //  the query string oeid=sha256value parameter in the specified urlString, if
-    //  one is found. Otherwise, it returns an empty string.
-    //
-    //  The use for this is when handling incoming universal links which might
-    //  contain an "oeid" value with the SHA256(downcase(email)) of a user, such as
-    //  encoded links in newsletter Emails sent by the application developer. Such
-    //  hashed Email values can be used in calls to identify()
-    //
+    ///
+    ///  eidFromURL(urlString) is a helper that returns a type-prefixed ID based on
+    ///  the query string oeid=sha256value parameter in the specified urlString, if
+    ///  one is found. Otherwise, it returns an empty string.
+    ///
+    ///  The use for this is when handling incoming universal links which might
+    ///  contain an "oeid" value with the SHA256(downcase(email)) of a user, such as
+    ///  encoded links in newsletter Emails sent by the application developer. Such
+    ///  hashed Email values can be used in calls to identify()
+    ///
     @objc
     public func eidFromURL(_ urlString: String) -> String {
         guard let url = URL(string: urlString) else { return "" }
         guard let urlc = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return "" }
         guard let urlqis = urlc.queryItems else { return "" }
 
-        // Look for an oeid parameter in the urlString:
+        /// Look for an oeid parameter in the urlString:
         var oeid = ""
         for qi: URLQueryItem in urlqis {
             guard let val = qi.value else {
@@ -427,7 +427,7 @@ public class OptableSDK: NSObject {
             }
         }
 
-        // Check that oeid looks like a valid SHA256:
+        /// Check that oeid looks like a valid SHA256:
         let range = NSRange(location: 0, length: oeid.utf16.count)
         guard let regex = try? NSRegularExpression(pattern: "[a-f0-9]{64}", options: .caseInsensitive) else { return "" }
         if (oeid.count != 64) || (regex.firstMatch(in: oeid, options: [], range: range) == nil) {
@@ -437,15 +437,15 @@ public class OptableSDK: NSObject {
         return "e:" + oeid.lowercased()
     }
 
-    //
-    //  tryIdentifyFromURL(urlString) is a helper that attempts to find a valid-looking
-    //  "oeid" parameter in the specified urlString's query string parameters and, if found,
-    //  calls self.identify([oeid]).
-    //
-    //  The use for this is when handling incoming universal links which might contain an
-    //  "oeid" value with the SHA256(downcase(email)) of an incoming user, such as encoded
-    //  links in newsletter Emails sent by the application developer.
-    //
+    ///
+    ///  tryIdentifyFromURL(urlString) is a helper that attempts to find a valid-looking
+    ///  "oeid" parameter in the specified urlString's query string parameters and, if found,
+    ///  calls self.identify([oeid]).
+    ///
+    ///  The use for this is when handling incoming universal links which might contain an
+    ///  "oeid" value with the SHA256(downcase(email)) of an incoming user, such as encoded
+    ///  links in newsletter Emails sent by the application developer.
+    ///
     @objc
     public func tryIdentifyFromURL(_ urlString: String) throws -> Void {
         let oeid = self.eidFromURL(urlString)
@@ -455,11 +455,11 @@ public class OptableSDK: NSObject {
         }
     }
 
-    //
-    //  OptableSDK.version returns the SDK version as a String. The version is based on the short
-    //  version string set in the SDK project CFBundleShortVersionString. When the SDK is included via
-    //  Cocoapods, it will be set automatically on `pod install` according to the podspec version.
-    //
+    ///
+    ///  OptableSDK.version returns the SDK version as a String. The version is based on the short
+    ///  version string set in the SDK project CFBundleShortVersionString. When the SDK is included via
+    ///  Cocoapods, it will be set automatically on `pod install` according to the podspec version.
+    ///
     public static var version: String {
         guard let version = Bundle(for: OptableSDK.self).infoDictionary?["CFBundleShortVersionString"] as? String else {
             return "ios-unknown"

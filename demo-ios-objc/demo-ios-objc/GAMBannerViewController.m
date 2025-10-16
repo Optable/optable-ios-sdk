@@ -13,7 +13,9 @@
 @import GoogleMobileAds;
 
 @interface GAMBannerViewController ()
+
 @property(nonatomic, strong) GADBannerView *bannerView;
+
 @end
 
 @implementation GAMBannerViewController
@@ -34,7 +36,7 @@
 - (IBAction)loadBannerWithTargeting:(id)sender {
     NSError *error = nil;
 
-    [_targetingOutput setText:@"Calling /targeting API...\n\n"];
+    [_targetingOutput setText:@"Calling /targeting API...\n"];
 
     [OPTABLE targetingAndReturnError:&error];
     [OPTABLE witness:@"GAMBannerViewController.loadBannerClicked" properties:@{ @"example": @"value" } error:&error];
@@ -65,29 +67,18 @@
 }
 
 - (IBAction)clearTargetingCache:(id)sender {
-    [_targetingOutput setText:@"Clearing local targeting cache.\n\n"];
+    [_targetingOutput setText:@"🧹 Clearing local targeting cache.\n"];
     [OPTABLE targetingClearCache];
 }
 
 - (void)addBannerViewToView:(UIView *)bannerView {
     bannerView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.view addSubview:bannerView];
-    [self.view addConstraints:@[
-      [NSLayoutConstraint constraintWithItem:bannerView
-                                 attribute:NSLayoutAttributeBottom
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.view.safeAreaLayoutGuide.bottomAnchor
-                                 attribute:NSLayoutAttributeTop
-                                multiplier:1
-                                  constant:0],
-      [NSLayoutConstraint constraintWithItem:bannerView
-                                 attribute:NSLayoutAttributeCenterX
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.view
-                                 attribute:NSLayoutAttributeCenterX
-                                multiplier:1
-                                  constant:0]
-                                  ]];
+    [self.adPlaceholder addSubview:bannerView];
+    
+    [NSLayoutConstraint activateConstraints:@[
+        [bannerView.centerXAnchor constraintEqualToAnchor:self.adPlaceholder.centerXAnchor],
+        [bannerView.centerYAnchor constraintEqualToAnchor:self.adPlaceholder.centerYAnchor]
+    ]];
 }
 
 @end

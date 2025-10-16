@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -133,8 +133,8 @@
 			children = (
 				6352AA5A24DC7AE9002E66EB /* AppDelegate.swift */,
 				6352AA5C24DC7AE9002E66EB /* SceneDelegate.swift */,
-				6352AA5E24DC7AE9002E66EB /* IdentifyViewController.swift */,
 				631466EC24F7F555007DCA5D /* GAMBannerViewController.swift */,
+				6352AA5E24DC7AE9002E66EB /* IdentifyViewController.swift */,
 				6352AA6024DC7AE9002E66EB /* Main.storyboard */,
 				6352AA6324DC7AEC002E66EB /* Assets.xcassets */,
 				6352AA6524DC7AEC002E66EB /* LaunchScreen.storyboard */,
@@ -197,6 +197,7 @@
 				6352AA5524DC7AE9002E66EB /* Resources */,
 				63C1E32924EAD80B00C4FE51 /* Embed Frameworks */,
 				CB6C39DB30FCBD8A10020CE8 /* [CP] Embed Pods Frameworks */,
+				E4BF60F1588582695FC58696 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -235,6 +236,7 @@
 				6352AA7524DC7AEC002E66EB /* Frameworks */,
 				6352AA7624DC7AEC002E66EB /* Resources */,
 				A4AD3035FC184EEC8114DE25 /* [CP] Embed Pods Frameworks */,
+				D947CAD4B818D4D20E781F9D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -415,6 +417,40 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-demo-ios-swift/Pods-demo-ios-swift-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D947CAD4B818D4D20E781F9D /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-demo-ios-swift-demo-ios-swiftUITests/Pods-demo-ios-swift-demo-ios-swiftUITests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-demo-ios-swift-demo-ios-swiftUITests/Pods-demo-ios-swift-demo-ios-swiftUITests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-demo-ios-swift-demo-ios-swiftUITests/Pods-demo-ios-swift-demo-ios-swiftUITests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E4BF60F1588582695FC58696 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-demo-ios-swift/Pods-demo-ios-swift-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-demo-ios-swift/Pods-demo-ios-swift-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-demo-ios-swift/Pods-demo-ios-swift-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -603,6 +639,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = "demo-ios-swift/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -621,6 +658,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = "demo-ios-swift/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

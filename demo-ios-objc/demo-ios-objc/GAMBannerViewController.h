@@ -9,10 +9,14 @@
 #import <UIKit/UIKit.h>
 
 @interface GAMBannerViewController : UIViewController
+
+@property (weak, nonatomic) IBOutlet UIView *adPlaceholder;
+
 @property (weak, nonatomic) IBOutlet UIButton *loadBannerButton;
 @property (weak, nonatomic) IBOutlet UIButton *cachedBannerButton;
 @property (weak, nonatomic) IBOutlet UIButton *clearTargetingCacheButton;
 @property (weak, nonatomic) IBOutlet UITextView *targetingOutput;
 
 - (IBAction)loadBannerWithTargeting:(id)sender;
+
 @end

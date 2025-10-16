@@ -10,17 +10,13 @@ import UIKit
 
 class IdentifyViewController: UIViewController {
 
-    //MARK: Properties
+    // MARK: Properties
     @IBOutlet weak var identifyInput: UITextField!
     @IBOutlet weak var identifyButton: UIButton!
     @IBOutlet weak var identifyIDFA: UISwitch!
     @IBOutlet weak var identifyOutput: UITextView!
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-
-    //MARK: Actions
+    // MARK: Actions
     
     // dispatchIdentify() is the action invoked on a click on the "Identify" UIButton in our demo app. It initiates
     // a call to the OptableSDK.identify() API and prints debugging information to the UI and debug console.
@@ -40,13 +36,13 @@ class IdentifyViewController: UIViewController {
                 case .success(let response):
                     print("[OptableSDK] Success on /identify API call: response.statusCode = \(response.statusCode)")
                     DispatchQueue.main.async {
-                        self.identifyOutput.text += "\nSuccess."
+                        self.identifyOutput.text += "\n✅ Success."
                     }
 
                 case .failure(let error):
                     print("[OptableSDK] Error on /identify API call: \(error)")
                     DispatchQueue.main.async {
-                        self.identifyOutput.text += "\nError: \(error)"
+                        self.identifyOutput.text += "\n🚫 Error: \(error)"
                     }
                 }
             }
