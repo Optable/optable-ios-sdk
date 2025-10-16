@@ -12,6 +12,7 @@ target 'demo-ios-swift' do
   #pod 'OptableSDK'
 
   pod 'Google-Mobile-Ads-SDK'
+  pod 'PrebidMobile'
 
   target 'demo-ios-swiftTests' do
     inherit! :search_paths

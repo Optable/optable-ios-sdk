@@ -1,5 +1,5 @@
 //
-//  GAMBannerViewController.swift
+//  PrebidBannerViewController.swift
 //  demo-ios-swift
 //
 //  Copyright © 2020 Optable Technologies Inc. All rights reserved.
@@ -7,13 +7,23 @@
 //
 
 import UIKit
+import PrebidMobile
 import GoogleMobileAds
 
-class GAMBannerViewController: UIViewController {
+fileprivate let AD_MANAGER_AD_UNIT_ID = "/21808260008/prebid_demo_app_original_api_banner"
+fileprivate let PREBID_STORED_IMP = "prebid-demo-banner-320-50"
+
+class PrebidBannerViewController: UIViewController {
     
-    var bannerView: BannerView!
+    // MARK: - PrebidMobile
     
-    // MARK: Properties
+    private var pbmBannerAdUnit: BannerAdUnit!
+    
+    // MARK: - GoogleMobileAds
+    
+    private var adManagerBannerView: AdManagerBannerView!
+    
+    // MARK: Outlets
     
     @IBOutlet weak var adPlaceholder: UIView!
     @IBOutlet weak var loadBannerButton: UIButton!
@@ -24,9 +34,16 @@ class GAMBannerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        bannerView = BannerView(adSize: AdSizeBanner)
-        addBannerViewToView(bannerView)
-        bannerView.rootViewController = self
+        pbmBannerAdUnit = BannerAdUnit(
+            configId: PREBID_STORED_IMP,
+            size: .init(width: 320, height: 50)
+        )
+        
+        adManagerBannerView = AdManagerBannerView(adSize: AdSizeBanner)
+        adManagerBannerView.adUnitID = AD_MANAGER_AD_UNIT_ID
+        adManagerBannerView.rootViewController = self
+        adManagerBannerView.delegate = self
+        addBannerViewToView(adManagerBannerView)
     }
     
     // MARK: Actions
@@ -55,7 +72,7 @@ class GAMBannerViewController: UIViewController {
                     }
                 }
                 
-                self.loadBanner(adUnitID: "/22081946781/ios-sdk-demo/mobile-leaderboard", keyvalues: tdata)
+                self.loadBanner(keyvalues: tdata)
             }
         } catch {
             print("[OptableSDK] Exception: \(error)")
@@ -76,7 +93,7 @@ class GAMBannerViewController: UIViewController {
             targetingOutput.text += "\nCache empty.\n"
         }
         
-        self.loadBanner(adUnitID: "/22081946781/ios-sdk-demo/mobile-leaderboard", keyvalues: tdata)
+        self.loadBanner(keyvalues: tdata)
     }
     
     @IBAction func clearTargetingCache(_ sender: UIButton) {
@@ -84,12 +101,16 @@ class GAMBannerViewController: UIViewController {
         OPTABLE!.targetingClearCache()
     }
     
-    private func loadBanner(adUnitID: String, keyvalues: NSDictionary) {
-        bannerView.adUnitID = adUnitID
-        
+    private func loadBanner(keyvalues: NSDictionary) {
         let req = AdManagerRequest()
-        req.customTargeting = keyvalues as? [String: String]
-        bannerView.load(req)
+        pbmBannerAdUnit.fetchDemand(adObject: req) { [weak self] result in
+            // TODO: - Need to clarify how keyvalues should be set in Prebid and probably in GAM(?).
+            if let keyvalues = keyvalues as? [String: String] {
+                req.customTargeting?.merge(keyvalues, uniquingKeysWith: { $1 })
+            }
+            
+            self?.adManagerBannerView.load(req)
+        }
         
         witness()
         profile()
@@ -139,7 +160,9 @@ class GAMBannerViewController: UIViewController {
         }
     }
     
-    private func addBannerViewToView(_ bannerView: BannerView) {
+    // MARK: - Helpers
+    
+    private func addBannerViewToView(_ bannerView: AdManagerBannerView) {
         bannerView.translatesAutoresizingMaskIntoConstraints = false
         adPlaceholder.addSubview(bannerView)
         
@@ -147,5 +170,26 @@ class GAMBannerViewController: UIViewController {
             bannerView.centerXAnchor.constraint(equalTo: adPlaceholder.centerXAnchor),
             bannerView.centerYAnchor.constraint(equalTo: adPlaceholder.centerYAnchor)
         ])
+    }
+}
+
+// MARK: - GoogleMobileAds.BannerViewDelegate
+
+extension PrebidBannerViewController: GoogleMobileAds.BannerViewDelegate {
+    
+    func bannerViewDidReceiveAd(_ bannerView: GoogleMobileAds.BannerView) {
+        AdViewUtils.findPrebidCreativeSize(bannerView, success: { size in
+            guard let bannerView = bannerView as? AdManagerBannerView else { return }
+            bannerView.resize(adSizeFor(cgSize: size))
+        }, failure: { (error) in
+            print("[PrebidMobile SDK] Error occuring during searching for Prebid creative size: \(error)")
+        })
+    }
+    
+    func bannerView(
+        _ bannerView: GoogleMobileAds.BannerView,
+        didFailToReceiveAdWithError error: any Error
+    ) {
+        print("[GMA SDK] GMA SDK did fail to receive ad with error: \(error)")
     }
 }

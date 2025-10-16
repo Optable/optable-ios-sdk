@@ -204,6 +204,7 @@
                     <connections>
                         <segue destination="6oq-n5-l1F" kind="relationship" relationship="viewControllers" id="FxM-e6-chH"/>
                         <segue destination="9Cd-Yb-3vr" kind="relationship" relationship="viewControllers" id="BUR-3j-I8K"/>
+                        <segue destination="H17-Rf-ib4" kind="relationship" relationship="viewControllers" id="MDs-dm-GdH"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9T0-ao-HOF" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -232,6 +233,7 @@
         <!--GAM Banner-->
         <scene sceneID="A0Q-pf-jnN">
             <objects>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="TbY-Xt-eFG" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="9Cd-Yb-3vr" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="GAM Banner" image="rectangle.3.group.fill" catalog="system" selectedImage="rectangle.3.group.fill" id="WaP-P0-dwN"/>
                     <toolbarItems/>
@@ -244,9 +246,116 @@
                         <segue destination="qnL-ha-uwz" kind="relationship" relationship="rootViewController" id="ce4-te-hj0"/>
                     </connections>
                 </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="TbY-Xt-eFG" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1047.8260869565217" y="758.70535714285711"/>
+        </scene>
+        <!--Prebid Banner-->
+        <scene sceneID="y1q-MM-VYg">
+            <objects>
+                <viewController id="933-rX-ubX" customClass="PrebidBannerViewController" customModule="demo_ios_swift" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Uhm-nG-udk">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="18" translatesAutoresizingMaskIntoConstraints="NO" id="joG-xS-HJm">
+                                <rect key="frame" x="20" y="192" width="353" height="180"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="agp-dp-vuT">
+                                        <rect key="frame" x="0.0" y="0.0" width="353" height="48"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="48" id="c08-BN-OqS"/>
+                                        </constraints>
+                                        <state key="normal" title="Load Targeting and Banner"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Load Targeting and Banner">
+                                            <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="18"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="loadBannerWithTargeting:" destination="933-rX-ubX" eventType="touchUpInside" id="kio-is-ZH7"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bXi-1c-JOb">
+                                        <rect key="frame" x="0.0" y="66" width="353" height="48"/>
+                                        <state key="normal" title="Cached Targeting and Banner"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Cached Targeting and Banner">
+                                            <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="18"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="loadBannerWithTargetingFromCache:" destination="933-rX-ubX" eventType="touchUpInside" id="Tu2-xu-g74"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ook-O5-ZDp">
+                                        <rect key="frame" x="0.0" y="132" width="353" height="48"/>
+                                        <state key="normal" title="Clear Targeting Cache"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Clear Targeting Cache">
+                                            <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="18"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="clearTargetingCache:" destination="933-rX-ubX" eventType="touchUpInside" id="muz-1Y-BNU"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="ix9-GQ-8dP">
+                                <rect key="frame" x="20" y="392" width="353" height="268"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <color key="textColor" systemColor="labelColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Hbg-Mv-MNk">
+                                <rect key="frame" x="36.666666666666657" y="675" width="320" height="50"/>
+                                <color key="backgroundColor" systemColor="systemGray6Color"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="Zga-V2-aJH"/>
+                                    <constraint firstAttribute="width" constant="320" id="rHn-Oi-tmm"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="mzq-bA-FuX"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="ix9-GQ-8dP" firstAttribute="bottom" secondItem="Hbg-Mv-MNk" secondAttribute="top" constant="-15" id="17O-Vv-pMl"/>
+                            <constraint firstItem="ix9-GQ-8dP" firstAttribute="leading" secondItem="mzq-bA-FuX" secondAttribute="leading" constant="20" id="A7a-Eu-v0N"/>
+                            <constraint firstItem="mzq-bA-FuX" firstAttribute="trailing" secondItem="joG-xS-HJm" secondAttribute="trailing" constant="20" id="CE4-nm-YVM"/>
+                            <constraint firstItem="mzq-bA-FuX" firstAttribute="bottom" secondItem="Hbg-Mv-MNk" secondAttribute="bottom" constant="10" id="Cre-1f-yRU"/>
+                            <constraint firstItem="joG-xS-HJm" firstAttribute="leading" secondItem="mzq-bA-FuX" secondAttribute="leading" constant="20" id="QZn-ly-Ec4"/>
+                            <constraint firstItem="joG-xS-HJm" firstAttribute="top" secondItem="mzq-bA-FuX" secondAttribute="top" constant="20" id="jo4-m3-bKZ"/>
+                            <constraint firstItem="mzq-bA-FuX" firstAttribute="trailing" secondItem="ix9-GQ-8dP" secondAttribute="trailing" constant="20" id="kzw-Ax-JzJ"/>
+                            <constraint firstItem="ix9-GQ-8dP" firstAttribute="top" secondItem="joG-xS-HJm" secondAttribute="bottom" constant="20" id="uqG-8b-qJ5"/>
+                            <constraint firstItem="Hbg-Mv-MNk" firstAttribute="centerX" secondItem="Uhm-nG-udk" secondAttribute="centerX" id="yqQ-ID-Ipg"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Prebid Banner" id="EEF-Dd-BnQ"/>
+                    <connections>
+                        <outlet property="adPlaceholder" destination="Hbg-Mv-MNk" id="GpB-16-5Fv"/>
+                        <outlet property="clearTargetingCacheButton" destination="Ook-O5-ZDp" id="MnM-Oh-HIp"/>
+                        <outlet property="loadBannerButton" destination="agp-dp-vuT" id="L2t-M4-Wbh"/>
+                        <outlet property="loadBannerFromCacheButton" destination="bXi-1c-JOb" id="lI5-4k-MCF"/>
+                        <outlet property="targetingOutput" destination="ix9-GQ-8dP" id="ro6-Ti-xXt"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="h0r-YH-rBu" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1956" y="1492"/>
+        </scene>
+        <!--Prebid Banner-->
+        <scene sceneID="GyT-F5-YIt">
+            <objects>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Aan-GA-XFa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="H17-Rf-ib4" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Prebid Banner" image="rectangle.3.group.fill" catalog="system" selectedImage="rectangle.3.group.fill" id="I3S-84-F6j"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="4mi-CX-G02">
+                        <rect key="frame" x="0.0" y="118" width="393" height="54"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="933-rX-ubX" kind="relationship" relationship="rootViewController" id="KWZ-vb-tKh"/>
+                    </connections>
+                </navigationController>
+            </objects>
+            <point key="canvasLocation" x="1047" y="1492"/>
         </scene>
     </scenes>
     <resources>
@@ -259,7 +368,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGray6Color">
-            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
