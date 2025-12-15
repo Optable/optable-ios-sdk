@@ -11,7 +11,7 @@
 
 import Foundation
 
-class LocalStorage: NSObject {
+final class LocalStorage: NSObject {
     let keyPfx: String = "OPTABLE"
     var passportKey: String
     var targetingKey: String
