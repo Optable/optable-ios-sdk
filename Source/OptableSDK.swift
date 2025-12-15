@@ -78,7 +78,7 @@ public class OptableSDK: NSObject {
     ///  it either the HTTPURLResponse on success, or an OptableError on failure.
     ///
     public func identify(ids: [String], _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
-        try Identify(config: self.config, client: self.client, ids: ids) { (data, response, error) in
+        try  Edge.identify(config: self.config, client: self.client, ids: ids) { (data, response, error) in
             guard let response = response as? HTTPURLResponse, error == nil, data != nil else {
                 if let err = error {
                     completion(.failure(OptableError.identify("Session error: \(err)")))
@@ -183,7 +183,7 @@ public class OptableSDK: NSObject {
     ///  be access using targetingFromCache(), and cleared using targetingClearCache().
     ///
     public func targeting(_ completion: @escaping (Result<NSDictionary,OptableError>) -> Void) throws -> Void {
-        try Targeting(config: self.config, client: self.client) { (data, response, error) in
+        try  Edge.targeting(config: self.config, client: self.client) { (data, response, error) in
             guard let response = response as? HTTPURLResponse, error == nil, data != nil else {
                 if let err = error {
                     completion(.failure(OptableError.targeting("Session error: \(err)")))
@@ -262,7 +262,7 @@ public class OptableSDK: NSObject {
     ///  passing it either the HTTPURLResponse on success, or an OptableError on failure.
     ///
     public func witness(event: String, properties: NSDictionary, _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
-        try Witness(config: self.config, client: self.client, event: event, properties: properties) { (data, response, error) in
+        try  Edge.witness(config: self.config, client: self.client, event: event, properties: properties) { (data, response, error) in
             guard let response = response as? HTTPURLResponse, error == nil else {
                 if let err = error {
                     completion(.failure(OptableError.witness("Session error: \(err)")))
@@ -311,7 +311,7 @@ public class OptableSDK: NSObject {
     ///  passing it either the HTTPURLResponse on success, or an OptableError on failure.
     ///
     public func profile(traits: NSDictionary, _ completion: @escaping (Result<HTTPURLResponse,OptableError>) -> Void) throws -> Void {
-        try Profile(config: self.config, client: self.client, traits: traits) { (data, response, error) in
+        try  Edge.profile(config: self.config, client: self.client, traits: traits) { (data, response, error) in
             guard let response = response as? HTTPURLResponse, error == nil else {
                 if let err = error {
                     completion(.failure(OptableError.profile("Session error: \(err)")))
