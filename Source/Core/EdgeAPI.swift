@@ -29,6 +29,7 @@ final class EdgeAPI {
         }
     }
 
+    // MARK: Endpoints
     func profile(traits: NSDictionary, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
         guard let url = config.edgeURL("profile") else { return nil }
         let req = try buildRequest(.POST, url: url, headers: resolveHeaders(), data: ["traits": traits])
@@ -117,15 +118,15 @@ final class EdgeAPI {
         headers[.accept] = "application/json"
         headers[.contentType] = "application/json"
 
-        if let ua = self.userAgent {
-            headers[.userAgent] = ua
+        if let userAgent {
+            headers[.userAgent] = userAgent
         }
 
         if let apiKey = config.apiKey {
             headers[.authorization] = "Bearer \(apiKey)"
         }
 
-        if let passport: String = self.storage.getPassport() {
+        if let passport: String = storage.getPassport() {
             headers[kPassportHeader] = passport
         }
 

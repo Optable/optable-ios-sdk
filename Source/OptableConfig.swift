@@ -32,7 +32,7 @@ public class OptableConfig: NSObject {
     public var customUserAgent: String?
 
     /// Boolean flag to skip the detection of advertising IDs. Default is false.
-    public var skipAdvertisingIdDetection: Bool // FIXME: is really used?
+    public var skipAdvertisingIdDetection: Bool
 
     public init(
         tenant: String,
