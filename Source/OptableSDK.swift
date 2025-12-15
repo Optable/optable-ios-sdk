@@ -461,9 +461,13 @@ public class OptableSDK: NSObject {
     ///  Cocoapods, it will be set automatically on `pod install` according to the podspec version.
     ///
     public static var version: String {
-        guard let version = Bundle(for: OptableSDK.self).infoDictionary?["CFBundleShortVersionString"] as? String else {
-            return "ios-unknown"
-        }
-        return "ios-" + version
+        let sdkBundle = Bundle(for: OptableSDK.self)
+        
+        guard
+            let marketingVersion = sdkBundle.infoDictionary?["CFBundleShortVersionString"] as? String,
+            let buildNumber = sdkBundle.infoDictionary?["CFBundleVersion"] as? String
+        else { return "ios-unknown" }
+
+        return ["ios", marketingVersion, buildNumber].joined(separator: "-")
     }
 }
