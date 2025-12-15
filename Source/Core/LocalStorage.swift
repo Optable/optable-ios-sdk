@@ -16,19 +16,22 @@ class LocalStorage: NSObject {
     var passportKey: String
     var targetingKey: String
 
-    init(_ config: Config) {
+    init(_ config: OptableConfig) {
         // The key used for storage should be unique to the host+app that this instance was initialized with:
-        let utf8str = (config.host + "/" + config.app).data(using: .utf8)?.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
+        let base64Key: String? = [config.host, config.tenant, config.originSlug]
+            .joined(separator: "/")
+            .data(using: .utf8)?
+            .base64EncodedString()
 
-        self.passportKey = self.keyPfx + "_PASS_" + (utf8str ?? "UNKNOWN")
-        self.targetingKey = self.keyPfx + "_TGT_" + (utf8str ?? "UNKNOWN")
+        self.passportKey = self.keyPfx + "_PASS_" + (base64Key ?? "UNKNOWN")
+        self.targetingKey = self.keyPfx + "_TGT_" + (base64Key ?? "UNKNOWN")
     }
 
     func getPassport() -> String? {
         return UserDefaults.standard.string(forKey: passportKey)
     }
 
-    func setPassport(_ passport: String) -> Void {
+    func setPassport(_ passport: String) {
         UserDefaults.standard.set(passport, forKey: passportKey)
     }
 
@@ -36,11 +39,11 @@ class LocalStorage: NSObject {
         return UserDefaults.standard.dictionary(forKey: targetingKey)
     }
 
-    func setTargeting(_ keyvalues: [String: Any]) -> Void {
+    func setTargeting(_ keyvalues: [String: Any]) {
         UserDefaults.standard.setValue(keyvalues, forKey: targetingKey)
     }
 
-    func clearTargeting() -> Void {
+    func clearTargeting() {
         UserDefaults.standard.removeObject(forKey: targetingKey)
     }
 }

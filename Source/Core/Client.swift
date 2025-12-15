@@ -14,14 +14,14 @@ class Client {
     var storage: LocalStorage
     var ua: String?
 
-    init(_ config: Config) {
+    init(_ config: OptableConfig) {
         self.storage = LocalStorage(config)
-        if (config.useragent == nil) {
+        if (config.customUserAgent == nil) {
             self.userAgent { (realUserAgent) in
                 self.ua = realUserAgent
             }
         } else {
-            self.ua = config.useragent
+            self.ua = config.customUserAgent
         }
     }
 
