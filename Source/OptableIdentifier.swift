@@ -8,6 +8,13 @@
 
 import Foundation
 
+/**
+ Optable Identifier Types
+
+ For more info check:
+ [](https://docs.optable.co/optable-documentation/getting-started/reference/identifier-types)
+ 
+ */
 public enum OptableIdentifier: RawRepresentable, Hashable {
     // Personal identifiers
     case emailAddress // e

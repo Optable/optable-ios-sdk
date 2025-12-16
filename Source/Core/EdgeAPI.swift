@@ -9,6 +9,13 @@
 import Foundation
 import WebKit
 
+/**
+ Real Time API
+ 
+ For more info check:
+ [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide)
+ 
+ */
 final class EdgeAPI {
     private let kPassportHeader: String = "X-Optable-Visitor"
 
