@@ -11,29 +11,60 @@ import Foundation
 @objc
 public class OptableConfig: NSObject {
     /// The tenant name associated with the configuration. E.g. `acmeco.optable.co` => `acmeco`.
+    @objc
     public var tenant: String
 
     /// The DCN's Source Slug. E.g. `acmeco-sdk`.
+    @objc
     public var originSlug: String
 
     /// The hostname of the Optable endpoint. Default value is "na.edge.optable.co".
-    public var host: String
+    @objc
+    public var host: String = "na.edge.optable.co"
 
     /// The API path to be appended to the host. Default value is "v2".
-    public var path: String
+    @objc
+    public var path: String = "v2"
 
     /// Boolean flag that determines if insecure HTTP should be used instead of HTTPS. Default is false.
-    public var insecure: Bool
+    @objc
+    public var insecure: Bool = false
 
     /// An optional API key for authentication. If the API Endpoint is enabled as private, a Service Account API key will be required.
+    @objc
     public var apiKey: String?
 
     /// An optional custom user agent string for network requests.
+    @objc
     public var customUserAgent: String?
 
     /// Boolean flag to skip the detection of advertising IDs. Default is false.
-    public var skipAdvertisingIdDetection: Bool
+    @objc
+    public var skipAdvertisingIdDetection: Bool = false
 
+    /**
+     - Parameters:
+     - tenant: The tenant name associated with the configuration. E.g. `acmeco.optable.co` => `acmeco`.
+     - originSlug: The DCN's Source Slug. E.g. `acmeco-sdk`.
+     */
+    @objc
+    public init(tenant: String, originSlug: String) {
+        self.tenant = tenant
+        self.originSlug = originSlug
+        super.init()
+    }
+
+    /**
+     - Parameters:
+     - tenant: The tenant name associated with the configuration. E.g. `acmeco.optable.co` => `acmeco`.
+     - originSlug: The DCN's Source Slug. E.g. `acmeco-sdk`.
+     - host: The hostname of the Optable endpoint. Default value is "na.edge.optable.co".
+     - path: The API path to be appended to the host. Default value is "v2".
+     - insecure: Boolean flag that determines if insecure HTTP should be used instead of HTTPS. Default is false.
+     - apiKey: An optional API key for authentication. If the API Endpoint is enabled as private, a Service Account API key will be required.
+     - customUserAgent: An optional custom user agent string for network requests.
+     - skipAdvertisingIdDetection: Boolean flag to skip the detection of advertising IDs. Default is false.
+     */
     public init(
         tenant: String,
         originSlug: String,
@@ -54,7 +85,7 @@ public class OptableConfig: NSObject {
         self.skipAdvertisingIdDetection = skipAdvertisingIdDetection
     }
 
-    func edgeURL(_ endpoint: String) -> URL? {
+    func buildEdgeURL(_ endpoint: String) -> URL? {
         var components = URLComponents()
         components.scheme = insecure ? "http" : "https"
         components.host = host

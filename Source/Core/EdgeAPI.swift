@@ -17,6 +17,8 @@ final class EdgeAPI {
 
     var userAgent: String?
 
+    private lazy var jsonEncoder = JSONEncoder()
+
     init(_ config: OptableConfig) {
         self.config = config
         self.storage = LocalStorage(config)
@@ -30,27 +32,28 @@ final class EdgeAPI {
     }
 
     // MARK: Endpoints
+    func identify(ids: OptableIdentifiers, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
+        guard let url = config.buildEdgeURL("identify") else { return nil }
+        let jsonData = try jsonEncoder.encode(ids)
+        let req = try buildRequest(.POST, url: url, headers: resolveHeaders(), data: jsonData)
+        return dispatchRequest(req, completionHandler)
+    }
+
     func profile(traits: NSDictionary, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
-        guard let url = config.edgeURL("profile") else { return nil }
-        let req = try buildRequest(.POST, url: url, headers: resolveHeaders(), data: ["traits": traits])
+        guard let url = config.buildEdgeURL("profile") else { return nil }
+        let req = try buildRequest(.POST, url: url, headers: resolveHeaders(), obj: ["traits": traits])
         return dispatchRequest(req, completionHandler)
     }
 
     func targeting(completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
-        guard let url = config.edgeURL("targeting") else { return nil }
+        guard let url = config.buildEdgeURL("targeting") else { return nil }
         let req = try buildRequest(.GET, url: url, headers: resolveHeaders())
         return dispatchRequest(req, completionHandler)
     }
 
-    func identify(ids: [String], completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
-        guard let url = config.edgeURL("identify") else { return nil }
-        let req = try buildRequest(.POST, url: url, headers: resolveHeaders(), data: ids)
-        return dispatchRequest(req, completionHandler)
-    }
-
     func witness(event: String, properties: NSDictionary, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
-        guard let url = config.edgeURL("witness") else { return nil }
-        let req = try buildRequest(.POST, url: url, headers: resolveHeaders(), data: ["event": event, "properties": properties])
+        guard let url = config.buildEdgeURL("witness") else { return nil }
+        let req = try buildRequest(.POST, url: url, headers: resolveHeaders(), obj: ["event": event, "properties": properties])
         return dispatchRequest(req, completionHandler)
     }
 
@@ -133,13 +136,28 @@ final class EdgeAPI {
         return headers
     }
 
-    private func buildRequest(_ method: HTTPMethod, url: URL, headers: HTTPHeaders, data: Any? = nil) throws -> URLRequest {
+    private func buildRequest(_ method: HTTPMethod, url: URL, headers: HTTPHeaders, obj: Any? = nil) throws -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
 
-        if let data = data {
-            let reqBodyJSON = try JSONSerialization.data(withJSONObject: data, options: [])
+        if let obj = obj {
+            let reqBodyJSON = try JSONSerialization.data(withJSONObject: obj, options: [])
             request.httpBody = reqBodyJSON
+        }
+
+        for (key, value) in headers.asDict {
+            request.addValue(value, forHTTPHeaderField: key)
+        }
+
+        return request
+    }
+
+    private func buildRequest(_ method: HTTPMethod, url: URL, headers: HTTPHeaders, data: Data? = nil) throws -> URLRequest {
+        var request = URLRequest(url: url)
+        request.httpMethod = method.rawValue
+
+        if let data {
+            request.httpBody = data
         }
 
         for (key, value) in headers.asDict {
