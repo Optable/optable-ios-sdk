@@ -21,4 +21,20 @@ class OptableSDKTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {}
+
+    func test_identify() throws {
+        // TODO: impl
+    }
+
+    func test_target() throws {
+        // TODO: impl
+    }
+
+    func test_witness() throws {
+        // TODO: impl
+    }
+
+    func test_profile() throws {
+        // TODO: impl
+    }
 }
