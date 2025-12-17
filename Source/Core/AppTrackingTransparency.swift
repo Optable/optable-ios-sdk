@@ -26,7 +26,7 @@
             ASIdentifierManager.shared().isAdvertisingTrackingEnabled
         }
 
-        static var adfaAvailable: Bool {
+        static var advertisingIdentifierAvailable: Bool {
             #if canImport(AppTrackingTransparency)
                 if #available(iOS 14, *) {
                     return trackingStatus == .authorized

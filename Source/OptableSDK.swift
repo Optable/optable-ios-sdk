@@ -326,7 +326,7 @@ private extension OptableSDK {
         var ids = ids
 
         if config.skipAdvertisingIdDetection == false,
-           ATT.adfaAvailable,
+           ATT.advertisingIdentifierAvailable,
            ATT.advertisingIdentifier != UUID(uuid: uuid_t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) {
             ids[.appleIDFA] = ATT.advertisingIdentifier.uuidString
         }
@@ -340,7 +340,7 @@ private extension OptableSDK {
                 }
                 return
             }
-            guard case .successful = HTTPStatusCode(statusCode: response.statusCode) else {
+            guard HTTPStatusCode(rawValue: response.statusCode)?.isSuccess == true else {
                 let errDesc = OptableSDK.generateEdgeAPIErrorDescription(with: data, response: response)
                 completion(.failure(OptableError.identify(errDesc, code: response.statusCode)))
                 return
@@ -359,7 +359,7 @@ private extension OptableSDK {
                 }
                 return
             }
-            guard case .successful = HTTPStatusCode(statusCode: response.statusCode) else {
+            guard HTTPStatusCode(rawValue: response.statusCode)?.isSuccess == true else {
                 let errDesc = OptableSDK.generateEdgeAPIErrorDescription(with: data, response: response)
                 completion(.failure(OptableError.targeting(errDesc, code: response.statusCode)))
                 return
@@ -389,7 +389,7 @@ private extension OptableSDK {
                 }
                 return
             }
-            guard case .successful = HTTPStatusCode(statusCode: response.statusCode) else {
+            guard HTTPStatusCode(rawValue: response.statusCode)?.isSuccess == true else {
                 let errDesc = OptableSDK.generateEdgeAPIErrorDescription(with: data, response: response)
                 completion(.failure(OptableError.witness(errDesc, code: response.statusCode)))
                 return
@@ -408,7 +408,7 @@ private extension OptableSDK {
                 }
                 return
             }
-            guard case .successful = HTTPStatusCode(statusCode: response.statusCode) else {
+            guard HTTPStatusCode(rawValue: response.statusCode)?.isSuccess == true else {
                 let errDesc = OptableSDK.generateEdgeAPIErrorDescription(with: data, response: response)
                 completion(.failure(OptableError.profile(errDesc, code: response.statusCode)))
                 return
@@ -416,7 +416,7 @@ private extension OptableSDK {
             completion(.success(response))
         })?.resume()
     }
-    
+
     private static func generateEdgeAPIErrorDescription(with data: Data?, response: HTTPURLResponse) -> String {
         var msg = "HTTP response.statusCode: \(response.statusCode)"
         do {
