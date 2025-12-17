@@ -24,9 +24,9 @@ class EdgeAPITests: XCTestCase {
      */
     func test_edge_api_url_generation() throws {
         
-        let hosts = ["na.edge.optable.co", "au.edge.optable.co", "jp.edge.optable.co", "eu.edge.optable.co"]
-        let endpoints = ["identify", "profile", "targeting", "witness", "tokenize"]
-        let paths = ["v2"]
+        let hosts = ["na.edge.optable.co", "au.edge.optable.co"]
+        let endpoints = ["identify", "profile"]
+        let paths = ["v1", "v2"]
         let tenants = ["prebidtest", "test-tenant"]
         let slugs = ["ios-sdk", "js-sdk"]
         

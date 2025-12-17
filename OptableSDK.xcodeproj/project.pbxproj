@@ -41,6 +41,8 @@
 			membershipExceptions = (
 				EdgeAPITests.swift,
 				Misc/cartesianProduct.swift,
+				OptableIdentifierEncoderTests.swift,
+				OptableIdentifiersTests.swift,
 				OptableSDKTests.swift,
 			);
 			target = 6352AB0324EAD403002E66EB /* OptableSDKTests */;
