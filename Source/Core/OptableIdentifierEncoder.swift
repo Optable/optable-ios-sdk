@@ -15,52 +15,105 @@ import Foundation
 // MARK: - OptableIdentifierEncoder
 @objc
 final class OptableIdentifierEncoder: NSObject {
-    ///
-    ///  aaid(idfa) is a helper that returns the type-prefixed Apple ID For Advertising
-    ///
-    @objc
-    func aaid(_ idfa: String) -> String {
-        return "a:" + idfa.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+    /// Builds Enriched Identifier from Email address
+    func email(_ email: String) -> String {
+        let prefix = OptableIdentifier.emailAddress.rawValue
+        let normalizedData = Data(email.lowercased().trimmingCharacters(in: .whitespacesAndNewlines).utf8)
+        let identifier = sha256(data: normalizedData)
+        return "\(prefix):\(identifier)"
     }
 
-    ///
-    ///  cid(ppid) is a helper that returns custom type-prefixed origin-provided PPID
-    ///
-    @objc
-    func cid(_ ppid: String) -> String {
-        return "c:" + ppid.trimmingCharacters(in: .whitespacesAndNewlines)
+    /// Builds Enriched Identifier from Phone number
+    func phoneNumber(_ phoneNumber: String) -> String {
+        let prefix = OptableIdentifier.phoneNumber.rawValue
+        let normalizedData = Data(phoneNumber.lowercased().trimmingCharacters(in: .whitespacesAndNewlines).utf8)
+        let identifier = sha256(data: normalizedData)
+        return "\(prefix):\(identifier)"
     }
 
-    ///
-    ///  eid(email) is a helper that returns type-prefixed SHA256(downcase(email))
-    ///
-    @objc
-    func eid(_ email: String) -> String {
-        let pfx = "e:"
-        let normEmail = Data(email.lowercased().trimmingCharacters(in: .whitespacesAndNewlines).utf8)
-
-        #if canImport(CryptoKit)
-            if #available(iOS 13.0, *) {
-                return pfx + SHA256.hash(data: normEmail).compactMap {
-                    String(format: "%02x", $0)
-                }.joined()
-            } else {
-                return pfx + self.cchash(normEmail)
-            }
-        #else
-            return pfx + self.cchash(normEmail)
-        #endif
+    /// Builds Enriched Identifier from Postal code
+    func postalCode(_ postalCode: String) -> String {
+        let prefix = OptableIdentifier.postalCode.rawValue
+        let identifier = postalCode.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        return "\(prefix):\(identifier)"
     }
 
+    /// Builds Enriched Identifier from IPv4 address
+    func ipv4(_ ipv4: String) -> String {
+        let prefix = OptableIdentifier.ipv4Address.rawValue
+        let identifier = ipv4.trimmingCharacters(in: .whitespacesAndNewlines)
+        return "\(prefix):\(identifier)"
+    }
+
+    /// Builds Enriched Identifier from IPv6 address
+    func ipv6(_ ipv6: String) -> String {
+        let prefix = OptableIdentifier.ipv6Address.rawValue
+        let identifier = ipv6.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        return "\(prefix):\(identifier)"
+    }
+
+    /// Builds Enriched Identifier from Apple IDFA
+    func idfa(_ idfa: String) -> String {
+        let prefix = OptableIdentifier.appleIDFA.rawValue
+        let identifier = idfa.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        return "\(prefix):\(identifier)"
+    }
+
+    /// Builds Enriched Identifier from Google GAID
+    func gaid(_ gaid: String) -> String {
+        let prefix = OptableIdentifier.googleGAID.rawValue
+        let identifier = gaid.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        return "\(prefix):\(identifier)"
+    }
+
+    /// Builds Enriched Identifier from Roku RIDA
+    func rida(_ rida: String) -> String {
+        let prefix = OptableIdentifier.rokuRIDA.rawValue
+        let identifier = rida.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        return "\(prefix):\(identifier)"
+    }
+
+    /// Builds Enriched Identifier from Samsung TV TIFA
+    func tifa(_ tifa: String) -> String {
+        let prefix = OptableIdentifier.samsungTIFA.rawValue
+        let identifier = tifa.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        return "\(prefix):\(identifier)"
+    }
+
+    /// Builds Enriched Identifier from Amazon Fire AFAI
+    func afai(_ afai: String) -> String {
+        let prefix = OptableIdentifier.amazonFireAFAI.rawValue
+        let identifier = afai.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        return "\(prefix):\(identifier)"
+    }
+
+    /// Builds Enriched Identifier from NetID
+    func netid(_ netid: String) -> String {
+        let prefix = OptableIdentifier.netID.rawValue
+        let identifier = netid.trimmingCharacters(in: .whitespacesAndNewlines)
+        return "\(prefix):\(identifier)"
+    }
+
+    /// Builds Enriched Identifier from ID5
+    func id5(_ id5: String) -> String {
+        let prefix = OptableIdentifier.id5.rawValue
+        let identifier = id5.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        return "\(prefix):\(identifier)"
+    }
+
+    /// Builds Enriched Identifier from Utiq
+    func utiq(_ utiq: String) -> String {
+        let prefix = OptableIdentifier.utiq.rawValue
+        let identifier = utiq.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        return "\(prefix):\(identifier)"
+    }
+
+    /// Builds Enriched Identifier from Custom Publisher Provided ID (PPID)
     @objc
-    func cchash(_ input: Data) -> String {
-        var digest = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
-        input.withUnsafeBytes { bytes in
-            _ = CC_SHA256(bytes.baseAddress, CC_LONG(input.count), &digest)
-        }
-        return digest.makeIterator().compactMap {
-            String(format: "%02x", $0)
-        }.joined()
+    func custom(_ idx: Int = 0, _ ppid: String) -> String {
+        let prefix = OptableIdentifier.custom(idx).rawValue
+        let identifier = ppid.trimmingCharacters(in: .whitespacesAndNewlines)
+        return "\(prefix):\(identifier)"
     }
 
     ///
@@ -73,7 +126,6 @@ final class OptableIdentifierEncoder: NSObject {
     ///  encoded links in newsletter Emails sent by the application developer. Such
     ///  hashed Email values can be used in calls to identify()
     ///
-    @objc
     func eidFromURL(_ urlString: String) -> String {
         guard let url = URL(string: urlString) else { return "" }
         guard let urlc = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return "" }
@@ -101,22 +153,27 @@ final class OptableIdentifierEncoder: NSObject {
         return "e:" + oeid.lowercased()
     }
 
-    ///
-    ///  tryIdentifyFromURL(urlString) is a helper that attempts to find a valid-looking
-    ///  "oeid" parameter in the specified urlString's query string parameters and, if found,
-    ///  calls self.identify([oeid]).
-    ///
-    ///  The use for this is when handling incoming universal links which might contain an
-    ///  "oeid" value with the SHA256(downcase(email)) of an incoming user, such as encoded
-    ///  links in newsletter Emails sent by the application developer.
-    ///
-    // TODO: to remove
-//    @objc
-//    func tryIdentifyFromURL(_ urlString: String) throws {
-//        let oeid = self.eidFromURL(urlString)
-//
-//        if !oeid.isEmpty {
-//            try self.identify(ids: [oeid]) { _ in /* no-op */ }
-//        }
-//    }
+    // MARK: - Private
+    private func sha256(data: Data) -> String {
+        #if canImport(CryptoKit)
+            if #available(iOS 13.0, *) {
+                return SHA256
+                    .hash(data: data)
+                    .compactMap({ String(format: "%02x", $0) })
+                    .joined()
+            }
+        #endif
+
+        return self.cchash(data)
+    }
+
+    private func cchash(_ input: Data) -> String {
+        var digest = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+        input.withUnsafeBytes { bytes in
+            _ = CC_SHA256(bytes.baseAddress, CC_LONG(input.count), &digest)
+        }
+        return digest.makeIterator().compactMap {
+            String(format: "%02x", $0)
+        }.joined()
+    }
 }
