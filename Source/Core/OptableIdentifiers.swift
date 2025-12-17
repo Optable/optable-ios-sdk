@@ -31,17 +31,45 @@ struct OptableIdentifiers {
         get { dict[key] }
         set { dict[key] = newValue }
     }
+
+    func generateEnrichedIds() -> [String] {
+        var results: [String] = []
+
+        for (key, value) in dict {
+            guard let optableIdentifier = OptableIdentifier(rawValue: key) else { continue }
+
+            let eid: String = switch optableIdentifier {
+            case .emailAddress: OptableIdentifierEncoder.email(value)
+            case .phoneNumber: OptableIdentifierEncoder.phoneNumber(value)
+            case .postalCode: OptableIdentifierEncoder.postalCode(value)
+            case .ipv4Address: OptableIdentifierEncoder.ipv4(value)
+            case .ipv6Address: OptableIdentifierEncoder.ipv6(value)
+            case .appleIDFA: OptableIdentifierEncoder.idfa(value)
+            case .googleGAID: OptableIdentifierEncoder.gaid(value)
+            case .rokuRIDA: OptableIdentifierEncoder.rida(value)
+            case .samsungTIFA: OptableIdentifierEncoder.tifa(value)
+            case .amazonFireAFAI: OptableIdentifierEncoder.afai(value)
+            case .netID: OptableIdentifierEncoder.netid(value)
+            case .id5: OptableIdentifierEncoder.id5(value)
+            case .utiq: OptableIdentifierEncoder.utiq(value)
+            case let .custom(idx): OptableIdentifierEncoder.custom(idx ?? 0, value)
+            case .optableVID: OptableIdentifierEncoder.vid(value)
+            }
+            results.append(eid)
+        }
+
+        return results
+    }
 }
 
 // MARK: - Encodable
 extension OptableIdentifiers: Encodable {
     func encode(to encoder: any Encoder) throws {
-        guard dict.isEmpty == false else { return }
+        let enrichedIds = generateEnrichedIds()
         
         var container = encoder.unkeyedContainer()
-        for (key, value) in dict {
-            let enrichedIdentifier = "\(key):\(value)"
-            try container.encode(enrichedIdentifier)
+        for eid in enrichedIds {
+            try container.encode(eid)
         }
     }
 }
