@@ -39,6 +39,8 @@
 		CEBE038D2EF03ADD0027D67F /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				EdgeAPITests.swift,
+				Misc/cartesianProduct.swift,
 				OptableSDKTests.swift,
 			);
 			target = 6352AB0324EAD403002E66EB /* OptableSDKTests */;
