@@ -84,17 +84,4 @@ public class OptableConfig: NSObject {
         self.customUserAgent = customUserAgent
         self.skipAdvertisingIdDetection = skipAdvertisingIdDetection
     }
-
-    func buildEdgeURL(_ endpoint: String) -> URL? {
-        var components = URLComponents()
-        components.scheme = insecure ? "http" : "https"
-        components.host = host
-        components.path = "/\(path)/\(endpoint)"
-        components.queryItems = [
-            .init(name: "t", value: tenant.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)),
-            .init(name: "o", value: originSlug.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)),
-            .init(name: "osdk", value: OptableSDK.version.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)),
-        ]
-        return components.url
-    }
 }

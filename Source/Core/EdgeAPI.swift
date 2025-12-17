@@ -9,12 +9,13 @@
 import Foundation
 import WebKit
 
+// MARK: - EdgeAPI
 /**
  Real Time API
- 
+
  For more info check:
  [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide)
- 
+
  */
 final class EdgeAPI {
     private let kPassportHeader: String = "X-Optable-Visitor"
@@ -40,31 +41,33 @@ final class EdgeAPI {
 
     // MARK: Endpoints
     func identify(ids: OptableIdentifiers, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
-        guard let url = config.buildEdgeURL("identify") else { return nil }
+        guard let url = buildEdgeAPIURL(endpoint:"identify") else { return nil }
         let jsonData = try jsonEncoder.encode(ids)
         let req = try buildRequest(.POST, url: url, headers: resolveHeaders(), data: jsonData)
         return dispatchRequest(req, completionHandler)
     }
 
     func profile(traits: NSDictionary, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
-        guard let url = config.buildEdgeURL("profile") else { return nil }
+        guard let url = buildEdgeAPIURL(endpoint:"profile") else { return nil }
         let req = try buildRequest(.POST, url: url, headers: resolveHeaders(), obj: ["traits": traits])
         return dispatchRequest(req, completionHandler)
     }
 
     func targeting(completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
-        guard let url = config.buildEdgeURL("targeting") else { return nil }
+        guard let url = buildEdgeAPIURL(endpoint:"targeting") else { return nil }
         let req = try buildRequest(.GET, url: url, headers: resolveHeaders())
         return dispatchRequest(req, completionHandler)
     }
 
     func witness(event: String, properties: NSDictionary, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
-        guard let url = config.buildEdgeURL("witness") else { return nil }
+        guard let url = buildEdgeAPIURL(endpoint:"witness") else { return nil }
         let req = try buildRequest(.POST, url: url, headers: resolveHeaders(), obj: ["event": event, "properties": properties])
         return dispatchRequest(req, completionHandler)
     }
+}
 
-    // MARK: Private
+// MARK: - Private
+extension EdgeAPI {
     private func dispatchRequest(_ req: URLRequest, _ completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
         return URLSession.shared.dataTask(with: req) { data, response, error in
             guard let res = response as? HTTPURLResponse, error == nil else {
@@ -172,5 +175,18 @@ final class EdgeAPI {
         }
 
         return request
+    }
+
+    func buildEdgeAPIURL(endpoint: String) -> URL? {
+        var components = URLComponents()
+        components.scheme = config.insecure ? "http" : "https"
+        components.host = config.host
+        components.path = "/\(config.path)/\(endpoint)"
+        components.queryItems = [
+            .init(name: "t", value: config.tenant.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)),
+            .init(name: "o", value: config.originSlug.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)),
+            .init(name: "osdk", value: OptableSDK.version.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)),
+        ]
+        return components.url
     }
 }
