@@ -99,8 +99,8 @@ public extension OptableSDK {
      ```swift
      // Example
      optableSDK.identify([
-         OptableIdentifier.emailAddress: "example@example.com",
-         OptableIdentifier.phoneNumber: "1234567890",
+         .emailAddress: "example@example.com",
+         .phoneNumber: "1234567890",
      ], completion)
      ```
      */
