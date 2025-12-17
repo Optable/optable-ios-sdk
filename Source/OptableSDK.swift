@@ -50,14 +50,12 @@ public class OptableSDK: NSObject {
 
     let config: OptableConfig
     let api: EdgeAPI
-    let identifierEncoder: OptableIdentifierEncoder
 
     /// `OptableSDK` returns an instance of the SDK configured to use the sandbox specified by `OptableConfig`:
     @objc
     public init(config: OptableConfig) {
         self.config = config
         self.api = EdgeAPI(config)
-        self.identifierEncoder = OptableIdentifierEncoder()
     }
 
     /// OptableSDK version
@@ -109,7 +107,6 @@ public extension OptableSDK {
     }
 
     // MARK: Async/Await support
-
     /**
      This is the Swift Concurrency compatible version of the `identify(ids, completion)` API.
 
@@ -344,12 +341,8 @@ private extension OptableSDK {
                 return
             }
             guard case .successful = HTTPStatusCode(statusCode: response.statusCode) else {
-                var msg = "HTTP response.statusCode: \(response.statusCode)"
-                do {
-                    let json = try JSONSerialization.jsonObject(with: data ?? Data(), options: [])
-                    msg += ", data: \(json)"
-                } catch {}
-                completion(.failure(OptableError.identify(msg)))
+                let errDesc = OptableSDK.generateEdgeAPIErrorDescription(with: data, response: response)
+                completion(.failure(OptableError.identify(errDesc, code: response.statusCode)))
                 return
             }
             completion(.success(response))
@@ -357,7 +350,7 @@ private extension OptableSDK {
     }
 
     private func _targeting(completion: @escaping (Result<NSDictionary, Error>) -> Void) throws {
-        try api.targeting { data, response, error in
+        try api.targeting(completionHandler: { data, response, error in
             guard let response = response as? HTTPURLResponse, error == nil, data != nil else {
                 if let err = error {
                     completion(.failure(OptableError.targeting("Session error: \(err)")))
@@ -366,13 +359,9 @@ private extension OptableSDK {
                 }
                 return
             }
-            guard 200 ..< 300 ~= response.statusCode else {
-                var msg = "HTTP response.statusCode: \(response.statusCode)"
-                do {
-                    let json = try JSONSerialization.jsonObject(with: data ?? Data(), options: [])
-                    msg += ", data: \(json)"
-                } catch {}
-                completion(.failure(OptableError.targeting(msg)))
+            guard case .successful = HTTPStatusCode(statusCode: response.statusCode) else {
+                let errDesc = OptableSDK.generateEdgeAPIErrorDescription(with: data, response: response)
+                completion(.failure(OptableError.targeting(errDesc, code: response.statusCode)))
                 return
             }
 
@@ -387,11 +376,11 @@ private extension OptableSDK {
             } catch {
                 completion(.failure(OptableError.targeting("Error parsing JSON response: \(error)")))
             }
-        }?.resume()
+        })?.resume()
     }
 
     func _witness(event: String, properties: NSDictionary, completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
-        try api.witness(event: event, properties: properties) { data, response, error in
+        try api.witness(event: event, properties: properties, completionHandler: { data, response, error in
             guard let response = response as? HTTPURLResponse, error == nil else {
                 if let err = error {
                     completion(.failure(OptableError.witness("Session error: \(err)")))
@@ -400,21 +389,17 @@ private extension OptableSDK {
                 }
                 return
             }
-            guard 200 ..< 300 ~= response.statusCode else {
-                var msg = "HTTP response.statusCode: \(response.statusCode)"
-                do {
-                    let json = try JSONSerialization.jsonObject(with: data ?? Data(), options: [])
-                    msg += ", data: \(json)"
-                } catch {}
-                completion(.failure(OptableError.witness(msg)))
+            guard case .successful = HTTPStatusCode(statusCode: response.statusCode) else {
+                let errDesc = OptableSDK.generateEdgeAPIErrorDescription(with: data, response: response)
+                completion(.failure(OptableError.witness(errDesc, code: response.statusCode)))
                 return
             }
             completion(.success(response))
-        }?.resume()
+        })?.resume()
     }
 
     func _profile(traits: NSDictionary, completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
-        try api.profile(traits: traits) { data, response, error in
+        try api.profile(traits: traits, completionHandler: { data, response, error in
             guard let response = response as? HTTPURLResponse, error == nil else {
                 if let err = error {
                     completion(.failure(OptableError.profile("Session error: \(err)")))
@@ -423,16 +408,21 @@ private extension OptableSDK {
                 }
                 return
             }
-            guard 200 ..< 300 ~= response.statusCode else {
-                var msg = "HTTP response.statusCode: \(response.statusCode)"
-                do {
-                    let json = try JSONSerialization.jsonObject(with: data ?? Data(), options: [])
-                    msg += ", data: \(json)"
-                } catch {}
-                completion(.failure(OptableError.profile(msg)))
+            guard case .successful = HTTPStatusCode(statusCode: response.statusCode) else {
+                let errDesc = OptableSDK.generateEdgeAPIErrorDescription(with: data, response: response)
+                completion(.failure(OptableError.profile(errDesc, code: response.statusCode)))
                 return
             }
             completion(.success(response))
-        }?.resume()
+        })?.resume()
+    }
+    
+    private static func generateEdgeAPIErrorDescription(with data: Data?, response: HTTPURLResponse) -> String {
+        var msg = "HTTP response.statusCode: \(response.statusCode)"
+        do {
+            let json = try JSONSerialization.jsonObject(with: data ?? Data(), options: [])
+            msg += ", data: \(json)"
+        } catch {}
+        return msg
     }
 }
