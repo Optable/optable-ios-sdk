@@ -17,7 +17,7 @@ enum OptableIdentifierEncoder {
     /// Builds Enriched Identifier from Email address
     static func email(_ email: String) -> String {
         let prefix = OptableIdentifier.emailAddress.rawValue
-        let normalizedData = Data(email.lowercased().trimmingCharacters(in: .whitespacesAndNewlines).utf8)
+        let normalizedData = Data(email.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased().utf8)
         let identifier = sha256(data: normalizedData)
         return "\(prefix):\(identifier)"
     }
@@ -25,7 +25,7 @@ enum OptableIdentifierEncoder {
     /// Builds Enriched Identifier from Phone number
     static func phoneNumber(_ phoneNumber: String) -> String {
         let prefix = OptableIdentifier.phoneNumber.rawValue
-        let normalizedData = Data(phoneNumber.lowercased().trimmingCharacters(in: .whitespacesAndNewlines).utf8)
+        let normalizedData = Data(phoneNumber.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased().utf8)
         let identifier = sha256(data: normalizedData)
         return "\(prefix):\(identifier)"
     }
@@ -33,91 +33,91 @@ enum OptableIdentifierEncoder {
     /// Builds Enriched Identifier from Postal code
     static func postalCode(_ postalCode: String) -> String {
         let prefix = OptableIdentifier.postalCode.rawValue
-        let identifier = postalCode.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let identifier = postalCode.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased()
         return "\(prefix):\(identifier)"
     }
 
     /// Builds Enriched Identifier from IPv4 address
     static func ipv4(_ ipv4: String) -> String {
         let prefix = OptableIdentifier.ipv4Address.rawValue
-        let identifier = ipv4.trimmingCharacters(in: .whitespacesAndNewlines)
+        let identifier = ipv4.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined()
         return "\(prefix):\(identifier)"
     }
 
     /// Builds Enriched Identifier from IPv6 address
     static func ipv6(_ ipv6: String) -> String {
         let prefix = OptableIdentifier.ipv6Address.rawValue
-        let identifier = ipv6.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let identifier = ipv6.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased()
         return "\(prefix):\(identifier)"
     }
 
     /// Builds Enriched Identifier from Apple IDFA
     static func idfa(_ idfa: String) -> String {
         let prefix = OptableIdentifier.appleIDFA.rawValue
-        let identifier = idfa.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let identifier = idfa.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased()
         return "\(prefix):\(identifier)"
     }
 
     /// Builds Enriched Identifier from Google GAID
     static func gaid(_ gaid: String) -> String {
         let prefix = OptableIdentifier.googleGAID.rawValue
-        let identifier = gaid.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let identifier = gaid.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased()
         return "\(prefix):\(identifier)"
     }
 
     /// Builds Enriched Identifier from Roku RIDA
     static func rida(_ rida: String) -> String {
         let prefix = OptableIdentifier.rokuRIDA.rawValue
-        let identifier = rida.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let identifier = rida.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased()
         return "\(prefix):\(identifier)"
     }
 
     /// Builds Enriched Identifier from Samsung TV TIFA
     static func tifa(_ tifa: String) -> String {
         let prefix = OptableIdentifier.samsungTIFA.rawValue
-        let identifier = tifa.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let identifier = tifa.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased()
         return "\(prefix):\(identifier)"
     }
 
     /// Builds Enriched Identifier from Amazon Fire AFAI
     static func afai(_ afai: String) -> String {
         let prefix = OptableIdentifier.amazonFireAFAI.rawValue
-        let identifier = afai.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let identifier = afai.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased()
         return "\(prefix):\(identifier)"
     }
 
     /// Builds Enriched Identifier from NetID
     static func netid(_ netid: String) -> String {
         let prefix = OptableIdentifier.netID.rawValue
-        let identifier = netid.trimmingCharacters(in: .whitespacesAndNewlines)
+        let identifier = netid.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined()
         return "\(prefix):\(identifier)"
     }
 
     /// Builds Enriched Identifier from ID5
     static func id5(_ id5: String) -> String {
         let prefix = OptableIdentifier.id5.rawValue
-        let identifier = id5.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let identifier = id5.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined()
         return "\(prefix):\(identifier)"
     }
 
     /// Builds Enriched Identifier from Utiq
     static func utiq(_ utiq: String) -> String {
         let prefix = OptableIdentifier.utiq.rawValue
-        let identifier = utiq.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let identifier = utiq.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased()
         return "\(prefix):\(identifier)"
     }
 
     /// Builds Enriched Identifier from Custom Publisher Provided ID (PPID)
-    static func custom(_ idx: Int = 0, _ ppid: String) -> String {
+    static func custom(idx: Int = 0, _ ppid: String) -> String {
         let prefix = OptableIdentifier.custom(idx).rawValue
         let identifier = ppid.trimmingCharacters(in: .whitespacesAndNewlines)
         return "\(prefix):\(identifier)"
     }
-    
+
     /// Builds Enriched Identifier from Optable Visitor ID (VID)
     static func vid(_ vid: String) -> String {
         let prefix = OptableIdentifier.optableVID.rawValue
-        let identifier = vid.trimmingCharacters(in: .whitespacesAndNewlines)
+        let identifier = vid.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined()
         return "\(prefix):\(identifier)"
     }
 

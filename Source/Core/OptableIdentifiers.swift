@@ -14,7 +14,7 @@ struct OptableIdentifiers {
 
     init() {}
 
-    init(_ dict: [String: String]) {
+    init(_ dict: [String: String] = [:]) {
         self.dict = dict
     }
 
@@ -52,7 +52,7 @@ struct OptableIdentifiers {
             case .netID: OptableIdentifierEncoder.netid(value)
             case .id5: OptableIdentifierEncoder.id5(value)
             case .utiq: OptableIdentifierEncoder.utiq(value)
-            case let .custom(idx): OptableIdentifierEncoder.custom(idx ?? 0, value)
+            case let .custom(idx): OptableIdentifierEncoder.custom(idx: idx ?? 0, value)
             case .optableVID: OptableIdentifierEncoder.vid(value)
             }
             results.append(eid)

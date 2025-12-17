@@ -86,7 +86,7 @@ public enum OptableIdentifier: RawRepresentable, Hashable {
         case .id5: return "id5"
         case .utiq: return "utiq"
         case .custom(nil): return "c"
-        case let .custom(n?): return "c\(n)"
+        case let .custom(n?): return abs(n) == 0 ? "c" : "c\(abs(n))"
         case .optableVID: return "v"
         }
     }
