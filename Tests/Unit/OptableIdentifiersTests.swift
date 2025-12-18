@@ -36,6 +36,7 @@ class OptableIdentifiersTests: XCTestCase {
             custom: [
                 "c": "d29c551097b9dd0b82423827f65161232efaf7fc",
                 "c1": "AaaZza.dh012",
+                "c2": "",
             ]
         )
         try test_json_generation_list(oids: oids)
@@ -58,6 +59,7 @@ class OptableIdentifiersTests: XCTestCase {
             "utiq": "496f5db5-681f-4392-acd5-0d4f6e2f6b88",
             "c": "d29c551097b9dd0b82423827f65161232efaf7fc",
             "c1": "AaaZza.dh012",
+            "c2": "",
         ])
         try test_json_generation_list(oids: oids)
     }
@@ -79,6 +81,7 @@ class OptableIdentifiersTests: XCTestCase {
             .utiq: "496f5db5-681f-4392-acd5-0d4f6e2f6b88",
             .custom(nil): "d29c551097b9dd0b82423827f65161232efaf7fc",
             .custom(1): "AaaZza.dh012",
+            .custom(2): "",
         ])
         try test_json_generation_list(oids: oids)
     }
@@ -101,5 +104,7 @@ class OptableIdentifiersTests: XCTestCase {
         XCTAssertTrue(decodedData.contains(where: { $0 == "n:_YV2v2Uhx3vqeH47Rrhzgr-4c3VNsxis4M1WY9qn--QTbVapax5VM2HJykoGAyWcwS5lKQ" }))
         XCTAssertTrue(decodedData.contains(where: { $0 == "c:d29c551097b9dd0b82423827f65161232efaf7fc" }))
         XCTAssertTrue(decodedData.contains(where: { $0 == "c1:AaaZza.dh012" }))
+        // Empty should be ignored
+        XCTAssertFalse(decodedData.contains(where: { $0 == "c1:" }))
     }
 }

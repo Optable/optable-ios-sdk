@@ -39,11 +39,11 @@
 		CEBE038D2EF03ADD0027D67F /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				EdgeAPITests.swift,
+				Integration/OptableSDKTests.swift,
 				Misc/cartesianProduct.swift,
-				OptableIdentifierEncoderTests.swift,
-				OptableIdentifiersTests.swift,
-				OptableSDKTests.swift,
+				Unit/EdgeAPITests.swift,
+				Unit/OptableIdentifierEncoderTests.swift,
+				Unit/OptableIdentifiersTests.swift,
 			);
 			target = 6352AB0324EAD403002E66EB /* OptableSDKTests */;
 		};
@@ -423,6 +423,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Tests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -443,6 +444,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Tests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
