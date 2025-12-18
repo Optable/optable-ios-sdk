@@ -73,7 +73,10 @@ public struct OptableIdentifiers {
         var results: [String] = []
 
         for (key, value) in dict {
-            guard let optableIdentifier = OptableIdentifierType(rawValue: key) else { continue }
+            guard
+                value.isEmpty == false, // skip empty values
+                let optableIdentifier = OptableIdentifierType(rawValue: key)
+            else { continue }
 
             let eid: String = switch optableIdentifier {
             case .emailAddress: OptableIdentifierEncoder.email(value)
