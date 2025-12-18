@@ -18,25 +18,25 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    
     OptableSDKDelegate *delegate = (OptableSDKDelegate *)OPTABLE.delegate;
     delegate.identifyOutput = self.identifyOutput;
 }
 
 - (IBAction)dispatchIdentify:(id)sender {
-    NSString *email = [_identifyInput text];
-    bool aaid = [_identifyIDFA isOn];
-    NSMutableString *output;
-    NSError *error = nil;
-
-    output = [NSMutableString stringWithFormat:@"Calling /identify API with:\n\n"];
-    if ([email length] > 0) {
-        [output appendString:[NSString stringWithFormat:@"Email: %@\n", email]];
+    NSString *email = _identifyInput.text;
+    BOOL aaid = _identifyIDFA.isOn;
+    
+    NSMutableString *output = [NSMutableString stringWithFormat: @"Calling /identify API with:\n\n"];
+    if (email.length > 0) {
+        [output appendString: [NSString stringWithFormat: @"Email: %@\n", email]];
     }
-    [output appendString:[NSString stringWithFormat:@"IDFA: %s\n", aaid ? "true" : "false"]];
-    [_identifyOutput setText:output];
-
-    [OPTABLE identify :email aaid:aaid ppid:@"" error:&error];
+    [output appendString: [NSString stringWithFormat: @"IDFA: %s\n", aaid ? "true" : "false"]];
+    _identifyOutput.text = output;
+    
+    NSError *error = nil;
+    NSDictionary *ids = @{ @"e" : email, @"c" : @"" };
+    [OPTABLE identify: ids error:&error];
 }
 
 @end

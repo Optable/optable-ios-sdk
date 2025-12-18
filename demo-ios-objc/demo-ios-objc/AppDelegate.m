@@ -20,10 +20,14 @@ OptableSDK *OPTABLE = nil;
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     
-    OPTABLE = [[OptableSDK alloc] initWithHost: @"sandbox.optable.co" app: @"ios-sdk-demo" insecure: NO useragent: nil];
-    OptableSDKDelegate *delegate = [[OptableSDKDelegate alloc] init];
+    OptableSDKDelegate *delegate = [OptableSDKDelegate new];
+    
+    OptableConfig *config = [[OptableConfig alloc] initWithTenant: @"prebidtest" originSlug: @"ios-sdk"];
+    config.host = @"prebidtest.cloud.optable.co";
+    
+    OPTABLE = [[OptableSDK alloc] initWithConfig: config];
     OPTABLE.delegate = delegate;
-
+    
     return YES;
 }
 
