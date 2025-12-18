@@ -80,30 +80,11 @@ public extension OptableSDK {
      it either the HTTPURLResponse on success, or an NSError on failure.
      ```swift
      // Example
-     optableSDK.identify([
-         "e": "example@example.com",
-         "p": "1234567890",
-     ], completion)
+     optableSDK.identify(.init(emailAddress: "example@example.com", phoneNumber: "1234567890"), completion)
      ```
      */
-    func identify(_ ids: [String: String], _ completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
-        try _identify(OptableIdentifiers(ids), completion: completion)
-    }
-
-    /**
-     This is the swift-friendly version of the `identify(ids, completion)` API.
-
-     You can use predefined `OptableIdentifier` enum easily provide keys.
-     ```swift
-     // Example
-     optableSDK.identify([
-         .emailAddress: "example@example.com",
-         .phoneNumber: "1234567890",
-     ], completion)
-     ```
-     */
-    func identify(_ ids: [OptableIdentifier: String], _ completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
-        try _identify(OptableIdentifiers(ids), completion: completion)
+    func identify(_ ids: OptableIdentifiers, _ completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+        try _identify(ids, completion: completion)
     }
 
     // MARK: Async/Await support
@@ -113,26 +94,10 @@ public extension OptableSDK {
      Instead of completion callbacks, function have to be awaited.
      */
     @available(iOS 13.0, *)
-    func identify(_ ids: [String: String]) async throws -> HTTPURLResponse {
+    func identify(_ ids: OptableIdentifiers) async throws -> HTTPURLResponse {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
-                try self._identify(OptableIdentifiers(ids), completion: { continuation.resume(with: $0) })
-            } catch {
-                continuation.resume(throwing: error)
-            }
-        })
-    }
-
-    /**
-     This is the Swift Concurrency compatible version of the `identify(ids, completion)` API.
-
-     Instead of completion callbacks, function have to be awaited.
-     */
-    @available(iOS 13.0, *)
-    func identify(_ ids: [OptableIdentifier: String]) async throws -> HTTPURLResponse {
-        return try await withCheckedThrowingContinuation({ [unowned self] continuation in
-            do {
-                try self._identify(OptableIdentifiers(ids), completion: { continuation.resume(with: $0) })
+                try self._identify(ids, completion: { continuation.resume(with: $0) })
             } catch {
                 continuation.resume(throwing: error)
             }

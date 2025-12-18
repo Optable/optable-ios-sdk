@@ -1,5 +1,5 @@
 //
-//  OptableIdentifier.swift
+//  OptableIdentifierType.swift
 //  OptableSDK
 //
 //  Created by user on 16.12.2025.
@@ -13,9 +13,9 @@ import Foundation
 
  For more info check:
  [](https://docs.optable.co/optable-documentation/getting-started/reference/identifier-types)
- 
+
  */
-public enum OptableIdentifier: RawRepresentable, Hashable {
+public enum OptableIdentifierType: RawRepresentable, Hashable {
     // Personal identifiers
     case emailAddress // e
     case phoneNumber // p
