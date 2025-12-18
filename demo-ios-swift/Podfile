@@ -1,4 +1,4 @@
-platform :ios, '14.0'
+platform :ios, '15.0'
 
 source 'https://cdn.cocoapods.org/'
 
@@ -12,14 +12,5 @@ target 'demo-ios-swift' do
   #pod 'OptableSDK'
 
   pod 'Google-Mobile-Ads-SDK'
-
-  target 'demo-ios-swiftTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-
-  target 'demo-ios-swiftUITests' do
-    # Pods for testing
-  end
 
 end
