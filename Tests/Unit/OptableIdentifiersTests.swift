@@ -105,6 +105,6 @@ class OptableIdentifiersTests: XCTestCase {
         XCTAssertTrue(decodedData.contains(where: { $0 == "c:d29c551097b9dd0b82423827f65161232efaf7fc" }))
         XCTAssertTrue(decodedData.contains(where: { $0 == "c1:AaaZza.dh012" }))
         // Empty should be ignored
-        XCTAssertFalse(decodedData.contains(where: { $0 == "c1:" }))
+        XCTAssertFalse(decodedData.contains(where: { $0.contains("c2:") }))
     }
 }
