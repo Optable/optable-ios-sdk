@@ -225,7 +225,7 @@ public extension OptableSDK {
      Instead of completion callbacks, delegate methods are called.
      */
     @objc
-    func witness(_ event: String, properties: NSDictionary) throws {
+    func witness(event: String, properties: NSDictionary) throws {
         try self.witness(event: event, properties: properties) { result in
             switch result {
             case let .success(response):
