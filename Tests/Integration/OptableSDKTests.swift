@@ -11,7 +11,7 @@ import XCTest
 
 // MARK: - OptableSDKTests
 class OptableSDKTests: XCTestCase {
-    let defaultConfig = OptableConfig(tenant: "prebidtest", originSlug: "ios-sdk", insecure: false, customUserAgent: "ios-integration-tests")
+    let defaultConfig = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK, insecure: false, customUserAgent: T.api.userAgent)
     lazy var sdk = OptableSDK(config: defaultConfig)
 
     lazy var identifyExpectation = expectation(description: "identify-delegate-expectation")

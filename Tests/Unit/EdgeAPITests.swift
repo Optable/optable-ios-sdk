@@ -10,41 +10,39 @@
 import XCTest
 
 class EdgeAPITests: XCTestCase {
-    typealias TestCaseConfiguration = (insecure: Bool, host: String, path: String, endpoint: String, tenant: String, slug: String)
-    var defaultTestConfiguration: TestCaseConfiguration {
-        (insecure: false, host: "na.edge.optable.co", path: "v2", endpoint: "", tenant: "test-tenant", slug: "test-slug")
-    }
-
     /**
      Expected output:
      `https://{{Domain}}/{{API_ENDPOINT}}?t={{TENANT}}&o={{SOURCE_SLUG}}`
-     
+
      For more info check:
      [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide)
      */
-    func test_edge_api_url_generation() throws {
-        
-        let hosts = ["na.edge.optable.co", "au.edge.optable.co"]
-        let endpoints = ["identify", "profile"]
-        let paths = ["v1", "v2"]
-        let tenants = ["prebidtest", "test-tenant"]
-        let slugs = ["ios-sdk", "js-sdk"]
-        
+    func test_url_generation() throws {
+        let hosts = T.api.host.all
+        let endpoints = T.api.endpoint.all
+        let paths = T.api.path.all
+        let tenants = T.api.tenant.all
+        let slugs = T.api.slug.all
+
+        typealias TestCaseConfiguration = (insecure: Bool, host: String, path: String, endpoint: String, tenant: String, slug: String)
+
         cartesianProduct([hosts, paths, endpoints, tenants, slugs])
             .map({ product in
-                var testConfig = defaultTestConfiguration
-                testConfig.host = product[0]
-                testConfig.path = product[1]
-                testConfig.endpoint = product[2]
-                testConfig.tenant = product[3]
-                testConfig.slug = product[4]
+                let testConfig: TestCaseConfiguration = (
+                    insecure: false,
+                    host: product[0],
+                    path: product[1],
+                    endpoint: product[2],
+                    tenant: product[3],
+                    slug: product[4]
+                )
                 return testConfig
             })
             .forEach({ (testConfig: TestCaseConfiguration) in
                 let edgeAPI = EdgeAPI(OptableConfig(tenant: testConfig.tenant, originSlug: testConfig.slug, host: testConfig.host, path: testConfig.path, insecure: testConfig.insecure))
                 let generatedURL = edgeAPI.buildEdgeAPIURL(endpoint: testConfig.endpoint)
                 let generatedURLComponents = URLComponents(url: generatedURL!, resolvingAgainstBaseURL: false)!
-                
+
                 XCTAssertEqual(generatedURLComponents.scheme, testConfig.insecure ? "http" : "https")
                 XCTAssertEqual(generatedURLComponents.host, testConfig.host)
                 XCTAssertEqual(generatedURLComponents.path, "/\(testConfig.path)/\(testConfig.endpoint)")
@@ -53,5 +51,93 @@ class EdgeAPITests: XCTestCase {
                 XCTAssertNotNil(generatedURLComponents.queryItems?.first(where: { $0.name == "o" }))
                 XCTAssertEqual(generatedURLComponents.queryItems!.first(where: { $0.name == "o" })!.value, testConfig.slug)
             })
+    }
+
+    /**
+     For more info check: [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide#parameters)
+     */
+    func test_url_generation_privacy_regulations_empty() throws {
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABTCF_gdprApplies)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABTCF_TCString)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_2_TCString)
+
+        let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK)
+        let generatedURL = OptableSDK(config: config).api.buildEdgeAPIURL(endpoint: T.api.endpoint.identify)
+        let generatedURLComponents = URLComponents(url: generatedURL!, resolvingAgainstBaseURL: false)!
+
+        XCTAssertNil(generatedURLComponents.queryItems?.first(where: { $0.name == "reg" }))
+        XCTAssertNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gdpr_consent" }))
+        XCTAssertNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gdpr" }))
+        XCTAssertNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp" }))
+        XCTAssertNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp_sid" }))
+    }
+
+    /**
+     For more info check: [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide#parameters)
+     */
+    func test_url_generation_privacy_regulations_global() throws {
+        UserDefaults.standard.set("0", forKey: IABConsent.Keys.IABTCF_gdprApplies)
+        UserDefaults.standard.set("globalGDPRConsent", forKey: IABConsent.Keys.IABTCF_TCString)
+        UserDefaults.standard.set("globalGPP", forKey: IABConsent.Keys.IABGPP_2_TCString)
+
+        let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK)
+        let generatedURL = OptableSDK(config: config).api.buildEdgeAPIURL(endpoint: T.api.endpoint.identify)
+        let generatedURLComponents = URLComponents(url: generatedURL!, resolvingAgainstBaseURL: false)!
+
+        XCTAssertNil(generatedURLComponents.queryItems?.first(where: { $0.name == "reg" }))
+        XCTAssertNotNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gdpr_consent" }))
+        XCTAssertEqual(generatedURLComponents.queryItems!.first(where: { $0.name == "gdpr_consent" })!.value, "globalGDPRConsent")
+        XCTAssertNotNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gdpr" }))
+        XCTAssertEqual(generatedURLComponents.queryItems!.first(where: { $0.name == "gdpr" })!.value, "0")
+        XCTAssertNotNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp" }))
+        XCTAssertEqual(generatedURLComponents.queryItems!.first(where: { $0.name == "gpp" })!.value, "globalGPP")
+        XCTAssertNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp_sid" }))
+    }
+
+    /**
+     For more info check: [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide#parameters)
+     */
+    func test_url_generation_privacy_regulations_explicit() throws {
+        UserDefaults.standard.set("0", forKey: IABConsent.Keys.IABTCF_gdprApplies)
+        UserDefaults.standard.set("globalGDPRConsent", forKey: IABConsent.Keys.IABTCF_TCString)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_2_TCString)
+
+        let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK)
+        config.reg = "reg"
+        config.gdprConsent = "gdprConsent"
+        config.gdpr = 1
+        config.gpp = "gpp"
+        config.gppSid = "gppSid"
+
+        let generatedURL = OptableSDK(config: config).api.buildEdgeAPIURL(endpoint: T.api.endpoint.identify)
+        let generatedURLComponents = URLComponents(url: generatedURL!, resolvingAgainstBaseURL: false)!
+
+        XCTAssertNotNil(generatedURLComponents.queryItems?.first(where: { $0.name == "reg" }))
+        XCTAssertEqual(generatedURLComponents.queryItems!.first(where: { $0.name == "reg" })!.value, "reg")
+        XCTAssertNotNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gdpr_consent" }))
+        XCTAssertEqual(generatedURLComponents.queryItems!.first(where: { $0.name == "gdpr_consent" })!.value, "gdprConsent")
+        XCTAssertNotNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gdpr" }))
+        XCTAssertEqual(generatedURLComponents.queryItems!.first(where: { $0.name == "gdpr" })!.value, "1")
+        XCTAssertNotNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp" }))
+        XCTAssertEqual(generatedURLComponents.queryItems!.first(where: { $0.name == "gpp" })!.value, "gpp")
+        XCTAssertNotNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp_sid" }))
+        XCTAssertEqual(generatedURLComponents.queryItems!.first(where: { $0.name == "gpp_sid" })!.value, "gppSid")
+    }
+
+    /**
+     For more info check: [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide#parameters)
+     */
+    func test_header_generation() throws {
+        let config = OptableConfig(
+            tenant: T.api.tenant.prebidtest,
+            originSlug: T.api.slug.iosSDK,
+            apiKey: T.api.apiKey,
+            customUserAgent: T.api.userAgent,
+        )
+        let sdk = OptableSDK(config: config)
+        let generatedHeaders = sdk.api.resolveHeaders().asDict
+
+        XCTAssertEqual(generatedHeaders["User-Agent"], T.api.userAgent)
+        XCTAssertEqual(generatedHeaders["Authorization"], T.api.apiKeyBearer)
     }
 }
