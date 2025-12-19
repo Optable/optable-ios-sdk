@@ -60,16 +60,16 @@ public struct OptableIdentifiers {
         set { dict[key] = newValue }
     }
 
-    init(_ dict: [OptableIdentifierType: String]) {
+    public init(_ dict: [OptableIdentifierType: String]) {
         self.dict = Dictionary(uniqueKeysWithValues: dict.map({ ($0.key.rawValue, $0.value) }))
     }
 
-    subscript(_ key: OptableIdentifierType) -> String? {
+    public subscript(_ key: OptableIdentifierType) -> String? {
         get { dict[key.rawValue] }
         set { dict[key.rawValue] = newValue }
     }
 
-    func generateEnrichedIds() -> [String] {
+    public func generateEnrichedIds() -> [String] {
         var results: [String] = []
 
         for (key, value) in dict {

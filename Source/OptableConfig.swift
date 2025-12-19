@@ -10,6 +10,7 @@ import Foundation
 
 @objc
 public class OptableConfig: NSObject {
+    // MARK: Required
     /// The tenant name associated with the configuration. E.g. `acmeco.optable.co` => `acmeco`.
     @objc
     public var tenant: String
@@ -18,6 +19,7 @@ public class OptableConfig: NSObject {
     @objc
     public var originSlug: String
 
+    // MARK: Optional
     /// The hostname of the Optable endpoint. Default value is "na.edge.optable.co".
     @objc
     public var host: String = "na.edge.optable.co"
@@ -42,6 +44,53 @@ public class OptableConfig: NSObject {
     @objc
     public var skipAdvertisingIdDetection: Bool = false
 
+    // MARK: Privacy Regulations
+    /**
+     Optable privacy regulation override, which can be one of: gdpr, can, us, or null and will override all other privacy regulations when present.
+     */
+    @objc
+    public var reg: String?
+
+    /**
+     TCF EU v2 consent string.
+
+     > If not set, SDK will try to fetch data from UserDefaults => `IABTCF_TCString`, as stated in [](https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#in-app-details)
+     */
+    @objc
+    public var gdprConsent: String?
+
+    /**
+     A boolean indicating whether GDPR applies, represented as a integer (0 when it does not apply, 1 when it does). This value should be present when gdpr_consent is supplied.
+
+     > If not set, SDK will try to fetch data from UserDefaults => `IABTCF_gdprApplies`, as stated in [](https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#in-app-details)
+     */
+    @objc
+    public var gdpr: NSNumber? = false
+
+    /**
+     GPP privacy string.
+
+     > If not set, SDK will try to fetch data from UserDefaults => `IABGPP_2_TCString`, as stated in [](https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#in-app-details)
+     */
+    @objc
+    public var gpp: String?
+
+    /**
+     A comma-separated list of up to two sections applicable in a given GPP privacy string. This value is required when gpp is present.
+     */
+    @objc
+    public var gppSid: String?
+
+    // TODO: timeout per-request?
+    /// Timeout for requests in the form of `{{timeout}}ms`. This timeout will override all other timeouts.
+//    @objc
+//    public var timeout: TimeInterval = 0
+
+    /// The Optable passport JWT.
+//    @objc
+//    public var passport: String?
+
+    // MARK: Inits
     /**
      - Parameters:
      - tenant: The tenant name associated with the configuration. E.g. `acmeco.optable.co` => `acmeco`.

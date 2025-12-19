@@ -41,6 +41,7 @@
 			membershipExceptions = (
 				Integration/OptableSDKTests.swift,
 				Misc/cartesianProduct.swift,
+				Misc/Constants.swift,
 				Unit/EdgeAPITests.swift,
 				Unit/OptableIdentifierEncoderTests.swift,
 				Unit/OptableIdentifiersTests.swift,

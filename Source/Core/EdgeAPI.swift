@@ -41,26 +41,26 @@ final class EdgeAPI {
 
     // MARK: Endpoints
     func identify(ids: OptableIdentifiers, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
-        guard let url = buildEdgeAPIURL(endpoint:"identify") else { return nil }
+        guard let url = buildEdgeAPIURL(endpoint: "identify") else { return nil }
         let jsonData = try jsonEncoder.encode(ids)
         let req = try buildRequest(.POST, url: url, headers: resolveHeaders(), data: jsonData)
         return dispatchRequest(req, completionHandler)
     }
 
     func profile(traits: NSDictionary, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
-        guard let url = buildEdgeAPIURL(endpoint:"profile") else { return nil }
+        guard let url = buildEdgeAPIURL(endpoint: "profile") else { return nil }
         let req = try buildRequest(.POST, url: url, headers: resolveHeaders(), obj: ["traits": traits])
         return dispatchRequest(req, completionHandler)
     }
 
     func targeting(completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
-        guard let url = buildEdgeAPIURL(endpoint:"targeting") else { return nil }
+        guard let url = buildEdgeAPIURL(endpoint: "targeting") else { return nil }
         let req = try buildRequest(.GET, url: url, headers: resolveHeaders())
         return dispatchRequest(req, completionHandler)
     }
 
     func witness(event: String, properties: NSDictionary, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
-        guard let url = buildEdgeAPIURL(endpoint:"witness") else { return nil }
+        guard let url = buildEdgeAPIURL(endpoint: "witness") else { return nil }
         let req = try buildRequest(.POST, url: url, headers: resolveHeaders(), obj: ["event": event, "properties": properties])
         return dispatchRequest(req, completionHandler)
     }
@@ -126,7 +126,7 @@ extension EdgeAPI {
         }
     }
 
-    private func resolveHeaders() -> HTTPHeaders {
+    func resolveHeaders() -> HTTPHeaders {
         var headers = HTTPHeaders()
         headers[.accept] = "application/json"
         headers[.contentType] = "application/json"
@@ -187,6 +187,41 @@ extension EdgeAPI {
             .init(name: "o", value: config.originSlug.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)),
             .init(name: "osdk", value: OptableSDK.version.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)),
         ]
+
+        if let reg = config.reg {
+            components.queryItems?.append(
+                .init(name: "reg", value: reg.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed))
+            )
+        }
+
+        if let gdprConsent = config.gdprConsent, let gdpr = config.gdpr?.boolValue {
+            components.queryItems?.append(contentsOf: [
+                .init(name: "gdpr_consent", value: gdprConsent.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)),
+                .init(name: "gdpr", value: "\(gdpr ? 1 : 0)"),
+            ])
+        } else if let globalGDPRConsent = IABConsent.gdprTC, let globalGDPR = IABConsent.gdprApplies {
+            components.queryItems?.append(contentsOf: [
+                .init(name: "gdpr_consent", value: globalGDPRConsent.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)),
+                .init(name: "gdpr", value: "\(globalGDPR ? 1 : 0)"),
+            ])
+        }
+
+        if let gpp = config.gpp {
+            components.queryItems?.append(
+                .init(name: "gpp", value: gpp.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed))
+            )
+        } else if let globalGPP = IABConsent.gppTC {
+            components.queryItems?.append(
+                .init(name: "gpp", value: globalGPP.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed))
+            )
+        }
+
+        if let gppSid = config.gppSid {
+            components.queryItems?.append(
+                .init(name: "gpp_sid", value: gppSid.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed))
+            )
+        }
+
         return components.url
     }
 }
