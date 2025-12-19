@@ -10,6 +10,15 @@
 import XCTest
 
 class EdgeAPITests: XCTestCase {
+    lazy var config = OptableConfig(
+        tenant: T.api.tenant.prebidtest,
+        originSlug: T.api.slug.iosSDK,
+        apiKey: T.api.apiKey,
+        customUserAgent: T.api.userAgent,
+    )
+    lazy var sdk = OptableSDK(config: config)
+
+    // MARK: URL-s
     /**
      Expected output:
      `https://{{Domain}}/{{API_ENDPOINT}}?t={{TENANT}}&o={{SOURCE_SLUG}}`
@@ -124,20 +133,111 @@ class EdgeAPITests: XCTestCase {
         XCTAssertEqual(generatedURLComponents.queryItems!.first(where: { $0.name == "gpp_sid" })!.value, "gppSid")
     }
 
+    // MARK: Header-s
     /**
      For more info check: [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide#parameters)
      */
     func test_header_generation() throws {
-        let config = OptableConfig(
-            tenant: T.api.tenant.prebidtest,
-            originSlug: T.api.slug.iosSDK,
-            apiKey: T.api.apiKey,
-            customUserAgent: T.api.userAgent,
-        )
-        let sdk = OptableSDK(config: config)
         let generatedHeaders = sdk.api.resolveHeaders().asDict
 
         XCTAssertEqual(generatedHeaders["User-Agent"], T.api.userAgent)
         XCTAssertEqual(generatedHeaders["Authorization"], T.api.apiKeyBearer)
+    }
+
+    // MARK: URLRequest-s
+    /**
+     For more info check: [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide/optable-real-time-api-endpoints)
+     */
+    func test_identify_request_generation() throws {
+        let urlRequest = try sdk.api.identify(ids: OptableIdentifiers(postalCode: "1234567890"))
+        
+        // Method
+        XCTAssertEqual(urlRequest?.httpMethod, HTTPMethod.POST.rawValue)
+
+        // Path
+        let urlComponents = URLComponents(url: urlRequest!.url!, resolvingAgainstBaseURL: false)!
+        XCTAssert(urlComponents.path.contains("identify"))
+
+        // Body
+        if let body = urlRequest?.httpBody {
+            if let jsonObj = try JSONSerialization.jsonObject(with: body) as? [String] {
+                XCTAssertEqual(jsonObj[0], "z:1234567890")
+            } else {
+                XCTFail("Not a valid JSON object")
+            }
+        } else {
+            XCTFail("No body")
+        }
+    }
+
+    /**
+     For more info check: [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide/optable-real-time-api-endpoints/targeting)
+     */
+    func test_targeting_request_generation() throws {
+        let urlRequest = try sdk.api.targeting(ids: ["e:12345", "p:54321"])
+        
+        // Method
+        XCTAssertEqual(urlRequest?.httpMethod, HTTPMethod.GET.rawValue)
+
+        // Path
+        let urlComponents = URLComponents(url: urlRequest!.url!, resolvingAgainstBaseURL: false)!
+        XCTAssert(urlComponents.path.contains("targeting"))
+        
+        // Query
+        XCTAssert(urlComponents.queryItems?.contains(where: { $0.name == "id" && $0.value == "e:12345" }) != nil)
+        XCTAssert(urlComponents.queryItems?.contains(where: { $0.name == "id" && $0.value == "p:54321" }) != nil)
+    }
+
+    /**
+     For more info check: [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide/optable-real-time-api-endpoints/profile)
+     */
+    func test_profile_request_generation() throws {
+        let urlRequest = try sdk.api.profile(traits: ["test-key": "test-value"], id: "c:id2", neighbors: ["c:id1", "c:id3"])
+        
+        // Method
+        XCTAssertEqual(urlRequest?.httpMethod, HTTPMethod.POST.rawValue)
+
+        // Path
+        let urlComponents = URLComponents(url: urlRequest!.url!, resolvingAgainstBaseURL: false)!
+        XCTAssert(urlComponents.path.contains("profile"))
+
+        // Body
+        if let body = urlRequest?.httpBody {
+            if let jsonObj = try JSONSerialization.jsonObject(with: body) as? NSDictionary {
+                XCTAssertEqual(jsonObj["id"] as! String, "c:id2")
+                XCTAssertEqual(jsonObj["neighbors"] as! [String], ["c:id1", "c:id3"])
+                XCTAssertEqual(jsonObj["traits"] as! NSDictionary, ["test-key": "test-value"])
+            } else {
+                XCTFail("Not a valid JSON object")
+            }
+        } else {
+            XCTFail("No body")
+        }
+    }
+
+    /**
+     For more info check: [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide/optable-real-time-api-endpoints)
+     */
+    func test_witness_request_generation() throws {
+        let urlRequest = try sdk.api.witness(event: "test-event", properties: ["test-key": "test-value"])
+        
+        // Method
+        XCTAssertEqual(urlRequest?.httpMethod, HTTPMethod.POST.rawValue)
+
+        // Path
+        let urlComponents = URLComponents(url: urlRequest!.url!, resolvingAgainstBaseURL: false)!
+        XCTAssert(urlComponents.path.contains("witness"))
+        
+        // Body
+        if let body = urlRequest?.httpBody {
+            if let jsonObj = try JSONSerialization.jsonObject(with: body) as? NSDictionary {
+                XCTAssertEqual(jsonObj["event"] as! String, "test-event")
+                XCTAssertEqual(jsonObj["properties"] as! NSDictionary, ["test-key": "test-value"])
+            } else {
+                XCTFail("Not a valid JSON object")
+            }
+        } else {
+            XCTFail("No body")
+        }
     }
 }

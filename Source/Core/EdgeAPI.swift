@@ -40,36 +40,53 @@ final class EdgeAPI {
     }
 
     // MARK: Endpoints
-    func identify(ids: OptableIdentifiers, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
+    func identify(ids: OptableIdentifiers) throws -> URLRequest? {
         guard let url = buildEdgeAPIURL(endpoint: "identify") else { return nil }
         let jsonData = try jsonEncoder.encode(ids)
-        let req = try buildRequest(.POST, url: url, headers: resolveHeaders(), data: jsonData)
-        return dispatchRequest(req, completionHandler)
+        let request = try buildRequest(.POST, url: url, headers: resolveHeaders(), data: jsonData)
+        return request
     }
 
-    func profile(traits: NSDictionary, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
+    func profile(traits: NSDictionary, id: String? = nil, neighbors: [String]? = nil) throws -> URLRequest? {
         guard let url = buildEdgeAPIURL(endpoint: "profile") else { return nil }
-        let req = try buildRequest(.POST, url: url, headers: resolveHeaders(), obj: ["traits": traits])
-        return dispatchRequest(req, completionHandler)
+
+        var payload: [String: Any] = ["traits": traits]
+
+        if let id {
+            payload["id"] = id
+        }
+
+        if let neighbors, neighbors.isEmpty == false {
+            payload["neighbors"] = neighbors
+        }
+
+        let request = try buildRequest(.POST, url: url, headers: resolveHeaders(), obj: payload)
+        return request
     }
 
-    func targeting(completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
-        guard let url = buildEdgeAPIURL(endpoint: "targeting") else { return nil }
-        let req = try buildRequest(.GET, url: url, headers: resolveHeaders())
-        return dispatchRequest(req, completionHandler)
+    func targeting(ids: [String]? = nil) throws -> URLRequest? {
+        guard var url = buildEdgeAPIURL(endpoint: "targeting") else { return nil }
+
+        if let ids {
+            let queryItems = ids.compactMap({ URLQueryItem(name: "id", value: $0) })
+            url.compatAppend(queryItems: queryItems)
+        }
+
+        let request = try buildRequest(.GET, url: url, headers: resolveHeaders())
+        return request
     }
 
-    func witness(event: String, properties: NSDictionary, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) throws -> URLSessionDataTask? {
+    func witness(event: String, properties: NSDictionary) throws -> URLRequest? {
         guard let url = buildEdgeAPIURL(endpoint: "witness") else { return nil }
-        let req = try buildRequest(.POST, url: url, headers: resolveHeaders(), obj: ["event": event, "properties": properties])
-        return dispatchRequest(req, completionHandler)
+        let request = try buildRequest(.POST, url: url, headers: resolveHeaders(), obj: ["event": event, "properties": properties])
+        return request
     }
 }
 
-// MARK: - Private
+// MARK: - Dispatch
 extension EdgeAPI {
-    private func dispatchRequest(_ req: URLRequest, _ completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
-        return URLSession.shared.dataTask(with: req) { data, response, error in
+    func dispatch(request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
+        return URLSession.shared.dataTask(with: request) { data, response, error in
             guard let res = response as? HTTPURLResponse, error == nil else {
                 completionHandler(data, response, error)
                 return
@@ -101,7 +118,10 @@ extension EdgeAPI {
             completionHandler(data, response, error)
         }
     }
+}
 
+// MARK: - Private
+extension EdgeAPI {
     private func resolveUserAgent(callback: @escaping (_ useragent: String) -> Void) {
         var wkUserAgent = ""
         let myGroup = DispatchGroup()

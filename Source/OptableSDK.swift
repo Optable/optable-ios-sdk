@@ -134,8 +134,8 @@ public extension OptableSDK {
      On success, this method will also cache the resulting targeting data in client storage, which can
      be access using targetingFromCache(), and cleared using targetingClearCache().
      */
-    func targeting(completion: @escaping (Result<NSDictionary, Error>) -> Void) throws {
-        try _targeting(completion: completion)
+    func targeting(ids: [String]? = nil, completion: @escaping (Result<NSDictionary, Error>) -> Void) throws {
+        try _targeting(ids: ids, completion: completion)
     }
 
     /// targetingFromCache() returns the previously cached targeting data, if any.
@@ -160,10 +160,10 @@ public extension OptableSDK {
      Instead of completion callbacks, function have to be awaited.
      */
     @available(iOS 13.0, *)
-    func targeting() async throws -> NSDictionary {
+    func targeting(ids: [String]? = nil) async throws -> NSDictionary {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
-                try self._targeting(completion: { continuation.resume(with: $0) })
+                try self._targeting(ids: ids, completion: { continuation.resume(with: $0) })
             } catch {
                 continuation.resume(throwing: error)
             }
@@ -177,15 +177,15 @@ public extension OptableSDK {
      Instead of completion callbacks, delegate methods are called.
      */
     @objc
-    func targeting() throws {
-        try self._targeting { result in
+    func targeting(ids: [String]? = nil) throws {
+        try self._targeting(ids: ids, completion: { result in
             switch result {
             case let .success(keyvalues):
                 self.delegate?.targetingOk(keyvalues)
             case let .failure(error as NSError):
                 self.delegate?.targetingErr(error)
             }
-        }
+        })
     }
 }
 
@@ -245,8 +245,8 @@ public extension OptableSDK {
      The specified NSDictionary 'traits' can be subsequently used for audience assembly.
      The profile method is asynchronous, and on completion it will call the specified completion handler, passing it either the HTTPURLResponse on success, or an NSError on failure.
      */
-    func profile(traits: NSDictionary, _ completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
-        try _profile(traits: traits, completion: completion)
+    func profile(traits: NSDictionary, id: String? = nil, neighbors: [String]? = nil, _ completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+        try _profile(traits: traits, id: id, neighbors: neighbors, completion: completion)
     }
 
     // MARK: Async/Await support
@@ -256,10 +256,10 @@ public extension OptableSDK {
      Instead of completion callbacks, function have to be awaited.
      */
     @available(iOS 13.0, *)
-    func profile(traits: NSDictionary) async throws -> HTTPURLResponse {
+    func profile(traits: NSDictionary, id: String? = nil, neighbors: [String]? = nil) async throws -> HTTPURLResponse {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
-                try self._profile(traits: traits, completion: { continuation.resume(with: $0) })
+                try self._profile(traits: traits, id: id, neighbors: neighbors, completion: { continuation.resume(with: $0) })
             } catch {
                 continuation.resume(throwing: error)
             }
@@ -273,8 +273,8 @@ public extension OptableSDK {
      Instead of completion callbacks, delegate methods are called.
      */
     @objc
-    func profile(traits: NSDictionary) throws {
-        try _profile(traits: traits, completion: { result in
+    func profile(traits: NSDictionary, id: String? = nil, neighbors: [String]? = nil) throws {
+        try _profile(traits: traits, id: id, neighbors: neighbors, completion: { result in
             switch result {
             case let .success(response):
                 self.delegate?.profileOk(response)
@@ -296,7 +296,11 @@ private extension OptableSDK {
             ids[.appleIDFA] = ATT.advertisingIdentifier.uuidString
         }
 
-        try api.identify(ids: ids, completionHandler: { data, response, error in
+        guard let request = try api.identify(ids: ids) else {
+            throw OptableError.identify("Failed to create identify request")
+        }
+
+        api.dispatch(request: request, completionHandler: { data, response, error in
             guard let response = response as? HTTPURLResponse, error == nil, data != nil else {
                 if let err = error {
                     completion(.failure(OptableError.identify("Session error: \(err)")))
@@ -311,11 +315,15 @@ private extension OptableSDK {
                 return
             }
             completion(.success(response))
-        })?.resume()
+        }).resume()
     }
 
-    private func _targeting(completion: @escaping (Result<NSDictionary, Error>) -> Void) throws {
-        try api.targeting(completionHandler: { data, response, error in
+    private func _targeting(ids: [String]?, completion: @escaping (Result<NSDictionary, Error>) -> Void) throws {
+        guard let request = try api.targeting(ids: ids) else {
+            throw OptableError.targeting("Failed to create targeting request")
+        }
+
+        api.dispatch(request: request, completionHandler: { data, response, error in
             guard let response = response as? HTTPURLResponse, error == nil, data != nil else {
                 if let err = error {
                     completion(.failure(OptableError.targeting("Session error: \(err)")))
@@ -341,11 +349,15 @@ private extension OptableSDK {
             } catch {
                 completion(.failure(OptableError.targeting("Error parsing JSON response: \(error)")))
             }
-        })?.resume()
+        }).resume()
     }
 
     func _witness(event: String, properties: NSDictionary, completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
-        try api.witness(event: event, properties: properties, completionHandler: { data, response, error in
+        guard let request = try api.witness(event: event, properties: properties) else {
+            throw OptableError.witness("Failed to create witness request")
+        }
+
+        api.dispatch(request: request, completionHandler: { data, response, error in
             guard let response = response as? HTTPURLResponse, error == nil else {
                 if let err = error {
                     completion(.failure(OptableError.witness("Session error: \(err)")))
@@ -360,11 +372,15 @@ private extension OptableSDK {
                 return
             }
             completion(.success(response))
-        })?.resume()
+        }).resume()
     }
 
-    func _profile(traits: NSDictionary, completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
-        try api.profile(traits: traits, completionHandler: { data, response, error in
+    func _profile(traits: NSDictionary, id: String?, neighbors: [String]?, completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+        guard let request = try api.profile(traits: traits, id: id, neighbors: neighbors) else {
+            throw OptableError.profile("Failed to create profile request")
+        }
+
+        api.dispatch(request: request, completionHandler: { data, response, error in
             guard let response = response as? HTTPURLResponse, error == nil else {
                 if let err = error {
                     completion(.failure(OptableError.profile("Session error: \(err)")))
@@ -379,7 +395,7 @@ private extension OptableSDK {
                 return
             }
             completion(.success(response))
-        })?.resume()
+        }).resume()
     }
 
     private static func generateEdgeAPIErrorDescription(with data: Data?, response: HTTPURLResponse) -> String {
