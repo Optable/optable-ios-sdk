@@ -294,8 +294,22 @@ public extension OptableSDK {
 
 // MARK: - Identify from URL
 public extension OptableSDK {
-    func eidFromURL(_ urlString: String) -> String {
-        OptableIdentifierEncoder.eidFromURL(urlString)
+    ///
+    ///  tryIdentifyFromURL(urlString) is a helper that attempts to find a valid-looking
+    ///  "oeid" parameter in the specified urlString's query string parameters and, if found,
+    ///  calls self.identify([oeid]).
+    ///
+    ///  The use for this is when handling incoming universal links which might contain an
+    ///  "oeid" value with the SHA256(downcase(email)) of an incoming user, such as encoded
+    ///  links in newsletter Emails sent by the application developer.
+    ///
+    @objc
+    func tryIdentifyFromURL(_ urlString: String) throws {
+        let oeid = OptableIdentifierEncoder.eidFromURL(urlString)
+
+        guard oeid.isEmpty == false else { return }
+
+        try self._identify(OptableIdentifiers([oeid]), completion: { _ in /* no-op */ })
     }
 }
 

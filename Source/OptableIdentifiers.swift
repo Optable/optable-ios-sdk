@@ -68,6 +68,19 @@ public struct OptableIdentifiers {
         get { dict[key.rawValue] }
         set { dict[key.rawValue] = newValue }
     }
+    
+    public init(_ array: [String]) {
+        for item in array {
+            if let colonIndex = item.firstIndex(of: ":"), colonIndex > item.startIndex {
+                let prefix = String(item[..<colonIndex])
+                let value = String(item[item.index(after: colonIndex)...])
+                if let idType = OptableIdentifierType(rawValue: prefix) {
+                    // valid id
+                    dict[idType.rawValue] = value
+                }
+            }
+        }
+    }
 
     public func generateEnrichedIds() -> [String] {
         var results: [String] = []
