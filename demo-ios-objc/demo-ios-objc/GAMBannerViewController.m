@@ -38,9 +38,14 @@
 
     [_targetingOutput setText:@"Calling /targeting API...\n"];
 
-    [OPTABLE targetingAndReturnError:&error];
-    [OPTABLE witness:@"GAMBannerViewController.loadBannerClicked" properties:@{ @"example": @"value" } error:&error];
-    [OPTABLE profileWithTraits:@{ @"example": @"value", @"anotherExample": @123, @"thirdExample": @YES } error:&error];
+    [OPTABLE targetingWithIds: NULL error: &error];
+    [OPTABLE witnessWithEvent: @"GAMBannerViewController.loadBannerClicked"
+                   properties: @{ @"example": @"value" }
+                        error: &error];
+    [OPTABLE profileWithTraits: @{ @"example": @"value", @"anotherExample": @123, @"thirdExample": @YES }
+                            id: NULL
+                     neighbors: NULL
+                         error: &error];
 }
 
 - (IBAction)loadBannerWithTargetingFromCache:(id)sender {
@@ -62,8 +67,13 @@
     }
 
     [self.bannerView loadRequest:request];
-    [OPTABLE witness:@"GAMBannerViewController.loadBannerClicked" properties:@{ @"example": @"value" } error:&error];
-    [OPTABLE profileWithTraits:@{ @"example": @"value", @"anotherExample": @123, @"thirdExample": @YES } error:&error];
+    [OPTABLE witnessWithEvent: @"GAMBannerViewController.loadBannerClicked"
+                   properties: @{ @"example": @"value" }
+                        error: &error];
+    [OPTABLE profileWithTraits: @{ @"example": @"value", @"anotherExample": @123, @"thirdExample": @YES }
+                            id: NULL
+                     neighbors: NULL
+                         error: &error];
 }
 
 - (IBAction)clearTargetingCache:(id)sender {

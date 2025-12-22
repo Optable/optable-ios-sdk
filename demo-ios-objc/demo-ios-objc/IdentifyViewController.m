@@ -36,7 +36,7 @@
     
     NSError *error = nil;
     NSDictionary *ids = @{ @"e" : email, @"c" : @"new-custom.ABC" };
-    [OPTABLE identify: ids error:&error];
+    [OPTABLE identify: ids error: &error];
 }
 
 @end
