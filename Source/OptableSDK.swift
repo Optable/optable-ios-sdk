@@ -56,6 +56,13 @@ public class OptableSDK: NSObject {
     public init(config: OptableConfig) {
         self.config = config
         self.api = EdgeAPI(config)
+
+        // Automatically request Tracking Authorization
+        if #available(iOS 14, *) {
+            if config.skipAdvertisingIdDetection == false, ATT.canAuthorize {
+                ATT.requestATTAuthorization()
+            }
+        }
     }
 
     /// OptableSDK version
@@ -292,7 +299,8 @@ private extension OptableSDK {
 
         if config.skipAdvertisingIdDetection == false,
            ATT.advertisingIdentifierAvailable,
-           ATT.advertisingIdentifier != UUID(uuid: uuid_t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) {
+           ATT.advertisingIdentifier != UUID(uuid: uuid_t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
+           ids[.appleIDFA] != nil {
             ids[.appleIDFA] = ATT.advertisingIdentifier.uuidString
         }
 
