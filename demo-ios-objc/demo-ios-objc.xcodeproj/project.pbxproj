@@ -19,6 +19,7 @@
 		63B5A91A25368252000CA436 /* GAMBannerViewController.h in Sources */ = {isa = PBXBuildFile; fileRef = 63B5A8C52536704F000CA436 /* GAMBannerViewController.h */; };
 		63B5A91E2536825A000CA436 /* IdentifyViewController.h in Sources */ = {isa = PBXBuildFile; fileRef = 6320EF022535F92300F76877 /* IdentifyViewController.h */; };
 		63B5AAE3253E4047000CA436 /* OptableSDKDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 63B5AAE2253E4047000CA436 /* OptableSDKDelegate.m */; };
+		CE9FB6162EF9B9D100277231 /* PrebidBannerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE9FB6152EF9B9D100277231 /* PrebidBannerViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,7 +33,7 @@
 		6320EEFD2535F92300F76877 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		6320EEFF2535F92300F76877 /* SceneDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SceneDelegate.h; sourceTree = "<group>"; };
 		6320EF002535F92300F76877 /* SceneDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SceneDelegate.m; sourceTree = "<group>"; };
-		6320EF022535F92300F76877 /* IdentifyViewController.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = IdentifyViewController.h; sourceTree = "<group>"; };
+		6320EF022535F92300F76877 /* IdentifyViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IdentifyViewController.h; sourceTree = "<group>"; };
 		6320EF032535F92300F76877 /* IdentifyViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IdentifyViewController.m; sourceTree = "<group>"; };
 		6320EF062535F92300F76877 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		6320EF082535F92500F76877 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -40,10 +41,12 @@
 		6320EF0D2535F92500F76877 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6320EF0E2535F92500F76877 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		63B5A8C025366FE8000CA436 /* GAMBannerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GAMBannerViewController.m; sourceTree = "<group>"; };
-		63B5A8C52536704F000CA436 /* GAMBannerViewController.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = GAMBannerViewController.h; sourceTree = "<group>"; };
+		63B5A8C52536704F000CA436 /* GAMBannerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAMBannerViewController.h; sourceTree = "<group>"; };
 		63B5AAE2253E4047000CA436 /* OptableSDKDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OptableSDKDelegate.m; sourceTree = "<group>"; };
 		63B5AAE7253E4067000CA436 /* OptableSDKDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OptableSDKDelegate.h; sourceTree = "<group>"; };
 		83DB069E12658B3EA13B8867 /* Pods-demo-ios-objcTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-demo-ios-objcTests.debug.xcconfig"; path = "Target Support Files/Pods-demo-ios-objcTests/Pods-demo-ios-objcTests.debug.xcconfig"; sourceTree = "<group>"; };
+		CE9FB6142EF9B9D100277231 /* PrebidBannerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrebidBannerViewController.h; sourceTree = "<group>"; };
+		CE9FB6152EF9B9D100277231 /* PrebidBannerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PrebidBannerViewController.m; sourceTree = "<group>"; };
 		DB5262E52B5F4397F9533E61 /* Pods_demo_ios_objcTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_demo_ios_objcTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1A7E09DC9C49991F9532BB1 /* Pods-demo-ios-objc.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-demo-ios-objc.release.xcconfig"; path = "Target Support Files/Pods-demo-ios-objc/Pods-demo-ios-objc.release.xcconfig"; sourceTree = "<group>"; };
 		E6A988EC956D03DD2D0BFF54 /* Pods-demo-ios-objc.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-demo-ios-objc.debug.xcconfig"; path = "Target Support Files/Pods-demo-ios-objc/Pods-demo-ios-objc.debug.xcconfig"; sourceTree = "<group>"; };
@@ -102,6 +105,8 @@
 				6320EF032535F92300F76877 /* IdentifyViewController.m */,
 				63B5A8C52536704F000CA436 /* GAMBannerViewController.h */,
 				63B5A8C025366FE8000CA436 /* GAMBannerViewController.m */,
+				CE9FB6142EF9B9D100277231 /* PrebidBannerViewController.h */,
+				CE9FB6152EF9B9D100277231 /* PrebidBannerViewController.m */,
 				6320EF052535F92300F76877 /* Main.storyboard */,
 				6320EF082535F92500F76877 /* Assets.xcassets */,
 				6320EF0A2535F92500F76877 /* LaunchScreen.storyboard */,
@@ -223,9 +228,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-demo-ios-objc/Pods-demo-ios-objc-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-demo-ios-objc/Pods-demo-ios-objc-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -240,9 +249,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-demo-ios-objc/Pods-demo-ios-objc-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-demo-ios-objc/Pods-demo-ios-objc-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -256,6 +269,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE9FB6162EF9B9D100277231 /* PrebidBannerViewController.m in Sources */,
 				63B5A91E2536825A000CA436 /* IdentifyViewController.h in Sources */,
 				6320EF042535F92300F76877 /* IdentifyViewController.m in Sources */,
 				63B5A91A25368252000CA436 /* GAMBannerViewController.h in Sources */,

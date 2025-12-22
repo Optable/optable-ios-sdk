@@ -50,7 +50,7 @@
     // Update the GAM banner view with result targeting keyvalues:
     GAMRequest *request = [GAMRequest request];
     request.customTargeting = result;
-    [self.bannerView loadRequest:request];
+    [self loadBannerWithKeyValues: result];
     
     NSLog(@"[OptableSDK] Success on /targeting API call: %@", result);
     
@@ -62,7 +62,7 @@
 - (void)targetingErr:(NSError *)error {
     // Update the GAM banner view without targeting data:
     GAMRequest *request = [GAMRequest request];
-    [self.bannerView loadRequest:request];
+    [self.adManagerBannerView loadRequest:request];
     
     NSLog(@"[OptableSDK] Error on /targeting API call: %@", [error localizedDescription]);
     
@@ -87,4 +87,29 @@
         self.targetingOutput.text = output;
     });
 }
+
+- (void)loadBannerWithKeyValues:(NSDictionary<NSString *, NSString *> * _Nullable)keyValues {
+    GAMRequest *request = [GAMRequest request];
+    
+    if (self.pbmBannerAdUnit) {
+        __weak typeof(self) weakSelf = self;
+        [self.pbmBannerAdUnit fetchDemandWithAdObject:request completion:^(enum ResultCode status) {
+            if (status != ResultCodePrebidDemandFetchSuccess) {
+                NSLog(@"[PrebidMobile SDK] Prebid fetch demand failed: %ld", (long)status);
+            }
+            if (keyValues.count > 0) {
+                NSMutableDictionary *merged = [request.customTargeting mutableCopy] ?: [NSMutableDictionary dictionary];
+                [merged addEntriesFromDictionary:keyValues];
+                request.customTargeting = merged;
+            }
+            [weakSelf.adManagerBannerView loadRequest:request];
+        }];
+    } else {
+        if (keyValues.count > 0) {
+            request.customTargeting = keyValues;
+        }
+        [self.adManagerBannerView loadRequest:request];
+    }
+}
+
 @end

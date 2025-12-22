@@ -8,7 +8,11 @@
 
 #import "AppDelegate.h"
 #import "OptableSDKDelegate.h"
+
 @import OptableSDK;
+
+@import PrebidMobile;
+@import GoogleMobileAds;
 
 OptableSDK *OPTABLE = nil;
 
@@ -18,7 +22,6 @@ OptableSDK *OPTABLE = nil;
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
     
     OptableSDKDelegate *delegate = [OptableSDKDelegate new];
     
@@ -28,7 +31,22 @@ OptableSDK *OPTABLE = nil;
     OPTABLE = [[OptableSDK alloc] initWithConfig: config];
     OPTABLE.delegate = delegate;
     
+    [self initPrebidMobile];
+    [self initGoogleMobileAds];
+
     return YES;
+}
+
+- (void)initPrebidMobile {
+    Prebid.shared.prebidServerAccountId = @"0689a263-318d-448b-a3d4-b02e8a709d9d";
+    
+    [Prebid initializeSDKWithServerURL: @"https://prebid-server-test-j.prebid.org/openrtb2/auction"
+                                 error: nil
+                                      : nil];
+}
+
+- (void)initGoogleMobileAds {
+    [[GADMobileAds sharedInstance] startWithCompletionHandler:^(GADInitializationStatus * _Nonnull status) {}];
 }
 
 #pragma mark - UISceneSession lifecycle

@@ -1,5 +1,5 @@
 //
-//  GAMBannerViewController.m
+//  PrebidBannerViewController.m
 //  demo-ios-objc
 //
 //  Copyright © 2020 Optable Technologies Inc. All rights reserved.
@@ -7,21 +7,27 @@
 //
 
 #import "OptableSDKDelegate.h"
-#import "GAMBannerViewController.h"
+#import "PrebidBannerViewController.h"
 #import "AppDelegate.h"
+
 @import OptableSDK;
 @import GoogleMobileAds;
 
-@interface GAMBannerViewController ()
+@interface PrebidBannerViewController ()
 
 @property(nonatomic, strong) GADBannerView *bannerView;
+@property(nonatomic, strong) BannerAdUnit *pbmBannerAdUnit;
 
 @end
 
-@implementation GAMBannerViewController
+@implementation PrebidBannerViewController
 
 - (NSString *)AD_MANAGER_AD_UNIT_ID {
-    return @"/22081946781/ios-sdk-demo/mobile-leaderboard";
+    return @"/21808260008/prebid_demo_app_original_api_banner";
+}
+
+- (NSString *)PREBID_STORED_IMP {
+    return @"prebid-demo-banner-320-50";
 }
 
 - (void)viewDidLoad {
@@ -31,19 +37,23 @@
     self.bannerView.adUnitID = self.AD_MANAGER_AD_UNIT_ID;
     self.bannerView.rootViewController = self;
     [self addBannerViewToView:self.bannerView];
+    
+    self.pbmBannerAdUnit = [[BannerAdUnit alloc] initWithConfigId:self.PREBID_STORED_IMP
+                                                             size:CGSizeMake(320, 50)];
 
     OptableSDKDelegate *delegate = (OptableSDKDelegate *)OPTABLE.delegate;
     delegate.adManagerBannerView = self.bannerView;
+    delegate.pbmBannerAdUnit = self.pbmBannerAdUnit;
     delegate.targetingOutput = self.targetingOutput;
 }
 
 - (IBAction)loadBannerWithTargeting:(id)sender {
     NSError *error = nil;
 
-    [_targetingOutput setText:@"Calling /targeting API...\n"];
-
+    [_targetingOutput setText:@"📡 Calling /targeting API...\n"];
+    
     [OPTABLE targetingWithIds: NULL error: &error];
-    [OPTABLE witnessWithEvent: @"GAMBannerViewController.loadBannerClicked"
+    [OPTABLE witnessWithEvent: @"PrebidBannerViewController.loadBannerClicked"
                    properties: @{ @"example": @"value" }
                         error: &error];
     [OPTABLE profileWithTraits: @{ @"example": @"value", @"anotherExample": @123, @"thirdExample": @YES }
@@ -71,7 +81,9 @@
     }
 
     [self.bannerView loadRequest:request];
-    [OPTABLE witnessWithEvent: @"GAMBannerViewController.loadBannerClicked"
+    
+    
+    [OPTABLE witnessWithEvent: @"PrebidBannerViewController.loadBannerClicked"
                    properties: @{ @"example": @"value" }
                         error: &error];
     [OPTABLE profileWithTraits: @{ @"example": @"value", @"anotherExample": @123, @"thirdExample": @YES }
