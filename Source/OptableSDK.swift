@@ -292,6 +292,13 @@ public extension OptableSDK {
     }
 }
 
+// MARK: - Identify from URL
+public extension OptableSDK {
+    func eidFromURL(_ urlString: String) -> String {
+        OptableIdentifierEncoder.eidFromURL(urlString)
+    }
+}
+
 // MARK: - Private
 private extension OptableSDK {
     private func _identify(_ ids: OptableIdentifiers, completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
