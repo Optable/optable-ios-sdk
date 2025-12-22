@@ -1,9 +1,5 @@
 platform :ios, '15.0'
 
-source 'https://cdn.cocoapods.org/'
-
-project 'demo-ios-swift.xcodeproj'
-
 target 'demo-ios-swift' do
   use_frameworks!
 
@@ -12,5 +8,6 @@ target 'demo-ios-swift' do
   #pod 'OptableSDK'
 
   pod 'Google-Mobile-Ads-SDK'
+  pod 'PrebidMobile'
 
 end

@@ -6,8 +6,8 @@
 //  See LICENSE for details.
 //
 
-import UIKit
 import OptableSDK
+import UIKit
 
 class IdentifyViewController: UIViewController {
     // MARK: Properties

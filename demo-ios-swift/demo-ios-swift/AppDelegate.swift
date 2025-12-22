@@ -9,6 +9,9 @@
 import OptableSDK
 import UIKit
 
+import GoogleMobileAds
+import PrebidMobile
+
 // The OPTABLE global points to an instance of OptableSDK which is initialized in the AppDelegate application() method at app launch.
 // While we could have initialized the global directly here, due to Swift lazy-loading this would delay initialization to the first
 // use of the SDK. While not strictly required, we want to force early initialization so that the SDK can detect the correct useragent
@@ -29,8 +32,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             skipAdvertisingIdDetection: false
         )
         OPTABLE = OptableSDK(config: config)
+        
+        initPrebidMobile()
+        initGoogleMobileAds()
 
         return true
+    }
+
+    private func initPrebidMobile() {
+        Prebid.shared.prebidServerAccountId = "0689a263-318d-448b-a3d4-b02e8a709d9d"
+
+        try? Prebid.initializeSDK(
+            serverURL: "https://prebid-server-test-j.prebid.org/openrtb2/auction"
+        )
+    }
+
+    private func initGoogleMobileAds() {
+        MobileAds.shared.start()
     }
 
     // MARK: UISceneSession Lifecycle
