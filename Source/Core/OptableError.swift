@@ -2,8 +2,7 @@
 //  OptableError.swift
 //  OptableSDK
 //
-//  Created by user on 16.12.2025.
-//  Copyright © 2025 Optable Technologies, Inc. All rights reserved.
+//  Copyright © 2026 Optable Technologies, Inc. All rights reserved.
 //
 
 import Foundation

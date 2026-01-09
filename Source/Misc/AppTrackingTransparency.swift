@@ -2,8 +2,7 @@
 //  AppTrackingTransparency.swift
 //  OptableSDK
 //
-//  Created by user on 15.12.2025.
-//  Copyright © 2025 Optable Technologies, Inc. All rights reserved.
+//  Copyright © 2026 Optable Technologies, Inc. All rights reserved.
 //
 
 #if canImport(AdSupport)
