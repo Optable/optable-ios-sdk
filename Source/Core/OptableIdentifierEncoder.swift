@@ -32,7 +32,7 @@ enum OptableIdentifierEncoder {
     /// Builds Enriched Identifier from Postal code
     static func postalCode(_ postalCode: String) -> String {
         let prefix = OptableIdentifierType.postalCode.rawValue
-        let identifier = postalCode.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased()
+        let identifier = postalCode.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).lowercased()
         return "\(prefix):\(identifier)"
     }
 
