@@ -81,15 +81,6 @@ public class OptableConfig: NSObject {
     @objc
     public var gppSid: String?
 
-    // TODO: timeout per-request?
-    /// Timeout for requests in the form of `{{timeout}}ms`. This timeout will override all other timeouts.
-//    @objc
-//    public var timeout: TimeInterval = 0
-
-    /// The Optable passport JWT.
-//    @objc
-//    public var passport: String?
-
     // MARK: Inits
     /**
      - Parameters:
