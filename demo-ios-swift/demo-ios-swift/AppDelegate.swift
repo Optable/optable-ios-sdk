@@ -25,6 +25,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
 
+        // Debug URLSession
+        URLProtocol.registerClass(HTTPURLLogProtocol.self)
+
         let config = OptableConfig(
             tenant: "prebidtest",
             originSlug: "ios-sdk",
@@ -32,7 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             skipAdvertisingIdDetection: false
         )
         OPTABLE = OptableSDK(config: config)
-        
+
         initPrebidMobile()
         initGoogleMobileAds()
 

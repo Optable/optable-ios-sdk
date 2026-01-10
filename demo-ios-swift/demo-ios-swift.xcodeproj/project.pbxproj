@@ -16,6 +16,7 @@
 		6352AA6224DC7AE9002E66EB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6352AA6024DC7AE9002E66EB /* Main.storyboard */; };
 		6352AA6424DC7AEC002E66EB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6352AA6324DC7AEC002E66EB /* Assets.xcassets */; };
 		6352AA6724DC7AEC002E66EB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6352AA6524DC7AEC002E66EB /* LaunchScreen.storyboard */; };
+		CE144EDE2F11397C00C787D8 /* HTTPURLLogProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE144EDD2F11397C00C787D8 /* HTTPURLLogProtocol.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -49,6 +50,7 @@
 		AC9D63E534725E310399A3FF /* Pods-demo-ios-swift.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-demo-ios-swift.release.xcconfig"; path = "Target Support Files/Pods-demo-ios-swift/Pods-demo-ios-swift.release.xcconfig"; sourceTree = "<group>"; };
 		AFE041B55E3398A6DDE84BFF /* Pods-demo-ios-swiftTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-demo-ios-swiftTests.release.xcconfig"; path = "Target Support Files/Pods-demo-ios-swiftTests/Pods-demo-ios-swiftTests.release.xcconfig"; sourceTree = "<group>"; };
 		BEEBA234E54019EC38C70912 /* Pods-demo-ios-swiftTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-demo-ios-swiftTests.debug.xcconfig"; path = "Target Support Files/Pods-demo-ios-swiftTests/Pods-demo-ios-swiftTests.debug.xcconfig"; sourceTree = "<group>"; };
+		CE144EDD2F11397C00C787D8 /* HTTPURLLogProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPURLLogProtocol.swift; sourceTree = "<group>"; };
 		D76144A328FE0069ABDF4B5F /* Pods_demo_ios_swift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_demo_ios_swift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8E21CA91246EF005B351B37 /* Pods-demo-ios-swift-demo-ios-swiftUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-demo-ios-swift-demo-ios-swiftUITests.release.xcconfig"; path = "Target Support Files/Pods-demo-ios-swift-demo-ios-swiftUITests/Pods-demo-ios-swift-demo-ios-swiftUITests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -88,13 +90,14 @@
 			children = (
 				6352AA5A24DC7AE9002E66EB /* AppDelegate.swift */,
 				6352AA5C24DC7AE9002E66EB /* SceneDelegate.swift */,
+				6352AA5E24DC7AE9002E66EB /* IdentifyViewController.swift */,
 				631466EC24F7F555007DCA5D /* GAMBannerViewController.swift */,
 				536D9E912EA0DD37006D86BE /* PrebidBannerViewController.swift */,
-				6352AA5E24DC7AE9002E66EB /* IdentifyViewController.swift */,
 				6352AA6024DC7AE9002E66EB /* Main.storyboard */,
 				6352AA6324DC7AEC002E66EB /* Assets.xcassets */,
 				6352AA6524DC7AEC002E66EB /* LaunchScreen.storyboard */,
 				6352AA6824DC7AEC002E66EB /* Info.plist */,
+				CE144EDF2F113FD500C787D8 /* Misc */,
 			);
 			path = "demo-ios-swift";
 			sourceTree = "<group>";
@@ -120,6 +123,14 @@
 				AFE041B55E3398A6DDE84BFF /* Pods-demo-ios-swiftTests.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		CE144EDF2F113FD500C787D8 /* Misc */ = {
+			isa = PBXGroup;
+			children = (
+				CE144EDD2F11397C00C787D8 /* HTTPURLLogProtocol.swift */,
+			);
+			path = Misc;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -267,6 +278,7 @@
 				6352AA5F24DC7AE9002E66EB /* IdentifyViewController.swift in Sources */,
 				536D9E922EA0DD37006D86BE /* PrebidBannerViewController.swift in Sources */,
 				6352AA5B24DC7AE9002E66EB /* AppDelegate.swift in Sources */,
+				CE144EDE2F11397C00C787D8 /* HTTPURLLogProtocol.swift in Sources */,
 				631466ED24F7F555007DCA5D /* GAMBannerViewController.swift in Sources */,
 				6352AA5D24DC7AE9002E66EB /* SceneDelegate.swift in Sources */,
 			);

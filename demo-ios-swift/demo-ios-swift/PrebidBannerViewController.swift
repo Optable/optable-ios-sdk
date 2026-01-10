@@ -6,179 +6,171 @@
 //  See LICENSE for details.
 //
 
-import UIKit
-import PrebidMobile
 import GoogleMobileAds
+import PrebidMobile
+import UIKit
 
-fileprivate let AD_MANAGER_AD_UNIT_ID = "/21808260008/prebid_demo_app_original_api_banner"
-fileprivate let PREBID_STORED_IMP = "prebid-demo-banner-320-50"
+private let AD_MANAGER_AD_UNIT_ID = "/21808260008/prebid_demo_app_original_api_banner"
+private let PREBID_STORED_IMP = "prebid-demo-banner-320-50"
 
-class PrebidBannerViewController: UIViewController {
-    
-    // MARK: - PrebidMobile
+// MARK: - PrebidBannerViewController
+final class PrebidBannerViewController: UIViewController { // Outlets
+    @IBOutlet var adPlaceholder: UIView!
+    @IBOutlet var loadBannerButton: UIButton!
+    @IBOutlet var loadBannerFromCacheButton: UIButton!
+    @IBOutlet var clearTargetingCacheButton: UIButton!
+    @IBOutlet var targetingOutput: UITextView!
+
+    // PrebidMobile
     private var pbmBannerAdUnit: BannerAdUnit!
-    
-    // MARK: - GoogleMobileAds
-    private var adManagerBannerView: AdManagerBannerView!
-    
-    // MARK: - Outlets
-    @IBOutlet weak var adPlaceholder: UIView!
-    @IBOutlet weak var loadBannerButton: UIButton!
-    @IBOutlet weak var loadBannerFromCacheButton: UIButton!
-    @IBOutlet weak var clearTargetingCacheButton: UIButton!
-    @IBOutlet weak var targetingOutput: UITextView!
-    
+
+    // GoogleMobileAds - GAMBannerView
+    private var gamBannerView: AdManagerBannerView!
+
+    // Logging
+    private var targetingLog: String? { didSet { updateUILog() } }
+    private var witnessLog: String? { didSet { updateUILog() } }
+    private var profileLog: String? { didSet { updateUILog() } }
+    private var networkLogObserver: (any NSObjectProtocol)?
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        pbmBannerAdUnit = BannerAdUnit(
-            configId: PREBID_STORED_IMP,
-            size: .init(width: 320, height: 50)
-        )
-        
-        adManagerBannerView = AdManagerBannerView(adSize: AdSizeBanner)
-        adManagerBannerView.adUnitID = AD_MANAGER_AD_UNIT_ID
-        adManagerBannerView.rootViewController = self
-        adManagerBannerView.delegate = self
-        addBannerViewToView(adManagerBannerView)
+
+        gamBannerView = AdManagerBannerView(adSize: AdSizeBanner)
+        gamBannerView.adUnitID = AD_MANAGER_AD_UNIT_ID
+        gamBannerView.rootViewController = self
+        gamBannerView.delegate = self
+        addBannerViewToView(gamBannerView)
     }
-    
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        startObservingNetworkLogs()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        stopObservingNetworkLogs()
+    }
+
+    // MARK: Actions
     @IBAction func loadBannerWithTargeting(_ sender: UIButton) {
-        setOutput("📡 Calling /targeting API...\n\n")
-        
         do {
             try OPTABLE!.targeting { [weak self] result in
-                var tdata: NSDictionary = [:]
-                
+                var targetingData: NSDictionary = [:]
+
                 switch result {
-                case .success(let keyvalues):
-                    print("[OptableSDK] Success on /targeting API call: \(keyvalues)")
-                    tdata = keyvalues
-                    self?.appendOutput("✅ Targeting data:\n\(keyvalues)\n")
-                    
-                case .failure(let error):
-                    print("[OptableSDK] Error on /targeting API call: \(error)")
-                    self?.appendOutput("🚫 Error: \(error.localizedDescription)\n")
+                case let .success(keyvalues):
+                    print("[OptableSDK] ✅ Success on /targeting API call: \(keyvalues)")
+                    targetingData = keyvalues
+                case let .failure(error):
+                    print("[OptableSDK] 🚫 Error on /targeting API call: \(error)")
                 }
-                
-                self?.loadBanner(keyvalues: tdata)
+
+                self?.loadBanner(targetingData: targetingData)
             }
         } catch {
-            print("[OptableSDK] Exception: \(error)")
-            appendOutput("⚠️ Exception: \(error.localizedDescription)\n")
+            print("[OptableSDK] 🚫 Exception on /targeting API call: \(error)")
+            targetingLog = "🚫 EXCEPTION: \(error)"
         }
     }
-    
+
     @IBAction func loadBannerWithTargetingFromCache(_ sender: UIButton) {
-        setOutput("🗂 Checking local targeting cache...\n\n")
-        
-        var tdata: NSDictionary = [:]
+        var cachedTargetingData: NSDictionary = [:]
+
         if let cachedValues = OPTABLE!.targetingFromCache() {
-            print("[OptableSDK] Cached targeting values found: \(cachedValues)")
-            appendOutput("✅ Found cached data:\n\(cachedValues)\n")
-            tdata = cachedValues
+            print("[OptableSDK] ✅ Cached targeting values found: \(cachedValues)")
+            cachedTargetingData = cachedValues
         } else {
-            appendOutput("ℹ️ Cache empty.\n")
+            print("[OptableSDK] ℹ️ Cache empty")
         }
-        
-        loadBanner(keyvalues: tdata)
+
+        loadBanner(targetingData: cachedTargetingData)
     }
-    
+
     @IBAction func clearTargetingCache(_ sender: UIButton) {
-        setOutput("🧹 Clearing local targeting cache.\n")
+        targetingOutput.text = "🧹 Cleared local targeting cache.\n"
         OPTABLE!.targetingClearCache()
     }
-    
-    private func loadBanner(keyvalues: NSDictionary) {
-        let request = AdManagerRequest()
-        
-        pbmBannerAdUnit.fetchDemand(adObject: request) { [weak self] status in
-            if status != .prebidDemandFetchSuccess {
-                print("[PrebidMobile SDK] Prebid fetch demand was not successful: \(status.name())")
-            }
-            
-            // TODO: - Where should keyvalues go in Prebid and GAM(?) ?
-            if let keyvalues = keyvalues as? [String: String] {
-                request.customTargeting?.merge(keyvalues, uniquingKeysWith: { $1 })
-            }
-            
-            self?.adManagerBannerView.load(request)
-        }
-        
+}
+
+// MARK: - Private
+private extension PrebidBannerViewController {
+    func loadBanner(targetingData: NSDictionary? = nil) {
+        loadPrebidAd(targetingData)
         witness()
         profile()
     }
-    
-    private func witness() {
+
+    func loadPrebidAd(_ targetingData: NSDictionary? = nil) {
+        setOptableTargetingToPrebid(targetingData)
+
+        pbmBannerAdUnit = BannerAdUnit(configId: PREBID_STORED_IMP, size: .init(width: 320, height: 50))
+
+        let adRequest = AdManagerRequest()
+        adRequest.customTargeting = targetingData as? [String: Any]
+        pbmBannerAdUnit.fetchDemand(adObject: adRequest) { [weak self] status in
+            print("[PrebidMobile]:fetchDemand(adObject:): \(status.name())")
+            self?.loadGAMAd(adRequest)
+        }
+    }
+
+    func setOptableTargetingToPrebid(_ targetingData: NSDictionary? = nil) {
+        guard let targetingData, (targetingData as Dictionary).isEmpty == false else {
+            PrebidMobile.Targeting.shared.setGlobalORTBConfig(nil)
+            return
+        }
+
+        if let ortbJSONData = try? JSONSerialization.data(withJSONObject: targetingData, options: []),
+           let ortbJSONString = String(data: ortbJSONData, encoding: .utf8) {
+            PrebidMobile.Targeting.shared.setGlobalORTBConfig(ortbJSONString)
+        }
+    }
+
+    func loadGAMAd(_ request: AdManagerRequest) {
+        gamBannerView.load(request)
+    }
+
+    func witness() {
         do {
             try OPTABLE!.witness(
                 event: "PrebidBannerViewController.loadBannerClicked",
                 properties: ["example": "value"]
-            ) { [weak self] result in
+            ) { result in
                 switch result {
-                case .success(let response):
-                    print("[OptableSDK] Witness success: \(response.statusCode)")
-                    self?.appendOutput("✅ Witness API logged loadBannerClicked event.\n")
-                case .failure(let error):
-                    print("[OptableSDK] Witness error: \(error)")
-                    self?.appendOutput("🚫 Witness error: \(error.localizedDescription)\n")
+                case .success:
+                    print("[OptableSDK] ✅ Success on /witness API call")
+                case let .failure(error):
+                    print("[OptableSDK] 🚫 Error on /witness API call: \(error)")
                 }
             }
         } catch {
-            print("[OptableSDK] Exception: \(error)")
-            appendOutput("⚠️ Witness exception: \(error.localizedDescription)\n")
+            print("[OptableSDK] 🚫 Exception on /witness API call: \(error)")
+            witnessLog = "🚫 EXCEPTION: \(error)"
         }
     }
-    
-    private func profile() {
+
+    func profile() {
         do {
             try OPTABLE!.profile(
                 traits: ["example": "value", "anotherExample": 123, "thirdExample": true]
-            ) { [weak self] result in
+            ) { result in
                 switch result {
-                case .success(let response):
-                    print("[OptableSDK] Profile success: \(response.statusCode)")
-                    self?.appendOutput("✅ Profile API set example traits.\n")
-                case .failure(let error):
-                    print("[OptableSDK] Profile error: \(error)")
-                    self?.appendOutput("🚫 Profile error: \(error.localizedDescription)\n")
+                case .success:
+                    print("[OptableSDK] ✅ Success on /profile API call")
+                case let .failure(error):
+                    print("[OptableSDK] 🚫 Error on /profile API call: \(error)")
                 }
             }
         } catch {
-            print("[OptableSDK] Exception: \(error)")
-            appendOutput("⚠️ Profile exception: \(error.localizedDescription)\n")
-        }
-    }
-    
-    // MARK: - Helpers
-    private func addBannerViewToView(_ bannerView: AdManagerBannerView) {
-        bannerView.translatesAutoresizingMaskIntoConstraints = false
-        adPlaceholder.addSubview(bannerView)
-        
-        NSLayoutConstraint.activate([
-            bannerView.centerXAnchor.constraint(equalTo: adPlaceholder.centerXAnchor),
-            bannerView.centerYAnchor.constraint(equalTo: adPlaceholder.centerYAnchor)
-        ])
-    }
-    
-    /// Safely sets the full text of targetingOutput on the main thread.
-    private func setOutput(_ text: String) {
-        DispatchQueue.main.async {
-            self.targetingOutput.text = text
-        }
-    }
-    
-    /// Appends text to targetingOutput on the main thread with line break.
-    private func appendOutput(_ text: String) {
-        DispatchQueue.main.async {
-            self.targetingOutput.text += "\n\(text)"
+            print("[OptableSDK] 🚫 Exception on /profile API call: \(error)")
+            profileLog = "🚫 EXCEPTION: \(error)"
         }
     }
 }
 
 // MARK: - GoogleMobileAds.BannerViewDelegate
 extension PrebidBannerViewController: GoogleMobileAds.BannerViewDelegate {
-    
     func bannerViewDidReceiveAd(_ bannerView: GoogleMobileAds.BannerView) {
         AdViewUtils.findPrebidCreativeSize(bannerView, success: { size in
             guard let bannerView = bannerView as? AdManagerBannerView else { return }
@@ -187,11 +179,60 @@ extension PrebidBannerViewController: GoogleMobileAds.BannerViewDelegate {
             print("[PrebidMobile SDK] Error finding creative size: \(error)")
         })
     }
-    
+
     func bannerView(
         _ bannerView: GoogleMobileAds.BannerView,
         didFailToReceiveAdWithError error: any Error
     ) {
-        print("[GMA SDK] Failed to receive ad: \(error)")
+        print("[PrebidBannerViewController] Failed to receive ad: \(error)")
+    }
+}
+
+// MARK: - Helpers
+private extension PrebidBannerViewController {
+    func addBannerViewToView(_ bannerView: AdManagerBannerView) {
+        bannerView.translatesAutoresizingMaskIntoConstraints = false
+        adPlaceholder.addSubview(bannerView)
+
+        NSLayoutConstraint.activate([
+            bannerView.centerXAnchor.constraint(equalTo: adPlaceholder.centerXAnchor),
+            bannerView.centerYAnchor.constraint(equalTo: adPlaceholder.centerYAnchor),
+        ])
+    }
+
+    func updateUILog() {
+        targetingOutput.text = [targetingLog, witnessLog, profileLog].compactMap({ $0 }).joined(separator: "\n\n")
+    }
+}
+
+// MARK: - Logging
+private extension PrebidBannerViewController {
+    /// Setups observation for URLRequest/URLResponse logging
+    func startObservingNetworkLogs() {
+        networkLogObserver = NotificationCenter.default
+            .addObserver(forName: .HTTPURLLogUpdated, object: nil, queue: .main, using: { [weak self] notification in
+                if let logEntry = notification.userInfo?["data"] as? HTTPURLLogEntry,
+                   logEntry.request.url?.absoluteString.contains("/targeting") == true {
+                    self?.targetingLog = logEntry.debugDescription
+                    print(logEntry.response == nil ? logEntry.requestDebugDescription : logEntry.responseDebugDescription)
+                }
+
+                if let logEntry = notification.userInfo?["data"] as? HTTPURLLogEntry,
+                   logEntry.request.url?.absoluteString.contains("/witness") == true {
+                    self?.witnessLog = logEntry.debugDescription
+                    print(logEntry.response == nil ? logEntry.requestDebugDescription : logEntry.responseDebugDescription)
+                }
+
+                if let logEntry = notification.userInfo?["data"] as? HTTPURLLogEntry,
+                   logEntry.request.url?.absoluteString.contains("/profile") == true {
+                    self?.profileLog = logEntry.debugDescription
+                    print(logEntry.response == nil ? logEntry.requestDebugDescription : logEntry.responseDebugDescription)
+                }
+            })
+    }
+
+    func stopObservingNetworkLogs() {
+        guard let networkLogObserver else { return }
+        NotificationCenter.default.removeObserver(networkLogObserver)
     }
 }

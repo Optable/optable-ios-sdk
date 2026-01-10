@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17150" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="9KB-Po-ioE">
-<!--    <device id="retina6_12" orientation="portrait" appearance="light"/>-->
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="9KB-Po-ioE">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -18,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="AKp-3F-KNX">
-                                <rect key="frame" x="20" y="192" width="353" height="93"/>
+                                <rect key="frame" x="20" y="192" width="353" height="45"/>
                                 <subviews>
                                     <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Email" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="0Py-KR-2hS">
                                         <rect key="frame" x="0.0" y="0.0" width="353" height="45"/>
@@ -26,25 +26,11 @@
                                             <constraint firstAttribute="height" constant="45" id="5oF-EA-J0e"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                        <textInputTraits key="textInputTraits"/>
+                                        <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="emailAddress"/>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="string" keyPath="_placeholder" value="Email"/>
                                         </userDefinedRuntimeAttributes>
                                     </textField>
-                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="top" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="UmK-2V-AH4">
-                                        <rect key="frame" x="0.0" y="65" width="353" height="28"/>
-                                        <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Include IDFA:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="78R-3b-x29">
-                                                <rect key="frame" x="0.0" y="0.0" width="277" height="20.333333333333332"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                <nil key="textColor"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Eg-c7-IVu">
-                                                <rect key="frame" x="292" y="0.0" width="63" height="28"/>
-                                            </switch>
-                                        </subviews>
-                                    </stackView>
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="0Py-KR-2hS" secondAttribute="trailing" id="GtE-du-x6N"/>
@@ -52,7 +38,7 @@
                                 </constraints>
                             </stackView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="b7v-UN-xAf">
-                                <rect key="frame" x="20" y="315" width="353" height="48"/>
+                                <rect key="frame" x="20" y="267" width="353" height="48"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="48" id="kHc-fy-Sxb"/>
                                 </constraints>
@@ -66,7 +52,7 @@
                                 </connections>
                             </button>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="pQa-vV-MeS">
-                                <rect key="frame" x="20" y="378" width="353" height="337"/>
+                                <rect key="frame" x="20" y="330" width="353" height="385"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <color key="textColor" systemColor="labelColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -93,7 +79,6 @@
                     <navigationItem key="navigationItem" title="Identify" id="fPV-pJ-MMc"/>
                     <connections>
                         <outlet property="identifyButton" destination="b7v-UN-xAf" id="JgO-1H-l2i"/>
-                        <outlet property="identifyIDFA" destination="2Eg-c7-IVu" id="Edv-UW-vxZ"/>
                         <outlet property="identifyInput" destination="0Py-KR-2hS" id="Uda-2S-GRy"/>
                         <outlet property="identifyOutput" destination="pQa-vV-MeS" id="XQe-0Z-PkW"/>
                     </connections>
@@ -233,7 +218,6 @@
         <!--GAM Banner-->
         <scene sceneID="A0Q-pf-jnN">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="TbY-Xt-eFG" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="9Cd-Yb-3vr" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="GAM Banner" image="rectangle.3.group.fill" catalog="system" selectedImage="rectangle.3.group.fill" id="WaP-P0-dwN"/>
                     <toolbarItems/>
@@ -246,6 +230,7 @@
                         <segue destination="qnL-ha-uwz" kind="relationship" relationship="rootViewController" id="ce4-te-hj0"/>
                     </connections>
                 </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="TbY-Xt-eFG" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1047.8260869565217" y="758.70535714285711"/>
         </scene>
@@ -341,7 +326,6 @@
         <!--Prebid Banner-->
         <scene sceneID="GyT-F5-YIt">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Aan-GA-XFa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="H17-Rf-ib4" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Prebid Banner" image="rectangle.3.group.fill" catalog="system" selectedImage="rectangle.3.group.fill" id="I3S-84-F6j"/>
                     <toolbarItems/>
@@ -354,6 +338,7 @@
                         <segue destination="933-rX-ubX" kind="relationship" relationship="rootViewController" id="KWZ-vb-tKh"/>
                     </connections>
                 </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Aan-GA-XFa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1047" y="1492"/>
         </scene>
@@ -368,7 +353,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGray6Color">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
