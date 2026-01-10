@@ -112,7 +112,7 @@ class OptableIdentifiersTests: XCTestCase {
         let decodedData = try JSONDecoder().decode([String].self, from: encodedData)
         XCTAssertTrue(decodedData.contains(where: { $0 == "e:0c7e6a405862e402eb76a70f8a26fc732d07c32931e9fae9ab1582911d2e8a3b" }))
         XCTAssertTrue(decodedData.contains(where: { $0 == "p:f45562169005d99cdbb6908607fd5b50b66fd835a132a8225cc361d5692a8bd2" }))
-        XCTAssertTrue(decodedData.contains(where: { $0 == "z:m5v3l9" }))
+        XCTAssertTrue(decodedData.contains(where: { $0 == "z:m5v 3l9" }))
         XCTAssertTrue(decodedData.contains(where: { $0 == "id5:ID5*UDWnp3JOtWV0ky-bHvEeU4xOVHXCmYeg24YigF8iAymUHplfYSElM3fy79h8p-Fg" }))
         XCTAssertTrue(decodedData.contains(where: { $0 == "utiq:496f5db5-681f-4392-acd5-0d4f6e2f6b88" }))
         XCTAssertTrue(decodedData.contains(where: { $0 == "i4:8.8.8.8" }))

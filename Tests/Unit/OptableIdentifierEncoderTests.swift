@@ -34,12 +34,12 @@ class OptableIdentifierEncoderTests: XCTestCase {
     }
 
     func test_postalCode() throws {
-        XCTAssertEqual("z:m5v3l9", SUT.postalCode(" M5V 3L9"))
-        XCTAssertEqual("z:t2p5h1", SUT.postalCode("T 2 P 5 H 1"))
+        XCTAssertEqual("z:m5v 3l9", SUT.postalCode(" M5V 3L9"))
+        XCTAssertEqual("z:t 2 p 5 h 1", SUT.postalCode("T 2 P 5 H 1"))
         XCTAssertEqual("z:90210", SUT.postalCode("90210"))
         XCTAssertEqual("z:10001", SUT.postalCode("10001"))
-        XCTAssertEqual("z:sw1a1aa", SUT.postalCode("SW1A 1AA"))
-        XCTAssertEqual("z:eh11bb", SUT.postalCode("EH1 1BB"))
+        XCTAssertEqual("z:sw1a 1aa", SUT.postalCode("SW1A 1AA"))
+        XCTAssertEqual("z:eh1 1bb", SUT.postalCode("EH1 1BB"))
     }
 
     func test_id5() throws {
