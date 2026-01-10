@@ -9,15 +9,21 @@
 #import "OptableSDKDelegate.h"
 #import "PrebidBannerViewController.h"
 #import "AppDelegate.h"
+#import "demo_ios_objc-Swift.h"
 
 @import OptableSDK;
 @import GoogleMobileAds;
 
 @interface PrebidBannerViewController ()
-
-@property(nonatomic, strong) GADBannerView *bannerView;
+// GoogleMobileAds - GADBannerView
+@property(nonatomic, strong) GADBannerView *gadBannerView;
+// PrebidMobile
 @property(nonatomic, strong) BannerAdUnit *pbmBannerAdUnit;
-
+// Logging
+@property(nonatomic, strong, nullable) NSString* targetingLog;
+@property(nonatomic, strong, nullable) NSString* witnessLog;
+@property(nonatomic, strong, nullable) NSString* profileLog;
+@property(nonatomic, strong, nullable) id networkLogObserver;
 @end
 
 @implementation PrebidBannerViewController
@@ -33,25 +39,33 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    self.bannerView = [[GADBannerView alloc] initWithAdSize:GADAdSizeBanner];
-    self.bannerView.adUnitID = self.AD_MANAGER_AD_UNIT_ID;
-    self.bannerView.rootViewController = self;
-    [self addBannerViewToView:self.bannerView];
+    self.gadBannerView = [[GADBannerView alloc] initWithAdSize:GADAdSizeBanner];
+    self.gadBannerView.adUnitID = self.AD_MANAGER_AD_UNIT_ID;
+    self.gadBannerView.rootViewController = self;
+    [self addBannerViewToView:self.gadBannerView];
     
     self.pbmBannerAdUnit = [[BannerAdUnit alloc] initWithConfigId:self.PREBID_STORED_IMP
                                                              size:CGSizeMake(320, 50)];
 
     OptableSDKDelegate *delegate = (OptableSDKDelegate *)OPTABLE.delegate;
-    delegate.adManagerBannerView = self.bannerView;
+    delegate.gadBannerView = self.gadBannerView;
     delegate.pbmBannerAdUnit = self.pbmBannerAdUnit;
     delegate.targetingOutput = self.targetingOutput;
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear: animated];
+    [self startObservingNetworkLogs];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear: animated];
+    [self stopObservingNetworkLogs];
+}
+
+// MARK: - Actions
 - (IBAction)loadBannerWithTargeting:(id)sender {
     NSError *error = nil;
-
-    [_targetingOutput setText:@"📡 Calling /targeting API...\n"];
-    
     [OPTABLE targetingWithIds: NULL error: &error];
     [OPTABLE witnessWithEvent: @"PrebidBannerViewController.loadBannerClicked"
                    properties: @{ @"example": @"value" }
@@ -65,24 +79,16 @@
 - (IBAction)loadBannerWithTargetingFromCache:(id)sender {
     NSError *error = nil;
     GAMRequest *request = [GAMRequest request];
-    NSDictionary *keyvals = nil;
-
-    [_targetingOutput setText:@"🗂 Checking local targeting cache...\n\n"];
-
-    keyvals = [OPTABLE targetingFromCache];
-
-    if (keyvals != nil) {
-        request.customTargeting = keyvals;
-        NSLog(@"[OptableSDK] Cached targeting values found: %@", keyvals);
-        [_targetingOutput setText:[NSString stringWithFormat:@"%@\n✅ Found cached data: %@\n", [_targetingOutput text], keyvals]];
+    NSDictionary *cachedTargetingData = [OPTABLE targetingFromCache];
+    
+    if (cachedTargetingData != nil) {
+        request.customTargeting = cachedTargetingData;
+        NSLog(@"[OptableSDK] ✅ Cached targeting values found: %@", cachedTargetingData);
     } else {
-        [_targetingOutput setText:[NSString stringWithFormat:@"%@\nℹ️ Cache empty.\n",
-            [_targetingOutput text]]];
+        NSLog(@"[OptableSDK] ℹ️ Cache empty");
     }
 
-    [self.bannerView loadRequest:request];
-    
-    
+    [(OptableSDKDelegate*)OPTABLE.delegate loadPrebidAdWithTargetingData:cachedTargetingData];
     [OPTABLE witnessWithEvent: @"PrebidBannerViewController.loadBannerClicked"
                    properties: @{ @"example": @"value" }
                         error: &error];
@@ -97,6 +103,11 @@
     [OPTABLE targetingClearCache];
 }
 
+// MARK: - GADBannerViewDelegate
+- (void)bannerView:(GADBannerView *)bannerView didFailToReceiveAdWithError:(NSError *)error {
+    NSLog(@"[GAMBannerViewController] Failed to receive ad: %@", [error localizedDescription]);
+}
+
 // MARK: - Helpers
 
 - (void)addBannerViewToView:(UIView *)bannerView {
@@ -107,6 +118,72 @@
         [bannerView.centerXAnchor constraintEqualToAnchor:self.adPlaceholder.centerXAnchor],
         [bannerView.centerYAnchor constraintEqualToAnchor:self.adPlaceholder.centerYAnchor]
     ]];
+}
+
+- (void)updateUILog {
+    NSMutableArray<NSString *> *parts = [NSMutableArray array];
+
+    if (self.targetingLog) {
+        [parts addObject:self.targetingLog];
+    }
+    if (self.witnessLog) {
+        [parts addObject:self.witnessLog];
+    }
+    if (self.profileLog) {
+        [parts addObject:self.profileLog];
+    }
+
+    self.targetingOutput.text = [parts componentsJoinedByString:@"\n\n"];
+}
+
+// MARK: - Logging
+- (void)startObservingNetworkLogs {
+    __weak typeof(self) weakSelf = self;
+    
+    _networkLogObserver = [NSNotificationCenter.defaultCenter
+                           addObserverForName: NotificationNames.HTTPURLLogUpdated
+                           object: nil
+                           queue: [NSOperationQueue mainQueue]
+                           usingBlock: ^(NSNotification* notification) {
+        HTTPURLLogEntry *logEntry = notification.userInfo[@"data"];
+        if (![logEntry isKindOfClass:[HTTPURLLogEntry class]]) {
+            return;
+        }
+        
+        NSString *urlString = logEntry.request.URL.absoluteString;
+        if ([urlString containsString:@"/targeting"]) {
+            weakSelf.targetingLog = logEntry.debugDescription;
+            if (logEntry.response == nil) {
+                NSLog(@"%@", logEntry.requestDebugDescription);
+            } else {
+                NSLog(@"%@", logEntry.responseDebugDescription);
+            }
+        }
+        if ([urlString containsString:@"/witness"]) {
+            weakSelf.witnessLog = logEntry.debugDescription;
+            if (logEntry.response == nil) {
+                NSLog(@"%@", logEntry.requestDebugDescription);
+            } else {
+                NSLog(@"%@", logEntry.responseDebugDescription);
+            }
+        }
+        if ([urlString containsString:@"/profile"]) {
+            weakSelf.profileLog = logEntry.debugDescription;
+            if (logEntry.response == nil) {
+                NSLog(@"%@", logEntry.requestDebugDescription);
+            } else {
+                NSLog(@"%@", logEntry.responseDebugDescription);
+            }
+        }
+        
+        [weakSelf updateUILog];
+    }];
+}
+
+- (void)stopObservingNetworkLogs {
+    if (_networkLogObserver != NULL) {
+        [NSNotificationCenter.defaultCenter removeObserver: _networkLogObserver];
+    }
 }
 
 @end

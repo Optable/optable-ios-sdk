@@ -8,11 +8,12 @@
 
 #import "AppDelegate.h"
 #import "OptableSDKDelegate.h"
+#import "demo_ios_objc-Swift.h"
 
 @import OptableSDK;
-
 @import PrebidMobile;
 @import GoogleMobileAds;
+
 
 OptableSDK *OPTABLE = nil;
 
@@ -22,6 +23,9 @@ OptableSDK *OPTABLE = nil;
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+    // Debug URLSession
+    [NSURLProtocol registerClass: [HTTPURLLogProtocol class]];
     
     OptableSDKDelegate *delegate = [OptableSDKDelegate new];
     

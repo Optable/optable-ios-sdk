@@ -14,13 +14,19 @@
 @interface OptableSDKDelegate: NSObject <OptableDelegate>
 
 // MARK: - PrebidMobile
-@property(atomic, readwrite, weak) BannerAdUnit *pbmBannerAdUnit;
+@property(atomic, readwrite, weak, nullable) BannerAdUnit *pbmBannerAdUnit;
 
 // MARK: - GoogleMobileAds
-@property(atomic, readwrite, weak) GADBannerView *adManagerBannerView;
+@property(atomic, readwrite, weak, nullable) GADBannerView *gadBannerView;
 
 // MARK: - Text Output
-@property(atomic, readwrite, strong) UITextView *identifyOutput;
-@property(atomic, readwrite, strong) UITextView *targetingOutput;
+@property(atomic, readwrite, strong, nullable) UITextView *identifyOutput;
+@property(atomic, readwrite, strong, nullable) UITextView *targetingOutput;
+
+// MARK: - Ad Loading
+- (void)loadGADAdWithTargetingData:(NSDictionary* _Nullable)targetingData;
+- (void)loadPrebidAdWithTargetingData:(NSDictionary* _Nullable)targetingData;
+- (void)setOptableTargetingToPrebidWith:(NSDictionary* _Nullable)targetingData;
+- (void)loadGADAdWithAdRequest:(GAMRequest* _Nonnull)adRequest;
 
 @end

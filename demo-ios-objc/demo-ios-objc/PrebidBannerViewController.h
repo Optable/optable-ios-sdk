@@ -7,8 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "GoogleMobileAds/GADBannerViewDelegate.h"
 
-@interface PrebidBannerViewController : UIViewController
+@interface PrebidBannerViewController : UIViewController <GADBannerViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UIView *adPlaceholder;
 

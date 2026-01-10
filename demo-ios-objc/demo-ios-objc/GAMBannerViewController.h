@@ -7,8 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "GoogleMobileAds/GADBannerViewDelegate.h"
 
-@interface GAMBannerViewController : UIViewController
+@interface GAMBannerViewController : UIViewController <GADBannerViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UIView *adPlaceholder;
 
