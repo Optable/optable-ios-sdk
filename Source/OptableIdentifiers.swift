@@ -81,7 +81,7 @@ public struct OptableIdentifiers {
         }
     }
 
-    public func generateEnrichedIds() -> [String] {
+    public func generateExtendedIds() -> [String] {
         var results: [String] = []
 
         for (key, value) in dict {
@@ -117,10 +117,10 @@ public struct OptableIdentifiers {
 // MARK: - Encodable
 extension OptableIdentifiers: Encodable {
     public func encode(to encoder: any Encoder) throws {
-        let enrichedIds = generateEnrichedIds()
+        let extendedIds = generateExtendedIds()
 
         var container = encoder.unkeyedContainer()
-        for eid in enrichedIds {
+        for eid in extendedIds {
             try container.encode(eid)
         }
     }
