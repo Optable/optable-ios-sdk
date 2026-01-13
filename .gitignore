@@ -11,3 +11,4 @@ demo-ios-objc.xcworkspace
 fastlane/README.md
 fastlane/report.xml
 fastlane/test_output/
+Source/.DS_Store
