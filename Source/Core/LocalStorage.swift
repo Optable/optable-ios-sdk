@@ -35,12 +35,24 @@ final class LocalStorage: NSObject {
         UserDefaults.standard.set(passport, forKey: passportKey)
     }
 
-    func getTargeting() -> [String: Any]? {
-        return UserDefaults.standard.dictionary(forKey: targetingKey)
+    func getTargeting() -> OptableTargeting? {
+        if let targetingData = UserDefaults.standard.data(forKey: targetingKey),
+           let targeting = try? NSKeyedUnarchiver.unarchivedObject(
+               ofClass: OptableTargeting.self,
+               from: targetingData
+           ) {
+            return targeting
+        }
+
+        return nil
     }
 
-    func setTargeting(_ keyvalues: [String: Any]) {
-        UserDefaults.standard.setValue(keyvalues, forKey: targetingKey)
+    func setTargeting(_ targeting: OptableTargeting) {
+        let targetingData = try? NSKeyedArchiver.archivedData(
+            withRootObject: targeting,
+            requiringSecureCoding: true
+        )
+        UserDefaults.standard.setValue(targetingData, forKey: targetingKey)
     }
 
     func clearTargeting() {

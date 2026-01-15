@@ -54,8 +54,8 @@ class OptableSDKTests: XCTestCase {
     // MARK: Target
     @available(iOS 13.0, *)
     func test_target_async() async throws {
-        let response: NSDictionary = try await sdk.targeting()
-        XCTAssert(response.allKeys.isEmpty == false)
+        let response = try await sdk.targeting()
+        XCTAssert(response.targetingData.allKeys.isEmpty == false)
     }
 
     func test_target_callback() throws {
@@ -63,7 +63,7 @@ class OptableSDKTests: XCTestCase {
         try sdk.targeting(completion: { result in
             switch result {
             case let .success(response):
-                XCTAssert(response.allKeys.isEmpty == false)
+                XCTAssert(response.targetingData.allKeys.isEmpty == false)
             case let .failure(failure):
                 XCTFail("Expected success, got error: \(failure)")
             }
@@ -158,8 +158,8 @@ extension OptableSDKTests: OptableDelegate {
         profileExpectation.fulfill()
     }
 
-    func targetingOk(_ result: NSDictionary) {
-        XCTAssert(result.allKeys.isEmpty == false)
+    func targetingOk(_ result: OptableTargeting) {
+        XCTAssert(result.targetingData.allKeys.isEmpty == false)
         targetExpectation.fulfill()
     }
 

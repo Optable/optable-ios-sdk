@@ -27,7 +27,7 @@ public protocol OptableDelegate {
     func identifyErr(_ error: NSError)
     func profileOk(_ result: HTTPURLResponse)
     func profileErr(_ error: NSError)
-    func targetingOk(_ result: NSDictionary)
+    func targetingOk(_ result: OptableTargeting)
     func targetingErr(_ error: NSError)
     func witnessOk(_ result: HTTPURLResponse)
     func witnessErr(_ error: NSError)
@@ -141,17 +141,14 @@ public extension OptableSDK {
      On success, this method will also cache the resulting targeting data in client storage, which can
      be access using targetingFromCache(), and cleared using targetingClearCache().
      */
-    func targeting(ids: [String]? = nil, completion: @escaping (Result<NSDictionary, Error>) -> Void) throws {
+    func targeting(ids: [String]? = nil, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
         try _targeting(ids: ids, completion: completion)
     }
 
     /// targetingFromCache() returns the previously cached targeting data, if any.
     @objc
-    func targetingFromCache() -> NSDictionary? {
-        guard let keyvalues = self.api.storage.getTargeting() as NSDictionary? else {
-            return nil
-        }
-        return keyvalues
+    func targetingFromCache() -> OptableTargeting? {
+        return self.api.storage.getTargeting()
     }
 
     /// targetingClearCache() clears any previously cached targeting data.
@@ -167,7 +164,7 @@ public extension OptableSDK {
      Instead of completion callbacks, function have to be awaited.
      */
     @available(iOS 13.0, *)
-    func targeting(ids: [String]? = nil) async throws -> NSDictionary {
+    func targeting(ids: [String]? = nil) async throws -> OptableTargeting {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
                 try self._targeting(ids: ids, completion: { continuation.resume(with: $0) })
@@ -187,8 +184,8 @@ public extension OptableSDK {
     func targeting(ids: [String]? = nil) throws {
         try self._targeting(ids: ids, completion: { result in
             switch result {
-            case let .success(keyvalues):
-                self.delegate?.targetingOk(keyvalues)
+            case let .success(optableTargeting):
+                self.delegate?.targetingOk(optableTargeting)
             case let .failure(error as NSError):
                 self.delegate?.targetingErr(error)
             }
@@ -315,7 +312,7 @@ public extension OptableSDK {
 
 // MARK: - Private
 private extension OptableSDK {
-    private func _identify(_ ids: OptableIdentifiers, completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    func _identify(_ ids: OptableIdentifiers, completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
         var ids = ids
 
         if config.skipAdvertisingIdDetection == false,
@@ -347,7 +344,7 @@ private extension OptableSDK {
         }).resume()
     }
 
-    private func _targeting(ids: [String]?, completion: @escaping (Result<NSDictionary, Error>) -> Void) throws {
+    func _targeting(ids: [String]?, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
         guard let request = try api.targeting(ids: ids) else {
             throw OptableError.targeting("Failed to create targeting request")
         }
@@ -368,13 +365,21 @@ private extension OptableSDK {
             }
 
             do {
-                let keyvalues = try JSONSerialization.jsonObject(with: data ?? Data(), options: [])
-                let result = keyvalues as? NSDictionary ?? NSDictionary()
+                let optableTargetingData = try JSONSerialization.jsonObject(with: data ?? Data(), options: [])
+                let optableTargetingDict: NSMutableDictionary = (
+                    (optableTargetingData as? NSDictionary)?.mutableCopy() as? NSMutableDictionary
+                ) ?? NSMutableDictionary()
+
+                let optableTargeting = OptableTargeting(
+                    optableTargeting: optableTargetingDict,
+                    gamTargetingKeywords: OptableSDK.generateGAMTargetingKeywords(from: optableTargetingDict),
+                    ortb2: OptableSDK.generateORTB2Config(from: optableTargetingDict)
+                )
 
                 /// We cache the latest targeting result in client storage for targetingFromCache() users:
-                self.api.storage.setTargeting(keyvalues as? [String: Any] ?? [String: Any]())
+                self.api.storage.setTargeting(optableTargeting)
 
-                completion(.success(result))
+                completion(.success(optableTargeting))
             } catch {
                 completion(.failure(OptableError.targeting("Error parsing JSON response: \(error)")))
             }
@@ -427,12 +432,41 @@ private extension OptableSDK {
         }).resume()
     }
 
-    private static func generateEdgeAPIErrorDescription(with data: Data?, response: HTTPURLResponse) -> String {
+    static func generateEdgeAPIErrorDescription(with data: Data?, response: HTTPURLResponse) -> String {
         var msg = "HTTP response.statusCode: \(response.statusCode)"
         do {
             let json = try JSONSerialization.jsonObject(with: data ?? Data(), options: [])
             msg += ", data: \(json)"
         } catch {}
         return msg
+    }
+
+    static func generateGAMTargetingKeywords(from targetingData: NSDictionary?) -> NSDictionary? {
+        guard
+            let targetingData,
+            (targetingData as Dictionary).isEmpty == false,
+            let audienceData = targetingData["audience"] as? [NSDictionary]
+        else { return nil }
+
+        let gamTargetingKeywords = NSMutableDictionary()
+
+        for audience in audienceData {
+            if let keyspace = audience["keyspace"] as? String, let ids = audience["ids"] as? [[String: String]] {
+                gamTargetingKeywords[keyspace] = ids.compactMap(\.values.first).joined(separator: ",")
+            }
+        }
+
+        return gamTargetingKeywords
+    }
+
+    static func generateORTB2Config(from targetingData: NSDictionary?) -> String? {
+        guard
+            let targetingData,
+            (targetingData as Dictionary).isEmpty == false,
+            let ortbConfig = targetingData["ortb2"] as? NSDictionary,
+            let ortbJSONData = try? JSONSerialization.data(withJSONObject: ortbConfig, options: []),
+            let ortbJSONString = String(data: ortbJSONData, encoding: .utf8)
+        else { return nil }
+        return ortbJSONString
     }
 }
