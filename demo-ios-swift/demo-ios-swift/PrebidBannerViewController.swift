@@ -9,6 +9,7 @@
 import GoogleMobileAds
 import PrebidMobile
 import UIKit
+import OptableSDK
 
 private let AD_MANAGER_AD_UNIT_ID = "/21808260008/prebid_demo_app_original_api_banner"
 private let PREBID_STORED_IMP = "prebid-demo-banner-320-50"
@@ -57,17 +58,15 @@ final class PrebidBannerViewController: UIViewController { // Outlets
     @IBAction func loadBannerWithTargeting(_ sender: UIButton) {
         do {
             try OPTABLE!.targeting { [weak self] result in
-                var targetingData: NSDictionary = [:]
-
                 switch result {
-                case let .success(keyvalues):
-                    print("[OptableSDK] ✅ Success on /targeting API call: \(keyvalues)")
-                    targetingData = keyvalues
+                case let .success(optableTargeting):
+                    print("[OptableSDK] ✅ Success on /targeting API call: \(optableTargeting)")
+                    self?.loadBanner(optableTargeting)
+
                 case let .failure(error):
                     print("[OptableSDK] 🚫 Error on /targeting API call: \(error)")
+                    self?.loadBanner()
                 }
-
-                self?.loadBanner(targetingData: targetingData)
             }
         } catch {
             print("[OptableSDK] 🚫 Exception on /targeting API call: \(error)")
@@ -76,16 +75,13 @@ final class PrebidBannerViewController: UIViewController { // Outlets
     }
 
     @IBAction func loadBannerWithTargetingFromCache(_ sender: UIButton) {
-        var cachedTargetingData: NSDictionary = [:]
-
-        if let cachedValues = OPTABLE!.targetingFromCache() {
-            print("[OptableSDK] ✅ Cached targeting values found: \(cachedValues)")
-            cachedTargetingData = cachedValues
+        if let cachedOptableTargeting = OPTABLE!.targetingFromCache() {
+            print("[OptableSDK] ✅ Cached targeting values found: \(cachedOptableTargeting)")
+            loadBanner(cachedOptableTargeting)
         } else {
             print("[OptableSDK] ℹ️ Cache empty")
+            loadBanner()
         }
-
-        loadBanner(targetingData: cachedTargetingData)
     }
 
     @IBAction func clearTargetingCache(_ sender: UIButton) {
@@ -96,35 +92,35 @@ final class PrebidBannerViewController: UIViewController { // Outlets
 
 // MARK: - Private
 private extension PrebidBannerViewController {
-    func loadBanner(targetingData: NSDictionary? = nil) {
-        loadPrebidAd(targetingData)
+    func loadBanner(_ optableTargeting: OptableTargeting? = nil) {
+        loadPrebidAd(optableTargeting)
         witness()
         profile()
     }
 
-    func loadPrebidAd(_ targetingData: NSDictionary? = nil) {
-        setOptableTargetingToPrebid(targetingData)
-
-        pbmBannerAdUnit = BannerAdUnit(configId: PREBID_STORED_IMP, size: .init(width: 320, height: 50))
+    func loadPrebidAd(_ optableTargeting: OptableTargeting? = nil) {
+        setOptableTargetingToPrebid(optableTargeting)
 
         let adRequest = AdManagerRequest()
-        adRequest.customTargeting = targetingData as? [String: Any]
+        adRequest.customTargeting = optableTargeting?.gamTargetingKeywords as? [String: Any]
+        
+        pbmBannerAdUnit = BannerAdUnit(configId: PREBID_STORED_IMP, size: .init(width: 320, height: 50))
         pbmBannerAdUnit.fetchDemand(adObject: adRequest) { [weak self] status in
             print("[PrebidMobile]:fetchDemand(adObject:): \(status.name())")
             self?.loadGAMAd(adRequest)
         }
     }
 
-    func setOptableTargetingToPrebid(_ targetingData: NSDictionary? = nil) {
-        guard let targetingData, (targetingData as Dictionary).isEmpty == false else {
+    func setOptableTargetingToPrebid(_ optableTargeting: OptableTargeting? = nil) {
+        guard
+            let optableTargeting,
+            let ortb2 = optableTargeting.ortb2
+        else {
             PrebidMobile.Targeting.shared.setGlobalORTBConfig(nil)
             return
         }
 
-        if let ortbJSONData = try? JSONSerialization.data(withJSONObject: targetingData, options: []),
-           let ortbJSONString = String(data: ortbJSONData, encoding: .utf8) {
-            PrebidMobile.Targeting.shared.setGlobalORTBConfig(ortbJSONString)
-        }
+        PrebidMobile.Targeting.shared.setGlobalORTBConfig(ortb2)
     }
 
     func loadGAMAd(_ request: AdManagerRequest) {

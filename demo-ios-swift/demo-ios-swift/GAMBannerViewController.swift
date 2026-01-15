@@ -7,6 +7,7 @@
 //
 
 import GoogleMobileAds
+import OptableSDK
 import UIKit
 
 private let AD_MANAGER_AD_UNIT_ID = "/22081946781/ios-sdk-demo/mobile-leaderboard"
@@ -53,17 +54,15 @@ final class GAMBannerViewController: UIViewController {
     @IBAction func loadBannerWithTargeting(_ sender: UIButton) {
         do {
             try OPTABLE!.targeting { [weak self] result in
-                var targetingData: NSDictionary = [:]
-
                 switch result {
-                case let .success(keyvalues):
-                    print("[OptableSDK] ✅ Success on /targeting API call: \(keyvalues)")
-                    targetingData = keyvalues
+                case let .success(optableTargeting):
+                    print("[OptableSDK] ✅ Success on /targeting API call: \(optableTargeting)")
+                    self?.loadBanner(optableTargeting)
+
                 case let .failure(error):
                     print("[OptableSDK] 🚫 Error on /targeting API call: \(error)")
+                    self?.loadBanner()
                 }
-
-                self?.loadBanner(targetingData: targetingData)
             }
         } catch {
             print("[OptableSDK] 🚫 Exception on /targeting API call: \(error)")
@@ -72,16 +71,13 @@ final class GAMBannerViewController: UIViewController {
     }
 
     @IBAction func loadBannerWithTargetingFromCache(_ sender: UIButton) {
-        var cachedTargetingData: NSDictionary = [:]
-
-        if let cachedValues = OPTABLE!.targetingFromCache() {
-            print("[OptableSDK] ✅ Cached targeting values found: \(cachedValues)")
-            cachedTargetingData = cachedValues
+        if let cachedOptableTargeting = OPTABLE!.targetingFromCache() {
+            print("[OptableSDK] ✅ Cached targeting values found: \(cachedOptableTargeting)")
+            loadBanner(cachedOptableTargeting)
         } else {
             print("[OptableSDK] ℹ️ Cache empty")
+            loadBanner()
         }
-
-        loadBanner(targetingData: cachedTargetingData)
     }
 
     @IBAction func clearTargetingCache(_ sender: UIButton) {
@@ -92,15 +88,15 @@ final class GAMBannerViewController: UIViewController {
 
 // MARK: - Private
 private extension GAMBannerViewController {
-    func loadBanner(targetingData: NSDictionary? = nil) {
-        loadGADAd(targetingData: targetingData)
+    func loadBanner(_ optableTargeting: OptableTargeting? = nil) {
+        loadGADAd(optableTargeting)
         witness()
         profile()
     }
 
-    func loadGADAd(targetingData: NSDictionary? = nil) {
+    func loadGADAd(_ optableTargeting: OptableTargeting? = nil) {
         let adRequest = AdManagerRequest()
-        adRequest.customTargeting = targetingData as? [String: String]
+        adRequest.customTargeting = optableTargeting?.gamTargetingKeywords as? [String: Any]
         gadBannerView.load(adRequest)
     }
 
