@@ -29,8 +29,8 @@
     NSLog(@"[OptableSDK] 🚫 Error on /profile API call: %@", [error localizedDescription]);
 }
 
-- (void)targetingOk:(NSDictionary *)result {
-    NSLog(@"[OptableSDK] ✅ Success on /targeting API call: %@", result);
+- (void)targetingOk:(OptableTargeting *)result {
+    NSLog(@"[OptableSDK] ✅ Success on /targeting API call: %@", result.debugDescription);
     
     if (_pbmBannerAdUnit != nil) {
         // PrebidBannerViewController
@@ -57,43 +57,38 @@
 }
 
 // MARK: - Ad Loading
-- (void)loadGADAdWithTargetingData:(NSDictionary* _Nullable)targetingData {
+- (void)loadGADAdWithTargetingData:(OptableTargeting* _Nullable)optableTargeting {
     GAMRequest *adRequest = [GAMRequest request];
-    adRequest.customTargeting = targetingData;
+    
+    if (optableTargeting != nil && optableTargeting.gamTargetingKeywords != nil) {
+        adRequest.customTargeting = optableTargeting.gamTargetingKeywords;
+    }
+    
     [self loadGADAdWithAdRequest:adRequest];
 }
 
-- (void)loadPrebidAdWithTargetingData:(NSDictionary* _Nullable)targetingData {
-    [self setOptableTargetingToPrebidWith:targetingData];
+- (void)loadPrebidAdWithTargetingData:(OptableTargeting* _Nullable)optableTargeting {
+    [self setOptableTargetingToPrebidWith:optableTargeting];
     
     GAMRequest *adRequest = [GAMRequest request];
-    adRequest.customTargeting = targetingData;
+    
+    if (optableTargeting != nil && optableTargeting.gamTargetingKeywords != nil) {
+        adRequest.customTargeting = optableTargeting.gamTargetingKeywords;
+    }
+    
     [_pbmBannerAdUnit fetchDemandWithAdObject:adRequest completion: ^(enum ResultCode result) {
         NSLog(@"[PrebidMobile]:fetchDemand(adObject:): %ld", (long)result);
         [self loadGADAdWithAdRequest:adRequest];
     }];
 }
 
-- (void)setOptableTargetingToPrebidWith:(NSDictionary* _Nullable)targetingData {
-    if (targetingData == nil || targetingData.count == 0) {
+- (void)setOptableTargetingToPrebidWith:(OptableTargeting* _Nullable)optableTargeting {
+    if (optableTargeting == nil || optableTargeting.ortb2 == nil || optableTargeting.ortb2.length == 0) {
         [Targeting.shared setGlobalORTBConfig:nil];
         return;
     }
-
-    NSError *error = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:targetingData
-                                                       options:0
-                                                         error:&error];
-
-    if (jsonData == nil) {
-        return;
-    }
-
-    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-
-    if (jsonString) {
-        [Targeting.shared setGlobalORTBConfig:jsonString];
-    }
+    
+    [Targeting.shared setGlobalORTBConfig:optableTargeting.ortb2];
 }
 
 - (void)loadGADAdWithAdRequest:(GAMRequest*)adRequest {

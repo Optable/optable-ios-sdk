@@ -70,17 +70,15 @@
 
 - (IBAction)loadBannerWithTargetingFromCache:(id)sender {
     NSError *error = nil;
-    GAMRequest *request = [GAMRequest request];
-    NSDictionary *cachedTargetingData = [OPTABLE targetingFromCache];
+    OptableTargeting *cachedOptableTargeting = [OPTABLE targetingFromCache];
 
-    if (cachedTargetingData != nil) {
-        request.customTargeting = cachedTargetingData;
-        NSLog(@"[OptableSDK] ✅ Cached targeting values found: %@", cachedTargetingData);
+    if (cachedOptableTargeting != nil) {
+        NSLog(@"[OptableSDK] ✅ Cached targeting values found: %@", cachedOptableTargeting);
     } else {
         NSLog(@"[OptableSDK] ℹ️ Cache empty");
     }
     
-    [(OptableSDKDelegate*)OPTABLE.delegate loadGADAdWithTargetingData:cachedTargetingData];
+    [(OptableSDKDelegate*)OPTABLE.delegate loadGADAdWithTargetingData:cachedOptableTargeting];
     [OPTABLE witnessWithEvent: @"GAMBannerViewController.loadBannerClicked"
                    properties: @{ @"example": @"value" }
                         error: &error];

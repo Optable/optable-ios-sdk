@@ -24,9 +24,9 @@
 @property(atomic, readwrite, strong, nullable) UITextView *targetingOutput;
 
 // MARK: - Ad Loading
-- (void)loadGADAdWithTargetingData:(NSDictionary* _Nullable)targetingData;
-- (void)loadPrebidAdWithTargetingData:(NSDictionary* _Nullable)targetingData;
-- (void)setOptableTargetingToPrebidWith:(NSDictionary* _Nullable)targetingData;
+- (void)loadGADAdWithTargetingData:(OptableTargeting* _Nullable)optableTargeting;
+- (void)loadPrebidAdWithTargetingData:(OptableTargeting* _Nullable)optableTargeting;
+- (void)setOptableTargetingToPrebidWith:(OptableTargeting* _Nullable)optableTargeting;
 - (void)loadGADAdWithAdRequest:(GAMRequest* _Nonnull)adRequest;
 
 @end
