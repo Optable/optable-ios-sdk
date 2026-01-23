@@ -65,6 +65,8 @@ final class LocalStorage: NSObject {
     }
 
     func clearTargeting() {
-        UserDefaults.standard.removeObject(forKey: targetingKey)
+        UserDefaults.standard.removeObject(forKey: targetingDataKey)
+        UserDefaults.standard.removeObject(forKey: gamTargetingKeywordsKey)
+        UserDefaults.standard.removeObject(forKey: ortb2Key)
     }
 }
