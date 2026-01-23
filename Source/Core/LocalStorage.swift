@@ -49,8 +49,8 @@ final class LocalStorage: NSObject {
         }
         let optableTargeting = OptableTargeting(
             optableTargeting: targetingData,
-            gamTargetingKeywords: UserDefaults.standard.object(forKey: targetingDataKey) as? NSDictionary,
-            ortb2: UserDefaults.standard.string(forKey: targetingDataKey)
+            gamTargetingKeywords: UserDefaults.standard.object(forKey: gamTargetingKeywordsKey) as? NSDictionary,
+            ortb2: UserDefaults.standard.string(forKey: ortb2Key)
         )
         return optableTargeting
     }
