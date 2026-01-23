@@ -43,6 +43,7 @@
 				Misc/cartesianProduct.swift,
 				Misc/Constants.swift,
 				Unit/EdgeAPITests.swift,
+				Unit/LocalStorageTests.swift,
 				Unit/OptableIdentifierEncoderTests.swift,
 				Unit/OptableIdentifiersTests.swift,
 			);
