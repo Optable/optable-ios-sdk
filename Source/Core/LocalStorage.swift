@@ -12,6 +12,10 @@ import Foundation
  The OptableSDK keeps some state in UserDefaults (https://developer.apple.com/documentation/foundation/userdefaults), a key/value store persisted across launches of the app. The state is therefore unique to the app+device, and not globally unique to the app across devices.
  */
 final class LocalStorage: NSObject {
+    private let targetingDataKey: String
+    private let gamTargetingKeywordsKey: String
+    private let ortb2Key: String
+
     let keyPfx: String = "OPTABLE"
     var passportKey: String
     var targetingKey: String
@@ -25,6 +29,10 @@ final class LocalStorage: NSObject {
 
         self.passportKey = self.keyPfx + "_PASS_" + (base64Key ?? "UNKNOWN")
         self.targetingKey = self.keyPfx + "_TGT_" + (base64Key ?? "UNKNOWN")
+
+        self.targetingDataKey = targetingKey + "_targetingData"
+        self.gamTargetingKeywordsKey = targetingKey + "_gamTargetingKeywords"
+        self.ortb2Key = targetingKey + "_ortb2"
     }
 
     func getPassport() -> String? {
@@ -36,23 +44,24 @@ final class LocalStorage: NSObject {
     }
 
     func getTargeting() -> OptableTargeting? {
-        if let targetingData = UserDefaults.standard.data(forKey: targetingKey),
-           let targeting = try? NSKeyedUnarchiver.unarchivedObject(
-               ofClass: OptableTargeting.self,
-               from: targetingData
-           ) {
-            return targeting
+        guard let targetingData = UserDefaults.standard.object(forKey: targetingDataKey) as? NSDictionary else {
+            return nil
         }
-
-        return nil
+        let optableTargeting = OptableTargeting(
+            optableTargeting: targetingData,
+            gamTargetingKeywords: UserDefaults.standard.object(forKey: targetingDataKey) as? NSDictionary,
+            ortb2: UserDefaults.standard.string(forKey: targetingDataKey)
+        )
+        return optableTargeting
     }
 
     func setTargeting(_ targeting: OptableTargeting) {
-        let targetingData = try? NSKeyedArchiver.archivedData(
-            withRootObject: targeting,
-            requiringSecureCoding: true
-        )
-        UserDefaults.standard.setValue(targetingData, forKey: targetingKey)
+        // Decompose object explicitly
+        // Because Codable/NSSecureCoding does not support heterogeneous containers such as NSDictionary([String: Any])
+        // However UserDefaults does support
+        UserDefaults.standard.setValue(targeting.targetingData, forKey: targetingDataKey)
+        UserDefaults.standard.setValue(targeting.gamTargetingKeywords, forKey: gamTargetingKeywordsKey)
+        UserDefaults.standard.setValue(targeting.ortb2, forKey: ortb2Key)
     }
 
     func clearTargeting() {
