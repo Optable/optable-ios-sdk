@@ -21,8 +21,8 @@
     NSLog(@"[OptableSDK] 🚫 Error on /identify API call: %@", [error localizedDescription]);
 }
 
-- (void)profileOk:(NSHTTPURLResponse *)result {
-    NSLog(@"[OptableSDK] ✅ Success on /profile API call");
+- (void)profileOk:(OptableTargeting *)result {
+    NSLog(@"[OptableSDK] ✅ Success on /profile API call: %@", result.debugDescription);
 }
 
 - (void)profileErr:(NSError *)error {

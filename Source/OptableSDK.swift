@@ -25,7 +25,7 @@ import Foundation
 public protocol OptableDelegate {
     func identifyOk(_ result: HTTPURLResponse)
     func identifyErr(_ error: NSError)
-    func profileOk(_ result: HTTPURLResponse)
+    func profileOk(_ result: OptableTargeting)
     func profileErr(_ error: NSError)
     func targetingOk(_ result: OptableTargeting)
     func targetingErr(_ error: NSError)
@@ -249,7 +249,7 @@ public extension OptableSDK {
      The specified NSDictionary 'traits' can be subsequently used for audience assembly.
      The profile method is asynchronous, and on completion it will call the specified completion handler, passing it either the HTTPURLResponse on success, or an NSError on failure.
      */
-    func profile(traits: NSDictionary, id: String? = nil, neighbors: [String]? = nil, _ completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    func profile(traits: NSDictionary, id: String? = nil, neighbors: [String]? = nil, _ completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
         try _profile(traits: traits, id: id, neighbors: neighbors, completion: completion)
     }
 
@@ -260,7 +260,7 @@ public extension OptableSDK {
      Instead of completion callbacks, function have to be awaited.
      */
     @available(iOS 13.0, *)
-    func profile(traits: NSDictionary, id: String? = nil, neighbors: [String]? = nil) async throws -> HTTPURLResponse {
+    func profile(traits: NSDictionary, id: String? = nil, neighbors: [String]? = nil) async throws -> OptableTargeting {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
                 try self._profile(traits: traits, id: id, neighbors: neighbors, completion: { continuation.resume(with: $0) })
@@ -365,16 +365,7 @@ private extension OptableSDK {
             }
 
             do {
-                let optableTargetingData = try JSONSerialization.jsonObject(with: data ?? Data(), options: [])
-                let optableTargetingDict: NSMutableDictionary = (
-                    (optableTargetingData as? NSDictionary)?.mutableCopy() as? NSMutableDictionary
-                ) ?? NSMutableDictionary()
-
-                let optableTargeting = OptableTargeting(
-                    optableTargeting: optableTargetingDict,
-                    gamTargetingKeywords: OptableSDK.generateGAMTargetingKeywords(from: optableTargetingDict),
-                    ortb2: OptableSDK.generateORTB2Config(from: optableTargetingDict)
-                )
+                let optableTargeting = try OptableSDK.generateOptableTargeting(from: data)
 
                 /// We cache the latest targeting result in client storage for targetingFromCache() users:
                 self.api.storage.setTargeting(optableTargeting)
@@ -409,7 +400,7 @@ private extension OptableSDK {
         }).resume()
     }
 
-    func _profile(traits: NSDictionary, id: String?, neighbors: [String]?, completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    func _profile(traits: NSDictionary, id: String?, neighbors: [String]?, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
         guard let request = try api.profile(traits: traits, id: id, neighbors: neighbors) else {
             throw OptableError.profile("Failed to create profile request")
         }
@@ -428,7 +419,17 @@ private extension OptableSDK {
                 completion(.failure(OptableError.profile(errDesc, code: response.statusCode)))
                 return
             }
-            completion(.success(response))
+            
+            do {
+                let optableTargeting = try OptableSDK.generateOptableTargeting(from: data)
+
+                /// We cache the latest targeting result in client storage for targetingFromCache() users:
+                self.api.storage.setTargeting(optableTargeting)
+
+                completion(.success(optableTargeting))
+            } catch {
+                completion(.failure(OptableError.profile("Error parsing JSON response: \(error)")))
+            }
         }).resume()
     }
 
@@ -468,5 +469,21 @@ private extension OptableSDK {
             let ortbJSONString = String(data: ortbJSONData, encoding: .utf8)
         else { return nil }
         return ortbJSONString
+    }
+    
+    static func generateOptableTargeting(from responseData: Data?) throws -> OptableTargeting {
+        guard let responseData else {
+            return OptableTargeting(optableTargeting: [:])
+        }
+        
+        let optableTargetingData = try JSONSerialization.jsonObject(with: responseData, options: [])
+        let optableTargetingDict: NSMutableDictionary = ((optableTargetingData as? NSDictionary)?.mutableCopy() as? NSMutableDictionary) ?? NSMutableDictionary()
+        let optableTargeting = OptableTargeting(
+            optableTargeting: optableTargetingDict,
+            gamTargetingKeywords: OptableSDK.generateGAMTargetingKeywords(from: optableTargetingDict),
+            ortb2: OptableSDK.generateORTB2Config(from: optableTargetingDict)
+        )
+        
+        return optableTargeting
     }
 }

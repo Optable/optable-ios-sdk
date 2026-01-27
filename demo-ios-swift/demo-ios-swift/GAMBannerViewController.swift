@@ -125,8 +125,8 @@ private extension GAMBannerViewController {
                 traits: ["example": "value", "anotherExample": 123, "thirdExample": true]
             ) { result in
                 switch result {
-                case .success:
-                    print("[OptableSDK] ✅ Success on /profile API call")
+                case let .success(optableTargeting):
+                    print("[OptableSDK] ✅ Success on /profile API call: \(optableTargeting)")
                 case let .failure(error):
                     print("[OptableSDK] 🚫 Error on /profile API call: \(error)")
                 }
