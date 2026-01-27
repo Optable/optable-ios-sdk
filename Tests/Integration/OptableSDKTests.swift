@@ -108,9 +108,8 @@ class OptableSDKTests: XCTestCase {
     // MARK: Profile
     @available(iOS 13.0, *)
     func test_profile_async() async throws {
-        let response: HTTPURLResponse = try await sdk.profile(traits: ["integration-test-profile": "integration-test-profile-value"])
-        XCTAssert(response.allHeaderFields.keys.contains("x-optable-visitor"))
-        XCTAssert(response.statusCode == 200)
+        let response = try await sdk.profile(traits: ["integration-test-profile": "integration-test-profile-value"])
+        XCTAssert(response.targetingData.allKeys.isEmpty == false)
     }
 
     func test_profile_callbacks() throws {
@@ -118,8 +117,7 @@ class OptableSDKTests: XCTestCase {
         try sdk.profile(traits: ["integration-test-profile": "integration-test-profile-value"], { result in
             switch result {
             case let .success(response):
-                XCTAssert(response.allHeaderFields.keys.contains("x-optable-visitor"))
-                XCTAssert(response.statusCode == 200)
+                XCTAssert(response.targetingData.allKeys.isEmpty == false)
             case let .failure(failure):
                 XCTFail("Expected success, got error: \(failure)")
             }
@@ -147,9 +145,8 @@ extension OptableSDKTests: OptableDelegate {
         identifyExpectation.fulfill()
     }
 
-    func profileOk(_ result: HTTPURLResponse) {
-        XCTAssert(result.allHeaderFields.keys.contains("x-optable-visitor"))
-        XCTAssert(result.statusCode == 200)
+    func profileOk(_ result: OptableTargeting) {
+        XCTAssert(result.targetingData.allKeys.isEmpty == false)
         profileExpectation.fulfill()
     }
 
