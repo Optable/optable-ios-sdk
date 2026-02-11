@@ -26,14 +26,14 @@ class OptableSDKTests: XCTestCase {
     // MARK: Identify
     @available(iOS 13.0, *)
     func test_identify_async() async throws {
-        let response = try await sdk.identify(OptableIdentifiers(emailAddress: "test@test.com"))
+        let response = try await sdk.identify([.emailAddress("test@test.com")])
         XCTAssert(response.allHeaderFields.keys.contains("x-optable-visitor"))
         XCTAssert(response.statusCode == 200)
     }
 
     func test_identify_callback() throws {
         let expectation = expectation(description: "identify-callback-expectation")
-        try sdk.identify(OptableIdentifiers(emailAddress: "test@test.com")) { result in
+        try sdk.identify([.emailAddress("test@test.com")]) { result in
             switch result {
             case let .success(response):
                 XCTAssert(response.allHeaderFields.keys.contains("x-optable-visitor"))
@@ -47,20 +47,20 @@ class OptableSDKTests: XCTestCase {
     }
 
     func test_identify_delegate() throws {
-        try sdk.identify(["e": "test@test.com"])
+        try sdk.identify([OptableSDKIdentifier(type: .emailAddress, value: "test@test.com", customIdx: nil)])
         wait(for: [identifyExpectation], timeout: 10)
     }
 
     // MARK: Target
     @available(iOS 13.0, *)
     func test_target_async() async throws {
-        let response = try await sdk.targeting()
+        let response = try await sdk.targeting([.emailAddress("test@test.com")])
         XCTAssert(response.targetingData.allKeys.isEmpty == false)
     }
 
     func test_target_callback() throws {
         let expectation = expectation(description: "target-callback-expectation")
-        try sdk.targeting(completion: { result in
+        try sdk.targeting([.emailAddress("test@test.com")], completion: { result in
             switch result {
             case let .success(response):
                 XCTAssert(response.targetingData.allKeys.isEmpty == false)
@@ -73,7 +73,7 @@ class OptableSDKTests: XCTestCase {
     }
 
     func test_target_delegate() throws {
-        try sdk.targeting()
+        try sdk.targeting([OptableSDKIdentifier(type: .emailAddress, value: "test@test.com", customIdx: nil)])
         wait(for: [targetExpectation], timeout: 10)
     }
 

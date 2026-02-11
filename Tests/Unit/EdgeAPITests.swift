@@ -148,7 +148,7 @@ class EdgeAPITests: XCTestCase {
      For more info check: [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide/optable-real-time-api-endpoints)
      */
     func test_identify_request_generation() throws {
-        let urlRequest = try sdk.api.identify(ids: OptableIdentifiers(postalCode: "1234567890"))
+        let urlRequest = try sdk.api.identify(ids: [.postalCode("1234567890")])
         
         // Method
         XCTAssertEqual(urlRequest?.httpMethod, HTTPMethod.POST.rawValue)
@@ -173,7 +173,7 @@ class EdgeAPITests: XCTestCase {
      For more info check: [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide/optable-real-time-api-endpoints/targeting)
      */
     func test_targeting_request_generation() throws {
-        let urlRequest = try sdk.api.targeting(ids: ["e:12345", "p:54321"])
+        let urlRequest = try sdk.api.targeting(ids: [.emailAddress("12345"), .phoneNumber("54321")])
         
         // Method
         XCTAssertEqual(urlRequest?.httpMethod, HTTPMethod.GET.rawValue)
