@@ -2,7 +2,7 @@ PODS:
   - Google-Mobile-Ads-SDK (12.14.0):
     - GoogleUserMessagingPlatform (>= 1.1)
   - GoogleUserMessagingPlatform (3.1.0)
-  - OptableSDK (0.10.0)
+  - OptableSDK (1.0.0)
   - PrebidMobile (3.1.0):
     - PrebidMobile/core (= 3.1.0)
   - PrebidMobile/core (3.1.0)
@@ -25,7 +25,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Google-Mobile-Ads-SDK: 4534fd2dfcd3f705c5485a6633c5188d03d4eed2
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
-  OptableSDK: ce87b57c73d9324438f555a7e2b1b6da2c33069a
+  OptableSDK: d7cb5f7a211f1bac2a0c25677f4c4b31ded8ed4e
   PrebidMobile: 046bb6220157c7332dc6c6e19a99397bb481ac3a
 
 PODFILE CHECKSUM: aca8225c99e7af1a76b3862a46118652667f5944

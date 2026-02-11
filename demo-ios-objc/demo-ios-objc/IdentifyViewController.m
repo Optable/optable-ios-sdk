@@ -52,15 +52,17 @@
     _identifyOutput.text = output;
     
     NSError *error = nil;
-    NSDictionary *ids = @{
-        @"e" : email,
-        @"p": @"+1234567890",
-        @"a": @"06DE8C6A-A431-4235-A262-E3A9C2CCEB34",
-        @"g": @"D04BB8C3-5A3E-4964-9757-D38365F59E6A",
-        @"c": @"new-custom.ABC",
-        @"c9": @"custom-9-id",
-    };
-    [OPTABLE identify: ids error: &error];
+    
+    [OPTABLE identify: @[
+        [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_EmailAddress value:email],
+        [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_PhoneNumber value:@"+1234567890"],
+        [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_AppleIDFA value:@"06DE8C6A-A431-4235-A262-E3A9C2CCEB34"],
+        [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_GoogleGAID value:@"D04BB8C3-5A3E-4964-9757-D38365F59E6A"],
+        [OptableSDKIdentifier identifierWithRawType:@"c" value:@"new-custom.ABC"],
+        [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_Custom value:@"custom-7" customIdx:@7],
+        [OptableSDKIdentifier identifierWithString:@"c9:custom-9-id"],
+    ]
+                error: &error];
 }
 
 // MARK: - UITextFieldDelegate

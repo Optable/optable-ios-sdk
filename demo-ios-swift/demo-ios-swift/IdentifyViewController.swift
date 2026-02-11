@@ -41,18 +41,16 @@ class IdentifyViewController: UIViewController {
         view.endEditing(true)
 
         do {
-            let email = identifyInput.text
+            let email = identifyInput.text ?? ""
 
-            let optableIdentifiers = OptableIdentifiers(
-                emailAddress: email,
-                phoneNumber: "+1234567890",
-                appleIDFA: "06DE8C6A-A431-4235-A262-E3A9C2CCEB34",
-                googleGAID: "D04BB8C3-5A3E-4964-9757-D38365F59E6A",
-                custom: [
-                    "c": "new-custom.ABC",
-                    "c9": "custom-9-id",
-                ]
-            )
+            let optableIdentifiers: [OptableIdentifier] = [
+                .emailAddress(email),
+                .phoneNumber("+1234567890"),
+                .appleIDFA("06DE8C6A-A431-4235-A262-E3A9C2CCEB34"),
+                .googleGAID("D04BB8C3-5A3E-4964-9757-D38365F59E6A"),
+                .custom(nil, "new-custom.ABC"),
+                .custom(9, "custom-9-id")
+            ]
 
             try OPTABLE!.identify(optableIdentifiers) { result in
                 switch result {

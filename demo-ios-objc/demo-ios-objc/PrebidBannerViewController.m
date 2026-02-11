@@ -66,7 +66,11 @@
 // MARK: - Actions
 - (IBAction)loadBannerWithTargeting:(id)sender {
     NSError *error = nil;
-    [OPTABLE targetingWithIds: NULL error: &error];
+    
+    [OPTABLE targeting: @[
+        [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_EmailAddress value:@"test@test.test"]
+    ]
+                 error:&error];
     [OPTABLE witnessWithEvent: @"PrebidBannerViewController.loadBannerClicked"
                    properties: @{ @"example": @"value" }
                         error: &error];
