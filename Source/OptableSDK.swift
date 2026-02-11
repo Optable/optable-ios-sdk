@@ -90,7 +90,7 @@ public extension OptableSDK {
      optableSDK.identify(.init(emailAddress: "example@example.com", phoneNumber: "1234567890"), completion)
      ```
      */
-    func identify(_ ids: OptableIdentifiers, _ completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    func identify(_ ids: [OptableIdentifier], _ completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
         try _identify(ids, completion: completion)
     }
 
@@ -101,7 +101,7 @@ public extension OptableSDK {
      Instead of completion callbacks, function have to be awaited.
      */
     @available(iOS 13.0, *)
-    func identify(_ ids: OptableIdentifiers) async throws -> HTTPURLResponse {
+    func identify(_ ids: [OptableIdentifier]) async throws -> HTTPURLResponse {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
                 try self._identify(ids, completion: { continuation.resume(with: $0) })
@@ -118,8 +118,9 @@ public extension OptableSDK {
      Instead of completion callbacks, delegate methods are called.
      */
     @objc
-    func identify(_ ids: [String: String]) throws {
-        try self._identify(OptableIdentifiers(ids)) { result in
+    func identify(_ ids: [OptableSDKIdentifier]) throws {
+        let bridgedIds = ids.compactMap({ OptableIdentifier(objc: $0) })
+        try self._identify(bridgedIds) { result in
             switch result {
             case let .success(response):
                 self.delegate?.identifyOk(response)
@@ -141,7 +142,7 @@ public extension OptableSDK {
      On success, this method will also cache the resulting targeting data in client storage, which can
      be access using targetingFromCache(), and cleared using targetingClearCache().
      */
-    func targeting(ids: [String]? = nil, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+    func targeting(_ ids: [OptableIdentifier]? = nil, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
         try _targeting(ids: ids, completion: completion)
     }
 
@@ -164,7 +165,7 @@ public extension OptableSDK {
      Instead of completion callbacks, function have to be awaited.
      */
     @available(iOS 13.0, *)
-    func targeting(ids: [String]? = nil) async throws -> OptableTargeting {
+    func targeting(_ ids: [OptableIdentifier]? = nil) async throws -> OptableTargeting {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
                 try self._targeting(ids: ids, completion: { continuation.resume(with: $0) })
@@ -181,8 +182,9 @@ public extension OptableSDK {
      Instead of completion callbacks, delegate methods are called.
      */
     @objc
-    func targeting(ids: [String]? = nil) throws {
-        try self._targeting(ids: ids, completion: { result in
+    func targeting(_ ids: [OptableSDKIdentifier]) throws {
+        let bridgedIds = ids.compactMap({ OptableIdentifier(objc: $0) })
+        try self._targeting(ids: bridgedIds, completion: { result in
             switch result {
             case let .success(optableTargeting):
                 self.delegate?.targetingOk(optableTargeting)
@@ -302,25 +304,20 @@ public extension OptableSDK {
     ///
     @objc
     func tryIdentifyFromURL(_ urlString: String) throws {
-        let oeid = OptableIdentifierEncoder.eidFromURL(urlString)
+        let eidStr = OptableIdentifierEncoder.eidFromURL(urlString)
 
-        guard oeid.isEmpty == false else { return }
+        guard let eid = OptableIdentifier(extendedIdentifier: eidStr) else { return }
 
-        try self._identify(OptableIdentifiers([oeid]), completion: { _ in /* no-op */ })
+        try self._identify([eid], completion: { _ in /* no-op */ })
     }
 }
 
 // MARK: - Private
 private extension OptableSDK {
-    func _identify(_ ids: OptableIdentifiers, completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    func _identify(_ ids: [OptableIdentifier], completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
         var ids = ids
 
-        if config.skipAdvertisingIdDetection == false,
-           ATT.advertisingIdentifierAvailable,
-           ATT.advertisingIdentifier != UUID(uuid: uuid_t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-           ids[.appleIDFA] != nil {
-            ids[.appleIDFA] = ATT.advertisingIdentifier.uuidString
-        }
+        enrichIfNeeded(ids: &ids)
 
         guard let request = try api.identify(ids: ids) else {
             throw OptableError.identify("Failed to create identify request")
@@ -344,7 +341,11 @@ private extension OptableSDK {
         }).resume()
     }
 
-    func _targeting(ids: [String]?, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+    func _targeting(ids: [OptableIdentifier]?, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+        var ids = ids ?? []
+
+        enrichIfNeeded(ids: &ids)
+        
         guard let request = try api.targeting(ids: ids) else {
             throw OptableError.targeting("Failed to create targeting request")
         }
@@ -419,7 +420,7 @@ private extension OptableSDK {
                 completion(.failure(OptableError.profile(errDesc, code: response.statusCode)))
                 return
             }
-            
+
             do {
                 let optableTargeting = try OptableSDK.generateOptableTargeting(from: data)
 
@@ -431,6 +432,21 @@ private extension OptableSDK {
                 completion(.failure(OptableError.profile("Error parsing JSON response: \(error)")))
             }
         }).resume()
+    }
+    
+    private func enrichIfNeeded(ids: inout [OptableIdentifier]) {
+        // Enrich with Apple IDFA
+        if config.skipAdvertisingIdDetection == false,
+           ATT.advertisingIdentifierAvailable,
+           ATT.advertisingIdentifier != UUID(uuid: uuid_t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
+           ids.contains(where: { eid in
+               if case let .appleIDFA(value) = eid, value.isEmpty == false {
+                   return true
+               }
+               return false
+           }) == true {
+            ids.append(.appleIDFA(ATT.advertisingIdentifier.uuidString))
+        }
     }
 
     static func generateEdgeAPIErrorDescription(with data: Data?, response: HTTPURLResponse) -> String {
@@ -470,12 +486,12 @@ private extension OptableSDK {
         else { return nil }
         return ortbJSONString
     }
-    
+
     static func generateOptableTargeting(from responseData: Data?) throws -> OptableTargeting {
         guard let responseData else {
             return OptableTargeting(optableTargeting: [:])
         }
-        
+
         let optableTargetingData = try JSONSerialization.jsonObject(with: responseData, options: [])
         let optableTargetingDict: NSMutableDictionary = ((optableTargetingData as? NSDictionary)?.mutableCopy() as? NSMutableDictionary) ?? NSMutableDictionary()
         let optableTargeting = OptableTargeting(
@@ -483,7 +499,7 @@ private extension OptableSDK {
             gamTargetingKeywords: OptableSDK.generateGAMTargetingKeywords(from: optableTargetingDict),
             ortb2: OptableSDK.generateORTB2Config(from: optableTargetingDict)
         )
-        
+
         return optableTargeting
     }
 }

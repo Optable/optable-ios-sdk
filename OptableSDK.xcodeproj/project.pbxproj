@@ -33,6 +33,7 @@
 			);
 			publicHeaders = (
 				OptableSDK.h,
+				Public/ObjCSupport/OptableSDKIdentifier.h,
 			);
 			target = 6352AAFA24EAD403002E66EB /* OptableSDK */;
 		};
@@ -158,7 +159,7 @@
 				TargetAttributes = {
 					6352AAFA24EAD403002E66EB = {
 						CreatedOnToolsVersion = 11.6;
-						LastSwiftMigration = 1160;
+						LastSwiftMigration = 2620;
 					};
 					6352AB0324EAD403002E66EB = {
 						CreatedOnToolsVersion = 11.6;
