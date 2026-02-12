@@ -444,7 +444,7 @@ private extension OptableSDK {
                    return true
                }
                return false
-           }) == true {
+           }) == false {
             ids.append(.appleIDFA(ATT.advertisingIdentifier.uuidString))
         }
     }
