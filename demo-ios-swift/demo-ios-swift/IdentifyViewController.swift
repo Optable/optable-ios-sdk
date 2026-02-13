@@ -8,6 +8,7 @@
 
 import OptableSDK
 import UIKit
+import AppTrackingTransparency
 
 // MARK: - IdentifyViewController
 class IdentifyViewController: UIViewController {
@@ -39,32 +40,37 @@ class IdentifyViewController: UIViewController {
     // It initiates a call to the OptableSDK.identify() API and prints debugging information to the UI and debug console.
     @IBAction func dispatchIdentify(_ sender: UIButton) {
         view.endEditing(true)
-
-        do {
-            let email = identifyInput.text ?? ""
-
-            let optableIdentifiers: [OptableIdentifier] = [
-                .emailAddress(email),
-                .phoneNumber("+1234567890"),
-                .appleIDFA("06DE8C6A-A431-4235-A262-E3A9C2CCEB34"),
-                .googleGAID("D04BB8C3-5A3E-4964-9757-D38365F59E6A"),
-                .custom(nil, "new-custom.ABC"),
-                .custom(9, "custom-9-id")
-            ]
-
-            try OPTABLE!.identify(optableIdentifiers) { result in
-                switch result {
-                case .success:
-                    print("[OptableSDK] ✅ Success on /identify API call")
-                case let .failure(error):
-                    print("[OptableSDK] 🚫 Error on /identify API call: \(error)")
+        
+        // If еру user gives consent to be tracked - IDFA will be added
+        // automatically to the list of identifiers,
+        // either in the `identify` or `targeting` calls
+        ATTrackingManager.requestTrackingAuthorization { [self] _ in
+            DispatchQueue.main.async {
+                do {
+                    let email = self.identifyInput.text ?? ""
+                    let optableIdentifiers: [OptableIdentifier] = [
+                        .emailAddress(email),
+                        .phoneNumber("+1234567890"),
+                        .custom(nil, "new-custom.ABC"),
+                        .custom(9, "custom-9-id")
+                    ]
+                    
+                    try OPTABLE!.identify(optableIdentifiers) { result in
+                        switch result {
+                        case .success:
+                            print("[OptableSDK] ✅ Success on /identify API call")
+                        case let .failure(error):
+                            print("[OptableSDK] 🚫 Error on /identify API call: \(error)")
+                        }
+                    }
+                    
+                } catch {
+                    print("[OptableSDK] 🚫 Exception on /identify API call: \(error)")
+                    self.identifyOutput.text += "🚫 EXCEPTION: \(error)"
                 }
             }
-
-        } catch {
-            print("[OptableSDK] 🚫 Exception on /identify API call: \(error)")
-            identifyOutput.text += "🚫 EXCEPTION: \(error)"
         }
+        
     }
 }
 
