@@ -202,42 +202,40 @@ extension EdgeAPI {
         components.host = config.host
         components.path = "/\(config.path)/\(endpoint)"
         components.queryItems = [
-            .init(name: "t", value: config.tenant.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)),
-            .init(name: "o", value: config.originSlug.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)),
-            .init(name: "osdk", value: OptableSDK.version.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)),
+            .init(name: "t", value: config.tenant),
+            .init(name: "o", value: config.originSlug),
+            .init(name: "osdk", value: OptableSDK.version),
         ]
 
         if let reg = config.reg {
-            components.queryItems?.append(
-                .init(name: "reg", value: reg.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed))
-            )
+            components.queryItems?.append(.init(name: "reg", value: reg))
         }
 
         if let gdprConsent = config.gdprConsent, let gdpr = config.gdpr?.boolValue {
             components.queryItems?.append(contentsOf: [
-                .init(name: "gdpr_consent", value: gdprConsent.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)),
+                .init(name: "gdpr_consent", value: gdprConsent),
                 .init(name: "gdpr", value: "\(gdpr ? 1 : 0)"),
             ])
         } else if let globalGDPRConsent = IABConsent.gdprTC, let globalGDPR = IABConsent.gdprApplies {
             components.queryItems?.append(contentsOf: [
-                .init(name: "gdpr_consent", value: globalGDPRConsent.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)),
+                .init(name: "gdpr_consent", value: globalGDPRConsent),
                 .init(name: "gdpr", value: "\(globalGDPR ? 1 : 0)"),
             ])
         }
 
         if let gpp = config.gpp {
             components.queryItems?.append(
-                .init(name: "gpp", value: gpp.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed))
+                .init(name: "gpp", value: gpp)
             )
         } else if let globalGPP = IABConsent.gppTC {
             components.queryItems?.append(
-                .init(name: "gpp", value: globalGPP.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed))
+                .init(name: "gpp", value: globalGPP)
             )
         }
 
         if let gppSid = config.gppSid {
             components.queryItems?.append(
-                .init(name: "gpp_sid", value: gppSid.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed))
+                .init(name: "gpp_sid", value: gppSid)
             )
         }
 
