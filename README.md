@@ -46,14 +46,17 @@ let config = OptableConfig(tenant: "dcn.customer.com", originSlug: "my-app")
 let optableSDK = OptableSDK(config: config) // can instantiate multiple instances
 
 // Use
-let identifiers = OptableIdentifiers(emailAddress: "test@test.test")
-try await optableSDK.identify(identifiers)
+let ids: [OptableIdentifier] = [
+    .emailAddress("test@test.test"),
+    .phoneNumber("+1234567890")
+]
+try await optableSDK.identify(ids)
 ```
 
 For more detailed usage guide, see our:
 
--   [<ins>Swift integration guide</ins>](docs/usage-swift.md)
--   [<ins>Objective-C integration guide</ins>](docs/usage-objc.md)
+- [<ins>Swift integration guide</ins>](docs/usage-swift.md)
+- [<ins>Objective-C integration guide</ins>](docs/usage-objc.md)
 
 ## Demo Applications
 

@@ -56,11 +56,12 @@ The default value of `nil` for the `useragent` parameter enables the `WKWebView`
 To associate a user device with an authenticated identifier such as an Email address, or with other known IDs such as the Apple ID for Advertising (IDFA), or even your own vendor or app level `PPID`, you can call the `identify` API as follows:
 
 ```swift
-let emailString = "some.email@address.com"
-
 do {
-    let identifiers = OptableIdentifiers(emailAddress: emailString)
-    try OPTABLE!.identify(identifiers) { result in
+    let ids: [OptableIdentifier] = [
+        .emailAddress("some.email@address.com"),
+        .phoneNumber("+1234567890")
+    ]
+    try OPTABLE!.identify(ids) { result in
         switch (result) {
         case .success(let response):
             // identify API success, response.statusCode is HTTP response status 200
@@ -225,4 +226,4 @@ A working example is available in the demo application.
 
 If you send Email newsletters that contain links to your application (e.g., universal links), then you may want to automatically _identify_ visitors that have clicked on any such links via their Email address.
 
--   [Check our url identify guide](identify-from-url.md)
+- [Check our url identify guide](identify-from-url.md)

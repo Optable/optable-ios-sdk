@@ -83,8 +83,12 @@ To associate a user device with an authenticated identifier such as an Email add
 @import OptableSDK;
 ...
 NSError *error = nil;
-[OPTABLE identify: @{ @"e" : @"some.email@address.com", @"c" : @"new-custom.ABC" }
-            error: &error];
+NSArray *ids = @[
+    [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_EmailAddress value:@"test@test.test"],
+    [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_PhoneNumber value:@"+1234567890"],
+];
+
+[OPTABLE identify: ids error: &error];
 ```
 
 Note that `error` will be set only in case of an internal SDK exception. Otherwise, any configured delegate `identifyOk` or `identifyErr` will be invoked to signal success or failure, respectively. Providing an empty `ppid` as in the above example simply will not send any `ppid`.
@@ -184,4 +188,4 @@ It's assumed in the above code snippet that `self.bannerView` is a pointer to a 
 
 If you send Email newsletters that contain links to your application (e.g., universal links), then you may want to automatically _identify_ visitors that have clicked on any such links via their Email address.
 
--   [Check our url identify guide](identify-from-url.md)
+- [Check our url identify guide](identify-from-url.md)
