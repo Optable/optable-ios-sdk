@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name          = "OptableSDK"
-  spec.version       = "0.10.0"
+  spec.version       = "1.0.0"
   spec.summary       = "A lightweight SDK used to integrate iOS apps with the Optable Sandbox"
   spec.description   = <<-DESC
 	The Optable SDK is used to integrate an iOS application with an instance of the
@@ -14,7 +14,7 @@ Pod::Spec.new do |spec|
   spec.author        = { "Optable Technologies Inc" => "support@optable.co" }
 
   spec.platform              = :ios
-  spec.ios.deployment_target = "9.2"
+  spec.ios.deployment_target = "12.0"
   spec.swift_version         = "5.0"
 
   spec.source        = { :git => "https://github.com/Optable/optable-ios-sdk.git", :tag => "#{spec.version}" }

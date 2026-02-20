@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24128" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="9KB-Po-ioE">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="9KB-Po-ioE">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -18,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="AKp-3F-KNX">
-                                <rect key="frame" x="20" y="192" width="353" height="93"/>
+                                <rect key="frame" x="20" y="192" width="353" height="45"/>
                                 <subviews>
                                     <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Email" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="0Py-KR-2hS">
                                         <rect key="frame" x="0.0" y="0.0" width="353" height="45"/>
@@ -26,25 +26,11 @@
                                             <constraint firstAttribute="height" constant="45" id="5oF-EA-J0e"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                        <textInputTraits key="textInputTraits"/>
+                                        <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="emailAddress"/>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="string" keyPath="_placeholder" value="Email"/>
                                         </userDefinedRuntimeAttributes>
                                     </textField>
-                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="top" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="UmK-2V-AH4">
-                                        <rect key="frame" x="0.0" y="65" width="353" height="28"/>
-                                        <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Include IDFA:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="78R-3b-x29">
-                                                <rect key="frame" x="0.0" y="0.0" width="277" height="20.333333333333332"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                <nil key="textColor"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Eg-c7-IVu">
-                                                <rect key="frame" x="292" y="0.0" width="63" height="28"/>
-                                            </switch>
-                                        </subviews>
-                                    </stackView>
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="0Py-KR-2hS" secondAttribute="trailing" id="GtE-du-x6N"/>
@@ -52,7 +38,7 @@
                                 </constraints>
                             </stackView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="b7v-UN-xAf">
-                                <rect key="frame" x="20" y="315" width="353" height="48"/>
+                                <rect key="frame" x="20" y="267" width="353" height="48"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="48" id="kHc-fy-Sxb"/>
                                 </constraints>
@@ -66,7 +52,7 @@
                                 </connections>
                             </button>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="pQa-vV-MeS">
-                                <rect key="frame" x="20" y="378" width="353" height="337"/>
+                                <rect key="frame" x="20" y="330" width="353" height="385"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <color key="textColor" systemColor="labelColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -93,7 +79,6 @@
                     <navigationItem key="navigationItem" title="Identify" id="fPV-pJ-MMc"/>
                     <connections>
                         <outlet property="identifyButton" destination="b7v-UN-xAf" id="JgO-1H-l2i"/>
-                        <outlet property="identifyIDFA" destination="2Eg-c7-IVu" id="Edv-UW-vxZ"/>
                         <outlet property="identifyInput" destination="0Py-KR-2hS" id="Uda-2S-GRy"/>
                         <outlet property="identifyOutput" destination="pQa-vV-MeS" id="XQe-0Z-PkW"/>
                     </connections>
@@ -204,6 +189,7 @@
                     <connections>
                         <segue destination="6oq-n5-l1F" kind="relationship" relationship="viewControllers" id="FxM-e6-chH"/>
                         <segue destination="9Cd-Yb-3vr" kind="relationship" relationship="viewControllers" id="BUR-3j-I8K"/>
+                        <segue destination="ngO-uL-dBo" kind="relationship" relationship="viewControllers" id="vvr-Ue-W7g"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9T0-ao-HOF" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -247,6 +233,114 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="TbY-Xt-eFG" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1047.8260869565217" y="758.70535714285711"/>
+        </scene>
+        <!--Prebid Banner-->
+        <scene sceneID="OCW-6e-nVP">
+            <objects>
+                <viewController storyboardIdentifier="PrebidBannerViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="jMf-TR-COO" customClass="PrebidBannerViewController" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ure-FD-mxx">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="18" translatesAutoresizingMaskIntoConstraints="NO" id="efk-ya-KCx">
+                                <rect key="frame" x="20" y="192" width="353" height="180"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="weY-Oz-xEW">
+                                        <rect key="frame" x="0.0" y="0.0" width="353" height="48"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="48" id="yP9-tj-Mdh"/>
+                                        </constraints>
+                                        <state key="normal" title="Load Targeting and Banner"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Load Targeting and Banner">
+                                            <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="18"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="loadBannerWithTargeting:" destination="jMf-TR-COO" eventType="touchUpInside" id="QXR-g6-78z"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xYE-Vh-vxp">
+                                        <rect key="frame" x="0.0" y="66" width="353" height="48"/>
+                                        <state key="normal" title="Cached Targeting and Banner"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Cached Targeting and Banner">
+                                            <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="18"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="loadBannerWithTargetingFromCache:" destination="jMf-TR-COO" eventType="touchUpInside" id="hsN-qc-qhJ"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jmX-aP-YnY">
+                                        <rect key="frame" x="0.0" y="132" width="353" height="48"/>
+                                        <state key="normal" title="Clear Targeting Cache"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Clear Targeting Cache">
+                                            <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="18"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="clearTargetingCache:" destination="jMf-TR-COO" eventType="touchUpInside" id="Aen-Ni-fgT"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="IvT-26-Mrg">
+                                <rect key="frame" x="20" y="392" width="353" height="268"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <color key="textColor" systemColor="labelColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pAN-ju-HLj">
+                                <rect key="frame" x="36.666666666666657" y="675" width="320" height="50"/>
+                                <color key="backgroundColor" systemColor="systemGray6Color"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="320" id="7ed-w4-06b"/>
+                                    <constraint firstAttribute="height" constant="50" id="tGP-Se-Fjl"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="GiY-jL-0Qu"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="GiY-jL-0Qu" firstAttribute="trailing" secondItem="IvT-26-Mrg" secondAttribute="trailing" constant="20" id="372-L8-wbO"/>
+                            <constraint firstItem="GiY-jL-0Qu" firstAttribute="trailing" secondItem="efk-ya-KCx" secondAttribute="trailing" constant="20" id="4a0-J4-fHx"/>
+                            <constraint firstItem="IvT-26-Mrg" firstAttribute="top" secondItem="efk-ya-KCx" secondAttribute="bottom" constant="20" id="Bd3-rc-tVg"/>
+                            <constraint firstItem="GiY-jL-0Qu" firstAttribute="bottom" secondItem="pAN-ju-HLj" secondAttribute="bottom" constant="10" id="ESu-FO-gHC"/>
+                            <constraint firstItem="efk-ya-KCx" firstAttribute="top" secondItem="GiY-jL-0Qu" secondAttribute="top" constant="20" id="JZC-FC-tQX"/>
+                            <constraint firstItem="pAN-ju-HLj" firstAttribute="centerX" secondItem="Ure-FD-mxx" secondAttribute="centerX" id="Yb1-ul-jWg"/>
+                            <constraint firstItem="IvT-26-Mrg" firstAttribute="leading" secondItem="GiY-jL-0Qu" secondAttribute="leading" constant="20" id="gjM-t2-U5g"/>
+                            <constraint firstItem="IvT-26-Mrg" firstAttribute="bottom" secondItem="pAN-ju-HLj" secondAttribute="top" constant="-15" id="kEO-A5-gm0"/>
+                            <constraint firstItem="efk-ya-KCx" firstAttribute="leading" secondItem="GiY-jL-0Qu" secondAttribute="leading" constant="20" id="kpx-kZ-hmH"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Prebid Banner" id="QDT-xZ-pBs"/>
+                    <connections>
+                        <outlet property="adPlaceholder" destination="pAN-ju-HLj" id="apI-J9-3gH"/>
+                        <outlet property="cachedBannerButton" destination="xYE-Vh-vxp" id="5m4-C3-W9F"/>
+                        <outlet property="clearTargetingCacheButton" destination="jmX-aP-YnY" id="Egi-JW-J27"/>
+                        <outlet property="loadBannerButton" destination="weY-Oz-xEW" id="Iie-ph-DpY"/>
+                        <outlet property="targetingOutput" destination="IvT-26-Mrg" id="WYR-7X-ZNM"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Pmf-1X-kmB" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1956" y="1492"/>
+        </scene>
+        <!--Prebid Banner-->
+        <scene sceneID="F5y-Jh-TcN">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="ngO-uL-dBo" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Prebid Banner" image="rectangle.3.group.fill" catalog="system" selectedImage="rectangle.3.group.fill" id="n1S-Jv-ndH"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="1Wc-Uk-EsU">
+                        <rect key="frame" x="0.0" y="118" width="393" height="54"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="jMf-TR-COO" kind="relationship" relationship="rootViewController" id="riM-i9-2aK"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="IZ6-g0-qTg" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1047" y="1492"/>
         </scene>
     </scenes>
     <resources>

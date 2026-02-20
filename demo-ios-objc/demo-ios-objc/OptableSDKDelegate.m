@@ -9,70 +9,90 @@
 #import "OptableSDKDelegate.h"
 @import OptableSDK;
 @import GoogleMobileAds;
+@import PrebidMobile;
 
-@interface OptableSDKDelegate ()
-@end
-
+// MARK: - OptableSDKDelegate
 @implementation OptableSDKDelegate
 - (void)identifyOk:(NSHTTPURLResponse *)result {
-    NSLog(@"[OptableSDK] Success on /identify API call. HTTP Status Code: %ld", result.statusCode);
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.identifyOutput setText:[NSString stringWithFormat:@"%@\n✅ Success", [self.identifyOutput text]]];
-    });
+    NSLog(@"[OptableSDK] ✅ Success on /identify API call");
 }
+
 - (void)identifyErr:(NSError *)error {
-    NSLog(@"[OptableSDK] Error on /identify API call: %@", [error localizedDescription]);
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.identifyOutput setText:[NSString stringWithFormat:@"%@\n🚫 Error: %@\n", [self.identifyOutput text], [error localizedDescription]]];
-    });
+    NSLog(@"[OptableSDK] 🚫 Error on /identify API call: %@", [error localizedDescription]);
 }
-- (void)profileOk:(NSHTTPURLResponse *)result {
-    NSLog(@"[OptableSDK] Success on /profile API call. HTTP Status Code: %ld", result.statusCode);
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.targetingOutput setText:[NSString stringWithFormat:@"%@\n✅ Success calling profile API to set example traits.\n", [self.targetingOutput text]]];
-    });
+
+- (void)profileOk:(OptableTargeting *)result {
+    NSLog(@"[OptableSDK] ✅ Success on /profile API call: %@", result.debugDescription);
 }
+
 - (void)profileErr:(NSError *)error {
-    NSLog(@"[OptableSDK] Error on /profile API call: %@", [error localizedDescription]);
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.targetingOutput setText:[NSString stringWithFormat:@"%@\n🚫 Error: %@\n", [self.targetingOutput text], [error localizedDescription]]];
-    });
+    NSLog(@"[OptableSDK] 🚫 Error on /profile API call: %@", [error localizedDescription]);
 }
-- (void)targetingOk:(NSDictionary *)result {
-    // Update the GAM banner view with result targeting keyvalues:
-    GAMRequest *request = [GAMRequest request];
-    request.customTargeting = result;
-    [self.bannerView loadRequest:request];
 
-    NSLog(@"[OptableSDK] Success on /targeting API call: %@", result);
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.targetingOutput setText:[NSString stringWithFormat:@"%@\nData: %@\n", [self.targetingOutput text], result]];
-    });
+- (void)targetingOk:(OptableTargeting *)result {
+    NSLog(@"[OptableSDK] ✅ Success on /targeting API call: %@", result.debugDescription);
+    
+    if (_pbmBannerAdUnit != nil) {
+        // PrebidBannerViewController
+        [self loadPrebidAdWithTargetingData:result];
+    } else {
+        // GAMBannerViewController
+        [self loadGADAdWithTargetingData:result];
+    }
 }
+
 - (void)targetingErr:(NSError *)error {
+    NSLog(@"[OptableSDK] 🚫 Error on /targeting API call: %@", [error localizedDescription]);
+    
     // Update the GAM banner view without targeting data:
-    GAMRequest *request = [GAMRequest request];
-    [self.bannerView loadRequest:request];
+    [self loadGADAdWithTargetingData:nil];
+}
 
-    NSLog(@"[OptableSDK] Error on /targeting API call: %@", [error localizedDescription]);
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.targetingOutput setText:[NSString stringWithFormat:@"%@\n🚫 Error: %@\n", [self.targetingOutput text], [error localizedDescription]]];
-    });
-}
 - (void)witnessOk:(NSHTTPURLResponse *)result {
-    NSLog(@"[OptableSDK] Success on /witness API call. HTTP Status Code: %ld", result.statusCode);
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.targetingOutput setText:[NSString stringWithFormat:@"%@\n✅ Success calling witness API to log loadBannerClicked event.\n", [self.targetingOutput text]]];
-    });
+    NSLog(@"[OptableSDK] ✅ Success on /witness API call");
 }
+
 - (void)witnessErr:(NSError *)error {
-    NSLog(@"[OptableSDK] Error on /witness API call: %@", [error localizedDescription]);
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.targetingOutput setText:[NSString stringWithFormat:@"%@\n🚫 Error: %@\n", [self.targetingOutput text], [error localizedDescription]]];
-    });
+    NSLog(@"[OptableSDK] 🚫 Error on /witness API call: %@", [error localizedDescription]);
 }
+
+// MARK: - Ad Loading
+- (void)loadGADAdWithTargetingData:(OptableTargeting* _Nullable)optableTargeting {
+    GAMRequest *adRequest = [GAMRequest request];
+    
+    if (optableTargeting != nil && optableTargeting.gamTargetingKeywords != nil) {
+        adRequest.customTargeting = optableTargeting.gamTargetingKeywords;
+    }
+    
+    [self loadGADAdWithAdRequest:adRequest];
+}
+
+- (void)loadPrebidAdWithTargetingData:(OptableTargeting* _Nullable)optableTargeting {
+    [self setOptableTargetingToPrebidWith:optableTargeting];
+    
+    GAMRequest *adRequest = [GAMRequest request];
+    
+    if (optableTargeting != nil && optableTargeting.gamTargetingKeywords != nil) {
+        adRequest.customTargeting = optableTargeting.gamTargetingKeywords;
+    }
+    
+    [_pbmBannerAdUnit fetchDemandWithAdObject:adRequest completion: ^(enum ResultCode result) {
+        NSLog(@"[PrebidMobile]:fetchDemand(adObject:): %ld", (long)result);
+        [self loadGADAdWithAdRequest:adRequest];
+    }];
+}
+
+- (void)setOptableTargetingToPrebidWith:(OptableTargeting* _Nullable)optableTargeting {
+    if (optableTargeting == nil || optableTargeting.ortb2 == nil || optableTargeting.ortb2.length == 0) {
+        [Targeting.shared setGlobalORTBConfig:nil];
+        return;
+    }
+    
+    [Targeting.shared setGlobalORTBConfig:optableTargeting.ortb2];
+}
+
+- (void)loadGADAdWithAdRequest:(GAMRequest*)adRequest {
+    [_gadBannerView loadRequest:adRequest];
+}
+
 @end

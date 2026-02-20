@@ -1,8 +1,4 @@
-platform :ios, '14.0'
-
-source 'https://cdn.cocoapods.org/'
-
-project 'demo-ios-objc.xcodeproj'
+platform :ios, '15.0'
 
 target 'demo-ios-objc' do
   use_frameworks!
@@ -12,14 +8,6 @@ target 'demo-ios-objc' do
   #pod 'OptableSDK'
 
   pod 'Google-Mobile-Ads-SDK'
-
-  target 'demo-ios-objcTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-
-  target 'demo-ios-objcUITests' do
-    # Pods for testing
-  end
-
+  pod 'PrebidMobile'
+  
 end

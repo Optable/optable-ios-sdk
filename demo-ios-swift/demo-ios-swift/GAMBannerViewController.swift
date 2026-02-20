@@ -6,146 +6,190 @@
 //  See LICENSE for details.
 //
 
-import UIKit
 import GoogleMobileAds
+import OptableSDK
+import UIKit
 
-class GAMBannerViewController: UIViewController {
-    
-    var bannerView: BannerView!
-    
-    // MARK: Properties
-    
-    @IBOutlet weak var adPlaceholder: UIView!
-    @IBOutlet weak var loadBannerButton: UIButton!
-    @IBOutlet weak var loadBannerFromCacheButton: UIButton!
-    @IBOutlet weak var clearTargetingCacheButton: UIButton!
-    @IBOutlet weak var targetingOutput: UITextView!
-    
+private let AD_MANAGER_AD_UNIT_ID = "/22081946781/ios-sdk-demo/mobile-leaderboard"
+
+// MARK: - GAMBannerViewController
+final class GAMBannerViewController: UIViewController {
+    // Outlets
+    @IBOutlet var adPlaceholder: UIView!
+    @IBOutlet var loadBannerButton: UIButton!
+    @IBOutlet var loadBannerFromCacheButton: UIButton!
+    @IBOutlet var clearTargetingCacheButton: UIButton!
+    @IBOutlet var targetingOutput: UITextView!
+
+    // GoogleMobileAds - GADBannerView
+    var gadBannerView: BannerView!
+
+    // Logging
+    private var targetingLog: String? { didSet { updateUILog() } }
+    private var witnessLog: String? { didSet { updateUILog() } }
+    private var profileLog: String? { didSet { updateUILog() } }
+    private var networkLogObserver: (any NSObjectProtocol)?
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        bannerView = BannerView(adSize: AdSizeBanner)
-        addBannerViewToView(bannerView)
-        bannerView.rootViewController = self
+
+        gadBannerView = BannerView(adSize: AdSizeBanner)
+        gadBannerView.adUnitID = AD_MANAGER_AD_UNIT_ID
+        gadBannerView.rootViewController = self
+        gadBannerView.delegate = self
+        addBannerViewToView(gadBannerView)
     }
-    
-    //MARK: Actions
-    
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        startObservingNetworkLogs()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        stopObservingNetworkLogs()
+    }
+
+    // MARK: Actions
     @IBAction func loadBannerWithTargeting(_ sender: UIButton) {
         do {
-            targetingOutput.text = "Calling /targeting API...\n\n"
-            
-            try OPTABLE!.targeting() { result in
-                var tdata: NSDictionary = [:]
-                
+            try OPTABLE!.targeting { [weak self] result in
                 switch result {
-                case .success(let keyvalues):
-                    print("[OptableSDK] Success on /targeting API call: \(keyvalues)")
-                    
-                    tdata = keyvalues
-                    
-                    DispatchQueue.main.async {
-                        self.targetingOutput.text += "Data: \(keyvalues)\n"
-                    }
-                    
-                case .failure(let error):
-                    print("[OptableSDK] Error on /targeting API call: \(error)")
-                    DispatchQueue.main.async {
-                        self.targetingOutput.text += "🚫 Error: \(error)\n"
-                    }
+                case let .success(optableTargeting):
+                    print("[OptableSDK] ✅ Success on /targeting API call: \(optableTargeting)")
+                    self?.loadBanner(optableTargeting)
+
+                case let .failure(error):
+                    print("[OptableSDK] 🚫 Error on /targeting API call: \(error)")
+                    self?.loadBanner()
                 }
-                
-                self.loadBanner(adUnitID: "/22081946781/ios-sdk-demo/mobile-leaderboard", keyvalues: tdata)
             }
         } catch {
-            print("[OptableSDK] Exception: \(error)")
+            print("[OptableSDK] 🚫 Exception on /targeting API call: \(error)")
+            targetingLog = "🚫 EXCEPTION: \(error)"
         }
     }
-    
+
     @IBAction func loadBannerWithTargetingFromCache(_ sender: UIButton) {
-        var tdata: NSDictionary = [:]
-        
-        targetingOutput.text = "Checking local targeting cache...\n\n"
-        
-        let cachedValues = OPTABLE!.targetingFromCache()
-        if (cachedValues != nil) {
-            print("[OptableSDK] Cached targeting values found: \(cachedValues!)")
-            targetingOutput.text += "\nFound cached data: \(cachedValues!)\n"
-            tdata = cachedValues!
+        if let cachedOptableTargeting = OPTABLE!.targetingFromCache() {
+            print("[OptableSDK] ✅ Cached targeting values found: \(cachedOptableTargeting)")
+            loadBanner(cachedOptableTargeting)
         } else {
-            targetingOutput.text += "\nCache empty.\n"
+            print("[OptableSDK] ℹ️ Cache empty")
+            loadBanner()
         }
-        
-        self.loadBanner(adUnitID: "/22081946781/ios-sdk-demo/mobile-leaderboard", keyvalues: tdata)
     }
-    
+
     @IBAction func clearTargetingCache(_ sender: UIButton) {
-        targetingOutput.text = "🧹 Clearing local targeting cache.\n"
+        targetingOutput.text = "🧹 Cleared local targeting cache.\n"
         OPTABLE!.targetingClearCache()
     }
-    
-    private func loadBanner(adUnitID: String, keyvalues: NSDictionary) {
-        bannerView.adUnitID = adUnitID
-        
-        let req = AdManagerRequest()
-        req.customTargeting = keyvalues as? [String: String]
-        bannerView.load(req)
-        
+}
+
+// MARK: - Private
+private extension GAMBannerViewController {
+    func loadBanner(_ optableTargeting: OptableTargeting? = nil) {
+        loadGADAd(optableTargeting)
         witness()
         profile()
     }
-    
-    private func witness() {
+
+    func loadGADAd(_ optableTargeting: OptableTargeting? = nil) {
+        let adRequest = AdManagerRequest()
+        adRequest.customTargeting = optableTargeting?.gamTargetingKeywords as? [String: Any]
+        gadBannerView.load(adRequest)
+    }
+
+    func witness() {
         do {
-            try OPTABLE!.witness(event: "GAMBannerViewController.loadBannerClicked", properties: ["example": "value"]) { result in
+            try OPTABLE!.witness(
+                event: "GAMBannerViewController.loadBannerClicked",
+                properties: ["example": "value"]
+            ) { result in
                 switch result {
-                case .success(let response):
-                    print("[OptableSDK] Success on /witness API call: response.statusCode = \(response.statusCode)")
-                    DispatchQueue.main.async {
-                        self.targetingOutput.text += "\n✅ Success calling witness API to log loadBannerClicked event.\n"
-                    }
-                    
-                case .failure(let error):
-                    print("[OptableSDK] Error on /witness API call: \(error)")
-                    DispatchQueue.main.async {
-                        self.targetingOutput.text += "\n🚫 Error: \(error)"
-                    }
+                case .success:
+                    print("[OptableSDK] ✅ Success on /witness API call")
+                case let .failure(error):
+                    print("[OptableSDK] 🚫 Error on /witness API call: \(error)")
                 }
             }
         } catch {
-            print("[OptableSDK] Exception: \(error)")
+            print("[OptableSDK] 🚫 Exception on /witness API call: \(error)")
+            witnessLog = "🚫 EXCEPTION: \(error)"
         }
     }
-    
-    private func profile() {
+
+    func profile() {
         do {
-            try OPTABLE!.profile(traits: ["example": "value", "anotherExample": 123, "thirdExample": true ]) { result in
+            try OPTABLE!.profile(
+                traits: ["example": "value", "anotherExample": 123, "thirdExample": true]
+            ) { result in
                 switch result {
-                case .success(let response):
-                    print("[OptableSDK] Success on /profile API call: response.statusCode = \(response.statusCode)")
-                    DispatchQueue.main.async {
-                        self.targetingOutput.text += "\n✅ Success calling profile API to set example traits.\n"
-                    }
-                    
-                case .failure(let error):
-                    print("[OptableSDK] Error on /profile API call: \(error)")
-                    DispatchQueue.main.async {
-                        self.targetingOutput.text += "\n🚫 Error: \(error)"
-                    }
+                case let .success(optableTargeting):
+                    print("[OptableSDK] ✅ Success on /profile API call: \(optableTargeting)")
+                case let .failure(error):
+                    print("[OptableSDK] 🚫 Error on /profile API call: \(error)")
                 }
             }
         } catch {
-            print("[OptableSDK] Exception: \(error)")
+            print("[OptableSDK] 🚫 Exception on /profile API call: \(error)")
+            profileLog = "🚫 EXCEPTION: \(error)"
         }
     }
-    
-    private func addBannerViewToView(_ bannerView: BannerView) {
+}
+
+// MARK: - GoogleMobileAds.BannerViewDelegate
+extension GAMBannerViewController: GoogleMobileAds.BannerViewDelegate {
+    func bannerView(_ bannerView: BannerView, didFailToReceiveAdWithError error: any Error) {
+        print("[GAMBannerViewController] Failed to receive ad: \(error)")
+    }
+}
+
+// MARK: - Helpers
+private extension GAMBannerViewController {
+    func addBannerViewToView(_ bannerView: BannerView) {
         bannerView.translatesAutoresizingMaskIntoConstraints = false
         adPlaceholder.addSubview(bannerView)
-        
+
         NSLayoutConstraint.activate([
             bannerView.centerXAnchor.constraint(equalTo: adPlaceholder.centerXAnchor),
-            bannerView.centerYAnchor.constraint(equalTo: adPlaceholder.centerYAnchor)
+            bannerView.centerYAnchor.constraint(equalTo: adPlaceholder.centerYAnchor),
         ])
+    }
+
+    func updateUILog() {
+        targetingOutput.text = [targetingLog, witnessLog, profileLog].compactMap({ $0 }).joined(separator: "\n\n")
+    }
+}
+
+// MARK: - Logging
+private extension GAMBannerViewController {
+    /// Setups observation for URLRequest/URLResponse logging
+    func startObservingNetworkLogs() {
+        networkLogObserver = NotificationCenter.default
+            .addObserver(forName: .HTTPURLLogUpdated, object: nil, queue: .main, using: { [weak self] notification in
+                if let logEntry = notification.userInfo?["data"] as? HTTPURLLogEntry,
+                   logEntry.request.url?.absoluteString.contains("/targeting") == true {
+                    self?.targetingLog = logEntry.debugDescription
+                    print(logEntry.response == nil ? logEntry.requestDebugDescription : logEntry.responseDebugDescription)
+                }
+
+                if let logEntry = notification.userInfo?["data"] as? HTTPURLLogEntry,
+                   logEntry.request.url?.absoluteString.contains("/witness") == true {
+                    self?.witnessLog = logEntry.debugDescription
+                    print(logEntry.response == nil ? logEntry.requestDebugDescription : logEntry.responseDebugDescription)
+                }
+
+                if let logEntry = notification.userInfo?["data"] as? HTTPURLLogEntry,
+                   logEntry.request.url?.absoluteString.contains("/profile") == true {
+                    self?.profileLog = logEntry.debugDescription
+                    print(logEntry.response == nil ? logEntry.requestDebugDescription : logEntry.responseDebugDescription)
+                }
+            })
+    }
+
+    func stopObservingNetworkLogs() {
+        guard let networkLogObserver else { return }
+        NotificationCenter.default.removeObserver(networkLogObserver)
     }
 }

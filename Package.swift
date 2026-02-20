@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "OptableSDK",
-    platforms: [.iOS(.v9)],
+    platforms: [.iOS(.v12)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
@@ -23,7 +23,7 @@ let package = Package(
             name: "OptableSDK",
             dependencies: [],
             path: "Source",
-            exclude: ["Source/Info.plist"]),
+            exclude: ["Info.plist"]),
         .testTarget(
             name: "OptableSDKTests",
             dependencies: ["OptableSDK"],
