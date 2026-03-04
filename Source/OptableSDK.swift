@@ -85,12 +85,13 @@ public extension OptableSDK {
 
      It is asynchronous, and on completion it will call the specified completion handler, passing
      it either the HTTPURLResponse on success, or an NSError on failure.
+
      ```swift
      // Example
-     optableSDK.identify(.init(emailAddress: "example@example.com", phoneNumber: "1234567890"), completion)
+     optableSDK.identify([.emailAddress("example@example.com"), .phoneNumber("1234567890")], completion: completion)
      ```
      */
-    func identify(_ ids: [OptableIdentifier], _ completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    func identify(_ ids: [OptableIdentifier], completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
         try _identify(ids, completion: completion)
     }
 
@@ -141,6 +142,11 @@ public extension OptableSDK {
 
      On success, this method will also cache the resulting targeting data in client storage, which can
      be access using targetingFromCache(), and cleared using targetingClearCache().
+
+     ```swift
+     // Example
+     optableSDK.targeting([.emailAddress("example@example.com"), .phoneNumber("1234567890")], completion: completion)
+     ```
      */
     func targeting(_ ids: [OptableIdentifier]? = nil, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
         try _targeting(ids: ids, completion: completion)
@@ -203,7 +209,7 @@ public extension OptableSDK {
      The witness method is asynchronous, and on completion it will call the specified completion handler,
      passing it either the HTTPURLResponse on success, or an NSError on failure.
      */
-    func witness(event: String, properties: NSDictionary, _ completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    func witness(event: String, properties: NSDictionary, completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
         try _witness(event: event, properties: properties, completion: completion)
     }
 
@@ -251,7 +257,7 @@ public extension OptableSDK {
      The specified NSDictionary 'traits' can be subsequently used for audience assembly.
      The profile method is asynchronous, and on completion it will call the specified completion handler, passing it either the HTTPURLResponse on success, or an NSError on failure.
      */
-    func profile(traits: NSDictionary, id: String? = nil, neighbors: [String]? = nil, _ completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+    func profile(traits: NSDictionary, id: String? = nil, neighbors: [String]? = nil, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
         try _profile(traits: traits, id: id, neighbors: neighbors, completion: completion)
     }
 
