@@ -29,7 +29,7 @@ class OptableIdentifiersTests: XCTestCase {
             .custom(1, "AaaZza.dh012"),
             .custom(1, "another c1"),
         ]
-        
+
         let encodedData = try JSONEncoder().encode(oids)
         let decodedData = try JSONDecoder().decode([String].self, from: encodedData)
 
@@ -55,9 +55,10 @@ class OptableIdentifiersTests: XCTestCase {
         XCTAssertTrue(decodedData.contains(where: { $0 == "c1:another c1" }))
 
         // Test order
-        let c_Idx = decodedData.firstIndex(of: "c:d29c551097b9dd0b82423827f65161232efaf7fc")!
-        let c1_Idx = decodedData.firstIndex(of: "c1:AaaZza.dh012")!
-        let c2_Idx = decodedData.firstIndex(of: "c2:")!
+
+        let c_Idx = try XCTUnwrap(decodedData.firstIndex(of: "c:d29c551097b9dd0b82423827f65161232efaf7fc"))
+        let c1_Idx = try XCTUnwrap(decodedData.firstIndex(of: "c1:AaaZza.dh012"))
+        let c2_Idx = try XCTUnwrap(decodedData.firstIndex(of: "c2:"))
 
         XCTAssert(c_Idx < c2_Idx)
         XCTAssert(c2_Idx < c1_Idx)

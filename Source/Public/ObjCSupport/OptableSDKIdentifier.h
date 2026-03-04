@@ -10,8 +10,6 @@
 
 #import <Foundation/Foundation.h>
 
-//#import <OptableSDK/OptableSDKIdentifierType.h>
-
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, OptableSDKIdentifierType) {

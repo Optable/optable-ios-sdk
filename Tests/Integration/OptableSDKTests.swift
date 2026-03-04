@@ -87,7 +87,7 @@ class OptableSDKTests: XCTestCase {
 
     func test_witness_callbacks() throws {
         let expectation = expectation(description: "witness-callback-expectation")
-        try sdk.witness(event: "test", properties: ["integration-test-witness": "integration-test-witness-value"], { result in
+        try sdk.witness(event: "test", properties: ["integration-test-witness": "integration-test-witness-value"], completion: { result in
             switch result {
             case let .success(response):
                 XCTAssert(response.allHeaderFields.keys.contains("x-optable-visitor"))
@@ -114,7 +114,7 @@ class OptableSDKTests: XCTestCase {
 
     func test_profile_callbacks() throws {
         let expectation = expectation(description: "profile-callback-expectation")
-        try sdk.profile(traits: ["integration-test-profile": "integration-test-profile-value"], { result in
+        try sdk.profile(traits: ["integration-test-profile": "integration-test-profile-value"], completion: { result in
             switch result {
             case let .success(response):
                 XCTAssert(response.targetingData.allKeys.isEmpty == false)
