@@ -203,7 +203,7 @@ public extension OptableSDK {
      The witness method is asynchronous, and on completion it will call the specified completion handler,
      passing it either the HTTPURLResponse on success, or an NSError on failure.
      */
-    func witness(event: String, properties: NSDictionary, _ completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    func witness(event: String, properties: [String: Any], _ completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
         try _witness(event: event, properties: properties, completion: completion)
     }
 
@@ -214,7 +214,7 @@ public extension OptableSDK {
      Instead of completion callbacks, function have to be awaited.
      */
     @available(iOS 13.0, *)
-    func witness(event: String, properties: NSDictionary) async throws -> HTTPURLResponse {
+    func witness(event: String, properties: [String: Any]) async throws -> HTTPURLResponse {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
                 try self._witness(event: event, properties: properties, completion: { continuation.resume(with: $0) })
@@ -231,7 +231,7 @@ public extension OptableSDK {
      Instead of completion callbacks, delegate methods are called.
      */
     @objc
-    func witness(event: String, properties: NSDictionary) throws {
+    func witness(event: String, properties: [String: Any]) throws {
         try self.witness(event: event, properties: properties) { result in
             switch result {
             case let .success(response):
@@ -251,7 +251,7 @@ public extension OptableSDK {
      The specified NSDictionary 'traits' can be subsequently used for audience assembly.
      The profile method is asynchronous, and on completion it will call the specified completion handler, passing it either the HTTPURLResponse on success, or an NSError on failure.
      */
-    func profile(traits: NSDictionary, id: String? = nil, neighbors: [String]? = nil, _ completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+    func profile(traits: [String: Any], id: String? = nil, neighbors: [String]? = nil, _ completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
         try _profile(traits: traits, id: id, neighbors: neighbors, completion: completion)
     }
 
@@ -262,7 +262,7 @@ public extension OptableSDK {
      Instead of completion callbacks, function have to be awaited.
      */
     @available(iOS 13.0, *)
-    func profile(traits: NSDictionary, id: String? = nil, neighbors: [String]? = nil) async throws -> OptableTargeting {
+    func profile(traits: [String: Any], id: String? = nil, neighbors: [String]? = nil) async throws -> OptableTargeting {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
                 try self._profile(traits: traits, id: id, neighbors: neighbors, completion: { continuation.resume(with: $0) })
@@ -279,7 +279,7 @@ public extension OptableSDK {
      Instead of completion callbacks, delegate methods are called.
      */
     @objc
-    func profile(traits: NSDictionary, id: String? = nil, neighbors: [String]? = nil) throws {
+    func profile(traits: [String: Any], id: String? = nil, neighbors: [String]? = nil) throws {
         try _profile(traits: traits, id: id, neighbors: neighbors, completion: { result in
             switch result {
             case let .success(response):
@@ -378,7 +378,7 @@ private extension OptableSDK {
         }).resume()
     }
 
-    func _witness(event: String, properties: NSDictionary, completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    func _witness(event: String, properties: [String: Any], completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
         guard let request = try api.witness(event: event, properties: properties) else {
             throw OptableError.witness("Failed to create witness request")
         }
@@ -401,7 +401,7 @@ private extension OptableSDK {
         }).resume()
     }
 
-    func _profile(traits: NSDictionary, id: String?, neighbors: [String]?, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+    func _profile(traits: [String: Any], id: String?, neighbors: [String]?, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
         guard let request = try api.profile(traits: traits, id: id, neighbors: neighbors) else {
             throw OptableError.profile("Failed to create profile request")
         }
@@ -495,8 +495,8 @@ private extension OptableSDK {
         let optableTargetingData = try JSONSerialization.jsonObject(with: responseData, options: [])
         let optableTargetingDict: NSMutableDictionary = ((optableTargetingData as? NSDictionary)?.mutableCopy() as? NSMutableDictionary) ?? NSMutableDictionary()
         let optableTargeting = OptableTargeting(
-            optableTargeting: optableTargetingDict,
-            gamTargetingKeywords: OptableSDK.generateGAMTargetingKeywords(from: optableTargetingDict),
+            optableTargeting: optableTargetingDict as? [String: Any] ?? [:],
+            gamTargetingKeywords: OptableSDK.generateGAMTargetingKeywords(from: optableTargetingDict) as? [String : Any],
             ortb2: OptableSDK.generateORTB2Config(from: optableTargetingDict)
         )
 
