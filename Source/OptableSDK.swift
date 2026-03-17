@@ -447,12 +447,10 @@ extension OptableSDK {
            ATT.advertisingIdentifier != UUID(uuid: uuid_t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) {
             let systemIDFA = ATT.advertisingIdentifier.uuidString
 
-            var idfaIdxs: [Int] = []
             var idfaMatchingSystemIdxs: [Int] = []
 
             for idx in ids.indices {
                 if case let .appleIDFA(value) = ids[idx] {
-                    idfaIdxs.append(idx)
                     if value == systemIDFA {
                         idfaMatchingSystemIdxs.append(idx)
                     }
@@ -464,9 +462,6 @@ extension OptableSDK {
 
             // Prepend all identifiers with systemIDFA
             ids.insert(.appleIDFA(systemIDFA), at: ids.startIndex)
-
-            // TODO: [high] Resolve should remove all others idfa not matching systemIDFA?
-            // ids.removeCompat(atOffsets: IndexSet(idfaIdxs).subtracting(IndexSet(idfaMatchingSystemIdxs)))
         }
     }
 

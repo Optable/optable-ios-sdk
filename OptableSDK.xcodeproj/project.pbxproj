@@ -46,8 +46,9 @@
 				Unit/EdgeAPITests.swift,
 				Unit/LocalStorageTests.swift,
 				Unit/OptableIdentifierEncoderTests.swift,
-				Unit/OptableIdentifiersEnrichTests.swift,
 				Unit/OptableIdentifiersTests.swift,
+				Unit/OptableSDKHelpersIdentifiersEnrichmentTests.swift,
+				Unit/OptableSDKHelpersTests.swift,
 			);
 			target = 6352AB0324EAD403002E66EB /* OptableSDKTests */;
 		};
