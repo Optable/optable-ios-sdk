@@ -10,66 +10,73 @@ import XCTest
 
 // MARK: - LocalStorageTests
 class LocalStorageTests: XCTestCase {
+    /*
+     NOTE:
+     Swift Dictionary<String, Any> does not conform `Equatable` because of `Any`.
+     But Swift effortlessly bridges Dictionary<String, Any> to NSDictionary and vice versa.
+     Thus casting to NSDictionary is used to perform comparsion and equality operations.
+     */
+    
     private let optableConfig = OptableConfig(tenant: "tenant", originSlug: "slug")
     private lazy var localStorage = LocalStorage(optableConfig)
-
+    
     func testOptableTargetingStoringFull() {
         let optableTargetingFull = OptableTargeting(
-            optableTargeting: kOptableTargeting,
-            gamTargetingKeywords: kGamTargetingKeywords,
+            optableTargeting: kOptableTargeting as! [String : Any],
+            gamTargetingKeywords: kGamTargetingKeywords as? [String : Any],
             ortb2: kORTB2
         )
-
+        
         localStorage.setTargeting(optableTargetingFull)
-
+        
         let readTargeting = localStorage.getTargeting()
         XCTAssert(readTargeting != nil)
-        XCTAssert(readTargeting!.targetingData == kOptableTargeting)
-        XCTAssert(readTargeting!.gamTargetingKeywords == kGamTargetingKeywords)
+        XCTAssert(readTargeting!.targetingData as NSDictionary == kOptableTargeting)
+        XCTAssert(readTargeting!.gamTargetingKeywords as? NSDictionary == kGamTargetingKeywords)
         XCTAssert(readTargeting!.ortb2 == kORTB2)
     }
-
+    
     func testOptableTargetingStoringPartial1() {
         let optableTargetingFull = OptableTargeting(
-            optableTargeting: kOptableTargeting,
+            optableTargeting: kOptableTargeting as! [String : Any],
             gamTargetingKeywords: nil,
             ortb2: kORTB2
         )
         
         localStorage.setTargeting(optableTargetingFull)
-
+        
         let readTargeting = localStorage.getTargeting()
         XCTAssert(readTargeting != nil)
-        XCTAssert(readTargeting!.targetingData == kOptableTargeting)
-        XCTAssert(readTargeting!.gamTargetingKeywords == nil)
+        XCTAssert(readTargeting!.targetingData as NSDictionary == kOptableTargeting)
+        XCTAssert(readTargeting!.gamTargetingKeywords as? NSDictionary == nil)
         XCTAssert(readTargeting!.ortb2 == kORTB2)
     }
-
+    
     func testOptableTargetingStoringPartial2() {
         let optableTargetingFull = OptableTargeting(
-            optableTargeting: kOptableTargeting,
-            gamTargetingKeywords: kGamTargetingKeywords,
+            optableTargeting: kOptableTargeting as! [String : Any],
+            gamTargetingKeywords: kGamTargetingKeywords as? [String : Any],
             ortb2: nil
         )
         
         localStorage.setTargeting(optableTargetingFull)
-
+        
         let readTargeting = localStorage.getTargeting()
         XCTAssert(readTargeting != nil)
-        XCTAssert(readTargeting!.targetingData == kOptableTargeting)
-        XCTAssert(readTargeting!.gamTargetingKeywords == kGamTargetingKeywords)
+        XCTAssert(readTargeting!.targetingData as NSDictionary == kOptableTargeting)
+        XCTAssert(readTargeting!.gamTargetingKeywords as? NSDictionary == kGamTargetingKeywords)
         XCTAssert(readTargeting!.ortb2 == nil)
     }
     
     func testClearOptableTargeting() {
         let optableTargetingFull = OptableTargeting(
-            optableTargeting: kOptableTargeting,
-            gamTargetingKeywords: kGamTargetingKeywords,
+            optableTargeting: kOptableTargeting as! [String : Any],
+            gamTargetingKeywords: kGamTargetingKeywords as? [String : Any],
             ortb2: kORTB2
         )
-
+        
         localStorage.setTargeting(optableTargetingFull)
-
+        
         localStorage.clearTargeting()
         
         XCTAssert(localStorage.getTargeting() == nil)

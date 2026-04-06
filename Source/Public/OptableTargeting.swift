@@ -9,11 +9,11 @@ import Foundation
 
 @objcMembers
 public class OptableTargeting: NSObject {
-    public let targetingData: NSDictionary
-    public let gamTargetingKeywords: NSDictionary?
+    public let targetingData: [String: Any]
+    public let gamTargetingKeywords: [String: Any]?
     public let ortb2: String?
 
-    public init(optableTargeting: NSDictionary, gamTargetingKeywords: NSDictionary? = nil, ortb2: String? = nil) {
+    public init(optableTargeting: [String: Any], gamTargetingKeywords: [String: Any]? = nil, ortb2: String? = nil) {
         self.targetingData = optableTargeting
         self.gamTargetingKeywords = gamTargetingKeywords
         self.ortb2 = ortb2

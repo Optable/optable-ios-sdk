@@ -55,7 +55,7 @@ class OptableSDKTests: XCTestCase {
     @available(iOS 13.0, *)
     func test_target_async() async throws {
         let response = try await sdk.targeting([.emailAddress("test@test.com")])
-        XCTAssert(response.targetingData.allKeys.isEmpty == false)
+        XCTAssert(response.targetingData.keys.isEmpty == false)
     }
 
     func test_target_callback() throws {
@@ -63,7 +63,7 @@ class OptableSDKTests: XCTestCase {
         try sdk.targeting([.emailAddress("test@test.com")], completion: { result in
             switch result {
             case let .success(response):
-                XCTAssert(response.targetingData.allKeys.isEmpty == false)
+                XCTAssert(response.targetingData.keys.isEmpty == false)
             case let .failure(failure):
                 XCTFail("Expected success, got error: \(failure)")
             }
@@ -109,7 +109,7 @@ class OptableSDKTests: XCTestCase {
     @available(iOS 13.0, *)
     func test_profile_async() async throws {
         let response = try await sdk.profile(traits: ["integration-test-profile": "integration-test-profile-value"])
-        XCTAssert(response.targetingData.allKeys.isEmpty == false)
+        XCTAssert(response.targetingData.keys.isEmpty == false)
     }
 
     func test_profile_callbacks() throws {
@@ -117,7 +117,7 @@ class OptableSDKTests: XCTestCase {
         try sdk.profile(traits: ["integration-test-profile": "integration-test-profile-value"], { result in
             switch result {
             case let .success(response):
-                XCTAssert(response.targetingData.allKeys.isEmpty == false)
+                XCTAssert(response.targetingData.keys.isEmpty == false)
             case let .failure(failure):
                 XCTFail("Expected success, got error: \(failure)")
             }
@@ -146,7 +146,7 @@ extension OptableSDKTests: OptableDelegate {
     }
 
     func profileOk(_ result: OptableTargeting) {
-        XCTAssert(result.targetingData.allKeys.isEmpty == false)
+        XCTAssert(result.targetingData.keys.isEmpty == false)
         profileExpectation.fulfill()
     }
 
@@ -156,7 +156,7 @@ extension OptableSDKTests: OptableDelegate {
     }
 
     func targetingOk(_ result: OptableTargeting) {
-        XCTAssert(result.targetingData.allKeys.isEmpty == false)
+        XCTAssert(result.targetingData.keys.isEmpty == false)
         targetExpectation.fulfill()
     }
 

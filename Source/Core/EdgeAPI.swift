@@ -46,7 +46,7 @@ final class EdgeAPI {
         return request
     }
 
-    func profile(traits: NSDictionary, id: String? = nil, neighbors: [String]? = nil) throws -> URLRequest? {
+    func profile(traits: [String: Any], id: String? = nil, neighbors: [String]? = nil) throws -> URLRequest? {
         guard let url = buildEdgeAPIURL(endpoint: "profile") else { return nil }
 
         var payload: [String: Any] = ["traits": traits]
@@ -75,7 +75,7 @@ final class EdgeAPI {
         return request
     }
 
-    func witness(event: String, properties: NSDictionary) throws -> URLRequest? {
+    func witness(event: String, properties: [String: Any]) throws -> URLRequest? {
         guard let url = buildEdgeAPIURL(endpoint: "witness") else { return nil }
         let request = try buildRequest(.POST, url: url, headers: resolveHeaders(), obj: ["event": event, "properties": properties])
         return request
