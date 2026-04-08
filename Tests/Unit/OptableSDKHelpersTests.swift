@@ -72,7 +72,7 @@ class OptableSDKHelpersTests: XCTestCase {
     // MARK: OptableTargeting
     func test_generateOptableTargeting_nilData_returnsEmpty() throws {
         let targeting = try OptableSDK.generateOptableTargeting(from: nil)
-        XCTAssertEqual(targeting.targetingData, [:])
+        XCTAssert(targeting.targetingData.isEmpty)
         XCTAssertNil(targeting.gamTargetingKeywords)
         XCTAssertNil(targeting.ortb2)
     }
