@@ -52,18 +52,11 @@ public class OptableSDK: NSObject {
     let config: OptableConfig
     let api: EdgeAPI
 
-    /// Initializes the SDK with the provided OptableConfig. On iOS 14+, requests tracking authorization unless skipAdvertisingIdDetection is true.
+    /// Initializes the SDK with the provided OptableConfig.
     @objc
     public init(config: OptableConfig) {
         self.config = config
         self.api = EdgeAPI(config)
-
-        // Automatically request Tracking Authorization
-        if #available(iOS 14, *) {
-            if config.skipAdvertisingIdDetection == false, ATT.canAuthorize {
-                ATT.requestATTAuthorization()
-            }
-        }
     }
 
     /// OptableSDK version
@@ -98,7 +91,7 @@ public extension OptableSDK {
      }
      ```
      */
-    func identify(_ ids: [OptableIdentifier], _ completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    func identify(_ ids: [OptableIdentifier], completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
         try _identify(ids, completion: completion)
     }
 
@@ -327,8 +320,8 @@ public extension OptableSDK {
     }
 }
 
-// MARK: - Private
-private extension OptableSDK {
+// MARK: - Internal
+extension OptableSDK {
     func _identify(_ ids: [OptableIdentifier], completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
         var ids = ids
 
@@ -360,7 +353,7 @@ private extension OptableSDK {
         var ids = ids ?? []
 
         enrichIfNeeded(ids: &ids)
-        
+
         guard let request = try api.targeting(ids: ids) else {
             throw OptableError.targeting("Failed to create targeting request")
         }
@@ -448,19 +441,29 @@ private extension OptableSDK {
             }
         }).resume()
     }
-    
-    private func enrichIfNeeded(ids: inout [OptableIdentifier]) {
+
+    func enrichIfNeeded(ids: inout [OptableIdentifier]) {
         // Enrich with Apple IDFA
         if config.skipAdvertisingIdDetection == false,
            ATT.advertisingIdentifierAvailable,
-           ATT.advertisingIdentifier != UUID(uuid: uuid_t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-           ids.contains(where: { eid in
-               if case let .appleIDFA(value) = eid, value.isEmpty == false {
-                   return true
-               }
-               return false
-           }) == false {
-            ids.append(.appleIDFA(ATT.advertisingIdentifier.uuidString))
+           ATT.advertisingIdentifier != UUID(uuid: uuid_t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) {
+            let systemIDFA = ATT.advertisingIdentifier.uuidString
+
+            var idfaMatchingSystemIdxs: [Int] = []
+
+            for idx in ids.indices {
+                if case let .appleIDFA(value) = ids[idx] {
+                    if value == systemIDFA {
+                        idfaMatchingSystemIdxs.append(idx)
+                    }
+                }
+            }
+
+            // Remove all matching systemIDFA (deduplicate)
+            ids.removeCompat(atOffsets: IndexSet(idfaMatchingSystemIdxs))
+
+            // Prepend all identifiers with systemIDFA
+            ids.insert(.appleIDFA(systemIDFA), at: ids.startIndex)
         }
     }
 

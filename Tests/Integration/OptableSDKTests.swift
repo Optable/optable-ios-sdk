@@ -76,6 +76,30 @@ class OptableSDKTests: XCTestCase {
         try sdk.targeting([OptableSDKIdentifier(type: .emailAddress, value: "test@test.com", customIdx: nil)])
         wait(for: [targetExpectation], timeout: 10)
     }
+    
+    func test_targetingFromCache_and_targetingClearCache() {
+        let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK)
+        let sdk = OptableSDK(config: config)
+
+        // Seed storage directly
+        let expected = OptableTargeting(
+            optableTargeting: ["foo": "bar"],
+            gamTargetingKeywords: ["ks": "id1,id2"],
+            ortb2: "{\"user\":{}}"
+        )
+        sdk.api.storage.setTargeting(expected)
+
+        // Read through SDK wrapper
+        let fromCache = sdk.targetingFromCache()
+        XCTAssertNotNil(fromCache)
+        XCTAssertEqual(fromCache!.targetingData as? [String: String], ["foo": "bar"])
+        XCTAssertEqual(fromCache!.gamTargetingKeywords as? [String: String], ["ks": "id1,id2"])
+        XCTAssertEqual(fromCache!.ortb2, "{\"user\":{}}")
+
+        // Clear and verify empty
+        sdk.targetingClearCache()
+        XCTAssertNil(sdk.targetingFromCache())
+    }
 
     // MARK: Witness
     @available(iOS 13.0, *)

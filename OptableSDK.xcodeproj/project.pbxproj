@@ -47,6 +47,8 @@
 				Unit/LocalStorageTests.swift,
 				Unit/OptableIdentifierEncoderTests.swift,
 				Unit/OptableIdentifiersTests.swift,
+				Unit/OptableSDKHelpersIdentifiersEnrichmentTests.swift,
+				Unit/OptableSDKHelpersTests.swift,
 			);
 			target = 6352AB0324EAD403002E66EB /* OptableSDKTests */;
 		};
@@ -382,6 +384,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

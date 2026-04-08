@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "CA98C897-F222-4E1B-9D66-8D550B33E18E",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:OptableSDK.xcodeproj",
+        "identifier" : "6352AB0324EAD403002E66EB",
+        "name" : "OptableSDKTests"
+      }
+    }
+  ],
+  "version" : 1
+}
