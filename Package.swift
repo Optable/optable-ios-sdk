@@ -23,7 +23,7 @@ let package = Package(
             name: "OptableSDK",
             dependencies: [],
             path: "Source",
-            exclude: ["Info.plist"]),
+            exclude: ["Info.plist", "Public/ObjCSupport"]),
         .testTarget(
             name: "OptableSDKTests",
             dependencies: ["OptableSDK"],
