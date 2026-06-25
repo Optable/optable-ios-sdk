@@ -116,7 +116,7 @@ public extension OptableSDK {
 // MARK: - Targeting
 public extension OptableSDK {
     /**
-     targeting(ids?, completion) calls the Optable Sandbox Targeting API and returns key-value targeting data
+     targeting(ids?, hids?, completion) calls the Optable Sandbox Targeting API and returns key-value targeting data
      for the current user/device/app. You may optionally supply identifiers to enrich the request.
 
      On completion, the handler receives:
@@ -126,8 +126,8 @@ public extension OptableSDK {
      On success, the result is cached in client storage. You can read it using targetingFromCache()
      and clear it using targetingClearCache().
      */
-    func targeting(_ ids: [OptableIdentifier]? = nil, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
-        try _targeting(ids: ids, completion: completion)
+    func targeting(_ ids: [OptableIdentifier]? = nil, _ hids: [OptableIdentifier]? = nil, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+        try _targeting(ids: ids, hids: hids, completion: completion)
     }
 
     /// targetingFromCache() returns the previously cached targeting data, if any.
@@ -149,10 +149,10 @@ public extension OptableSDK {
      Instead of completion callbacks, results are returned via async/await.
      */
     @available(iOS 13.0, *)
-    func targeting(_ ids: [OptableIdentifier]? = nil) async throws -> OptableTargeting {
+    func targeting(_ ids: [OptableIdentifier]? = nil, _ hids: [OptableIdentifier]? = nil) async throws -> OptableTargeting {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
-                try self._targeting(ids: ids, completion: { continuation.resume(with: $0) })
+                try self._targeting(ids: ids, hids: hids, completion: { continuation.resume(with: $0) })
             } catch {
                 continuation.resume(throwing: error)
             }
@@ -313,12 +313,14 @@ extension OptableSDK {
         }).resume()
     }
 
-    func _targeting(ids: [OptableIdentifier]?, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+    func _targeting(ids: [OptableIdentifier]?, hids: [OptableIdentifier]?, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
         var ids = ids ?? []
+        var hids = hids ?? []
 
         enrichIfNeeded(ids: &ids)
+        enrichIfNeeded(ids: &hids)
 
-        guard let request = try api.targeting(ids: ids) else {
+        guard let request = try api.targeting(ids: ids, hids: hids) else {
             throw OptableError.targeting("Failed to create targeting request")
         }
 

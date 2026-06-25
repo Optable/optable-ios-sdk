@@ -90,6 +90,13 @@ extension OptableIdentifier: Encodable {
     }
 }
 
+// MARK: - Equatable
+extension OptableIdentifier: Equatable {
+    public static func == (lhs: OptableIdentifier, rhs: OptableIdentifier) -> Bool {
+        lhs.extendedIdentifier == rhs.extendedIdentifier
+    }
+}
+
 // MARK: - Init with ExtendedIdentifier
 public extension OptableIdentifier {
     /// Hash-based types (`e`, `p`) resolve to their hashed cases so re-encoding does not hash twice.
@@ -129,6 +136,22 @@ public extension OptableIdentifier {
                 }
             } else {
                 return nil
+            }
+        }
+    }
+}
+
+// MARK: - HIDs
+extension Array where Element == OptableIdentifier {
+    /// https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide/resolver-specific-parameters#id5-mobile-in-app
+    var hids: [OptableIdentifier] {
+        filter {
+            switch $0 {
+            case .ipv6Address(_), .emailAddress(_), .phoneNumber(_),
+                 .appleIDFA(_), .googleGAID(_), .custom(_, _):
+                return true
+            default:
+                return false
             }
         }
     }

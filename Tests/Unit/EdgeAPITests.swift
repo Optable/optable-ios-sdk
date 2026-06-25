@@ -173,18 +173,39 @@ class EdgeAPITests: XCTestCase {
      For more info check: [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide/optable-real-time-api-endpoints/targeting)
      */
     func test_targeting_request_generation() throws {
-        let urlRequest = try sdk.api.targeting(ids: [.emailAddress("12345"), .phoneNumber("54321")])
-        
+        // `id5_signature` is a resolver-specific parameter sourced from the stored targeting data.
+        sdk.api.storage.setTargeting(OptableTargeting(optableTargeting: ["id5_signature": "id5-sig-abc123"]))
+
+        let email: OptableIdentifier = .emailAddress("12345")
+        let phone: OptableIdentifier = .phoneNumber("54321")
+        let urlRequest = try sdk.api.targeting(ids: [email, phone], hids: [email, phone])
+
         // Method
         XCTAssertEqual(urlRequest?.httpMethod, HTTPMethod.GET.rawValue)
 
         // Path
         let urlComponents = URLComponents(url: urlRequest!.url!, resolvingAgainstBaseURL: false)!
         XCTAssert(urlComponents.path.contains("targeting"))
-        
-        // Query
-        XCTAssert(urlComponents.queryItems?.contains(where: { $0.name == "id" && $0.value == "e:12345" }) != nil)
-        XCTAssert(urlComponents.queryItems?.contains(where: { $0.name == "id" && $0.value == "p:54321" }) != nil)
+
+        // Query: every identifier is emitted as an `id` param (email/phone are SHA-256 hashed)
+        XCTAssertTrue(urlComponents.queryItems?.contains(where: { $0.name == "id" && $0.value == email.extendedIdentifier }) ?? false)
+        XCTAssertTrue(urlComponents.queryItems?.contains(where: { $0.name == "id" && $0.value == phone.extendedIdentifier }) ?? false)
+
+        // HIDs: email and phone are part of the HID set, so they are also emitted as `hid` params
+        XCTAssertTrue(urlComponents.queryItems?.contains(where: { $0.name == "hid" && $0.value == email.extendedIdentifier }) ?? false)
+        XCTAssertTrue(urlComponents.queryItems?.contains(where: { $0.name == "hid" && $0.value == phone.extendedIdentifier }) ?? false)
+
+        // Resolver-specific parameters
+        XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "ua" })?.value, T.api.userAgent)
+        XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "id5_signature" })?.value, "id5-sig-abc123")
+
+        if let bundle = Bundle.main.bundleIdentifier {
+            XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "bundle" })?.value, bundle)
+        }
+
+        if let ver = Bundle.main.appVersionString {
+            XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "ver" })?.value, ver)
+        }
     }
 
     /**

@@ -63,13 +63,36 @@ final class EdgeAPI {
         return request
     }
 
-    func targeting(ids: [OptableIdentifier]) throws -> URLRequest? {
+    func targeting(ids: [OptableIdentifier], hids: [OptableIdentifier]) throws -> URLRequest? {
         guard var url = buildEdgeAPIURL(endpoint: "targeting") else { return nil }
 
-        let queryItems = ids
+        var queryItems = ids
             .map({ $0.extendedIdentifier })
             .filter({ $0.isEmpty == false })
             .compactMap({ URLQueryItem(name: "id", value: $0) })
+        
+        let hids = hids.hids
+            .compactMap({ $0.extendedIdentifier })
+            .compactMap({ URLQueryItem(name: "hid", value: $0) })
+        
+        queryItems.append(contentsOf: hids)
+
+        if let bundle = Bundle.main.bundleIdentifier {
+            queryItems.append(URLQueryItem(name: "bundle", value: bundle))
+        }
+        
+        if let ver = Bundle.main.appVersionString {
+            queryItems.append(URLQueryItem(name: "ver", value: ver))
+        }
+        
+        if let userAgent {
+            queryItems.append(URLQueryItem(name: "ua", value: userAgent))
+        }
+        
+        if let targeting = storage.getTargeting(), let id5Signature = targeting.targetingData["id5_signature"] as? String {
+            queryItems.append(URLQueryItem(name: "id5_signature", value: id5Signature))
+        }
+
         url.compatAppend(queryItems: queryItems)
 
         let request = try buildRequest(.GET, url: url, headers: resolveHeaders())
