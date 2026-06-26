@@ -61,6 +61,7 @@
     [OPTABLE targeting: @[
         [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_EmailAddress value:@"test@test.test"]
     ]
+                      :@[]
                  error:&error];
     [OPTABLE witnessWithEvent: @"GAMBannerViewController.loadBannerClicked"
                    properties: @{ @"example": @"value" }

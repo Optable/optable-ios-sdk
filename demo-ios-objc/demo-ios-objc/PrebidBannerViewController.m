@@ -70,6 +70,7 @@
     [OPTABLE targeting: @[
         [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_EmailAddress value:@"test@test.test"]
     ]
+                      :@[]
                  error:&error];
     [OPTABLE witnessWithEvent: @"PrebidBannerViewController.loadBannerClicked"
                    properties: @{ @"example": @"value" }
