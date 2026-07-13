@@ -73,7 +73,7 @@ class OptableSDKTests: XCTestCase {
     }
 
     func test_target_delegate() throws {
-        try sdk.targeting([OptableSDKIdentifier(type: .emailAddress, value: "test@test.com", customIdx: nil)], [OptableSDKIdentifier(type: .emailAddress, value: "test@test.com", customIdx: nil)])
+        try sdk.targeting([OptableSDKIdentifier(type: .emailAddress, value: "test@test.com", customIdx: nil)], hids: [OptableSDKIdentifier(type: .emailAddress, value: "test@test.com", customIdx: nil)])
         wait(for: [targetExpectation], timeout: 10)
     }
     

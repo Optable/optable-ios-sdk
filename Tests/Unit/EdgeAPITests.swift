@@ -17,6 +17,11 @@ class EdgeAPITests: XCTestCase {
     )
     lazy var sdk = OptableSDK(config: config)
 
+    override func tearDown() {
+        sdk.api.storage.clearTargeting()
+        super.tearDown()
+    }
+
     // MARK: URL-s
     /**
      Expected output:
