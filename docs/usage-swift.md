@@ -138,6 +138,24 @@ do {
 
 On success, the resulting key values are typically sent as part of a subsequent ad call. Therefore we recommend that you either call `targeting()` before each ad call, or in parallel periodically, caching the resulting key values which you then provide in ad calls.
 
+You may optionally supply identifiers to enrich the targeting request: `ids` are used to match the user, while `hids` are hint identifiers forwarded as resolver-specific `hid` parameters, used by integrations such as ID5 Mobile In-App:
+
+```swift
+let ids: [OptableIdentifier] = [
+    .emailAddress("test@test.test")
+]
+let hids: [OptableIdentifier] = [
+    .phoneNumber("+1234567890")
+]
+
+try OPTABLE!.targeting(ids, hids: hids) { result in
+    // ...
+}
+```
+
+> :information_source: For more details on `hid` parameters, including the supported identifier types, check:
+> [Optable Real-Time API Integrations Guide > Resolver Specific Parameters > ID5 Mobile In-App](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide/resolver-specific-parameters#id5-mobile-in-app)
+
 #### Caching Targeting Data
 
 The `targeting` API will automatically cache resulting key value data in client storage on success. You can subsequently retrieve the cached key value data as follows:

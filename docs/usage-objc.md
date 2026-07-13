@@ -117,9 +117,26 @@ To get the targeting key values associated by the configured DCN with the device
 @import OptableSDK;
 ...
 NSError *error = nil;
-[OPTABLE targetingWithIds: @[@"c:1"] // NULL-able
+[OPTABLE targeting: @[
+    [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_EmailAddress value:@"test@test.test"]
+]
+             error: &error];
+```
+
+You may optionally supply hint identifiers (`hids`) which are forwarded as resolver-specific `hid` parameters, used by integrations such as ID5 Mobile In-App:
+
+```objective-c
+[OPTABLE targetingWithIds: @[
+    [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_EmailAddress value:@"test@test.test"]
+]
+                     hids: @[
+    [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_PhoneNumber value:@"+1234567890"]
+]
                     error: &error];
 ```
+
+> :information_source: For more details on `hid` parameters, including the supported identifier types, check:
+> [Optable Real-Time API Integrations Guide > Resolver Specific Parameters > ID5 Mobile In-App](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide/resolver-specific-parameters#id5-mobile-in-app)
 
 #### Caching Targeting Data
 
