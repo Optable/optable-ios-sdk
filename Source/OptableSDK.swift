@@ -119,6 +119,10 @@ public extension OptableSDK {
      targeting(ids?, hids?, completion) calls the Optable Sandbox Targeting API and returns key-value targeting data
      for the current user/device/app. You may optionally supply identifiers to enrich the request.
 
+     Identifiers passed as `hids` are forwarded as resolver-specific `hid` parameters (e.g. ID5 Mobile In-App).
+     Only email address, phone number, IPv6 address, Apple IDFA, Google GAID and custom identifiers are sent;
+     custom (`cN`) prefixes must be configured on the DCN — unconfigured ones are ignored server-side.
+
      On completion, the handler receives:
      - .success(OptableTargeting) on success
      - .failure(Error) on failure
