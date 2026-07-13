@@ -117,15 +117,24 @@ public extension OptableSDK {
 public extension OptableSDK {
     /**
      targeting(ids?, hids?, completion) calls the Optable Sandbox Targeting API and returns key-value targeting data
-     for the current user/device/app. You may optionally supply identifiers to enrich the request.
+     for the current user/device/app.
 
-     Identifiers passed as `hids` are forwarded as resolver-specific `hid` parameters (e.g. ID5 Mobile In-App).
-     Only email address, phone number, IPv6 address, Apple IDFA, Google GAID and custom identifiers are sent;
-     custom (`cN`) prefixes must be configured on the DCN — unconfigured ones are ignored server-side.
+     - Parameters:
+        - ids: one or more identifiers to resolve, sent as repeated `id` query parameters. The DCN evaluates them
+          in the order they are listed and returns the profile of the first successful match (querying the
+          first-party graph before any third-party graphs). When provided, they take precedence over any
+          identifier in the passport.
+        - hids: hint identifiers, sent as `hid` query parameters in addition to `ids`. Hints drive resolver-specific
+          identity resolution on the DCN, such as ID5 Mobile In-App. Only the identifier types valid as hints are
+          forwarded: email address, phone number, IPv6 address, Apple IDFA, Google GAID and custom IDs — any other
+          type in `hids` is dropped client-side. Custom (`cN`) prefixes must be configured on the DCN; unconfigured
+          ones are ignored server-side.
+        - completion: on completion, the handler receives:
+           - .success(OptableTargeting) on success
+           - .failure(Error) on failure
 
-     On completion, the handler receives:
-     - .success(OptableTargeting) on success
-     - .failure(Error) on failure
+     Unless `skipAdvertisingIdDetection` is set in the config, the device IDFA is automatically prepended to both
+     lists when ad tracking is authorized.
 
      On success, the result is cached in client storage. You can read it using targetingFromCache()
      and clear it using targetingClearCache().
@@ -148,7 +157,10 @@ public extension OptableSDK {
 
     // MARK: Async/Await support
     /**
-     This is the Swift Concurrency compatible version of the `targeting(completion)` API.
+     This is the Swift Concurrency compatible version of the `targeting(ids, hids, completion)` API:
+     `ids` match the user/device against the DCN, while `hids` are hint identifiers driving resolver-specific
+     identity resolution such as ID5 Mobile In-App — see `targeting(_:hids:completion:)` for details on which
+     identifier types are valid hints.
 
      Instead of completion callbacks, results are returned via async/await.
      */
