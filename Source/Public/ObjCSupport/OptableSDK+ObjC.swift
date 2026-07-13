@@ -30,15 +30,25 @@ public extension OptableSDK {
     }
     
     /**
-     This is the Objective-C compatible version of the `targeting(ids, hids, completion)` API.
+     This is the Objective-C compatible version of the `targeting(ids, completion)` API.
 
      Instead of completion callbacks, delegate methods are called.
      */
     @objc
-    func targeting(_ ids: [OptableSDKIdentifier], _ hids: [OptableSDKIdentifier]) throws {
+    func targeting(_ ids: [OptableSDKIdentifier]) throws {
+        try targeting(ids, hids: [])
+    }
+
+    /**
+     This is the Objective-C compatible version of the `targeting(ids, hids, completion)` API.
+
+     Instead of completion callbacks, delegate methods are called.
+     */
+    @objc(targetingWithIds:hids:error:)
+    func targeting(_ ids: [OptableSDKIdentifier], hids: [OptableSDKIdentifier]) throws {
         let bridgedIds = ids.compactMap({ OptableIdentifier(objc: $0) })
         let bridgedHIds = hids.compactMap({ OptableIdentifier(objc: $0) })
-        
+
         try self._targeting(ids: bridgedIds, hids: bridgedHIds, completion: { result in
             switch result {
             case let .success(optableTargeting):
