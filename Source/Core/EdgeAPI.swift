@@ -71,11 +71,11 @@ final class EdgeAPI {
             .filter({ $0.isEmpty == false })
             .compactMap({ URLQueryItem(name: "id", value: $0) })
         
-        let hids = hids.hids
+        let hidQueryItems = hids.hids
             .compactMap({ $0.extendedIdentifier })
             .compactMap({ URLQueryItem(name: "hid", value: $0) })
-        
-        queryItems.append(contentsOf: hids)
+
+        queryItems.append(contentsOf: hidQueryItems)
 
         if let bundle = Bundle.main.bundleIdentifier {
             queryItems.append(URLQueryItem(name: "bundle", value: bundle))
