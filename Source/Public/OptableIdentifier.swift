@@ -90,13 +90,6 @@ extension OptableIdentifier: Encodable {
     }
 }
 
-// MARK: - Equatable
-extension OptableIdentifier: Equatable {
-    public static func == (lhs: OptableIdentifier, rhs: OptableIdentifier) -> Bool {
-        lhs.extendedIdentifier == rhs.extendedIdentifier
-    }
-}
-
 // MARK: - Init with ExtendedIdentifier
 public extension OptableIdentifier {
     /// Hash-based types (`e`, `p`) resolve to their hashed cases so re-encoding does not hash twice.
