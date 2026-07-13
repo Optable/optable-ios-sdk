@@ -130,7 +130,7 @@ public extension OptableSDK {
      On success, the result is cached in client storage. You can read it using targetingFromCache()
      and clear it using targetingClearCache().
      */
-    func targeting(_ ids: [OptableIdentifier]? = nil, _ hids: [OptableIdentifier]? = nil, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+    func targeting(_ ids: [OptableIdentifier]? = nil, hids: [OptableIdentifier]? = nil, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
         try _targeting(ids: ids, hids: hids, completion: completion)
     }
 
@@ -153,7 +153,7 @@ public extension OptableSDK {
      Instead of completion callbacks, results are returned via async/await.
      */
     @available(iOS 13.0, *)
-    func targeting(_ ids: [OptableIdentifier]? = nil, _ hids: [OptableIdentifier]? = nil) async throws -> OptableTargeting {
+    func targeting(_ ids: [OptableIdentifier]? = nil, hids: [OptableIdentifier]? = nil) async throws -> OptableTargeting {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
                 try self._targeting(ids: ids, hids: hids, completion: { continuation.resume(with: $0) })
