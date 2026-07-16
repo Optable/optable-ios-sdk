@@ -68,6 +68,14 @@ class LocalStorageTests: XCTestCase {
         XCTAssert(readTargeting!.ortb2 == nil)
     }
     
+    func testID5SignatureStoring() {
+        localStorage.setID5Signature("id5-sig-abc123")
+        XCTAssertEqual(localStorage.getID5Signature(), "id5-sig-abc123")
+
+        localStorage.clearTargeting()
+        XCTAssertNil(localStorage.getID5Signature())
+    }
+
     func testClearOptableTargeting() {
         let optableTargetingFull = OptableTargeting(
             optableTargeting: kOptableTargeting as! [String : Any],

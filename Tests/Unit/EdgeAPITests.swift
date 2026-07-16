@@ -178,8 +178,10 @@ class EdgeAPITests: XCTestCase {
      For more info check: [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide/optable-real-time-api-endpoints/targeting)
      */
     func test_targeting_request_generation() throws {
-        // `id5_signature` is a resolver-specific parameter sourced from the stored targeting data.
-        sdk.api.storage.setTargeting(OptableTargeting(optableTargeting: ["id5_signature": "id5-sig-abc123"]))
+        // `id5_signature` is a resolver-specific parameter cached in storage from the latest targeting response,
+        // and only sent alongside a cached targeting result:
+        sdk.api.storage.setTargeting(OptableTargeting(optableTargeting: ["resolved_ids": ["v:123"]]))
+        sdk.api.storage.setID5Signature("id5-sig-abc123")
 
         let email: OptableIdentifier = .emailAddress("12345")
         let phone: OptableIdentifier = .phoneNumber("54321")
@@ -211,6 +213,26 @@ class EdgeAPITests: XCTestCase {
         if let ver = Bundle.main.appVersionString {
             XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "ver" })?.value, ver)
         }
+    }
+
+    func test_targeting_request_omits_id5_signature_when_no_stored_targeting() throws {
+        // A cached signature alone is not enough — it is only sent alongside a cached targeting result:
+        sdk.api.storage.clearTargeting()
+        sdk.api.storage.setID5Signature("id5-sig-abc123")
+
+        let urlRequest = try sdk.api.targeting(ids: [.emailAddress("12345")], hids: [])
+        let urlComponents = URLComponents(url: urlRequest!.url!, resolvingAgainstBaseURL: false)!
+
+        XCTAssertNil(urlComponents.queryItems?.first(where: { $0.name == "id5_signature" }))
+    }
+
+    func test_targeting_request_omits_id5_signature_when_no_cached_signature() throws {
+        sdk.api.storage.setTargeting(OptableTargeting(optableTargeting: ["resolved_ids": ["v:123"]]))
+
+        let urlRequest = try sdk.api.targeting(ids: [.emailAddress("12345")], hids: [])
+        let urlComponents = URLComponents(url: urlRequest!.url!, resolvingAgainstBaseURL: false)!
+
+        XCTAssertNil(urlComponents.queryItems?.first(where: { $0.name == "id5_signature" }))
     }
 
     /**
