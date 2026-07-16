@@ -89,7 +89,7 @@ final class EdgeAPI {
             queryItems.append(URLQueryItem(name: "ua", value: userAgent))
         }
         
-        if let targeting = storage.getTargeting(), let id5Signature = targeting.targetingData["id5_signature"] as? String {
+        if let targeting = storage.getTargeting(), let id5Signature = targeting.id5Signature {
             queryItems.append(URLQueryItem(name: "id5_signature", value: id5Signature))
         }
 

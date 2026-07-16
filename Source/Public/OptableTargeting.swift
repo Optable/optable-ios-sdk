@@ -32,3 +32,43 @@ public class OptableTargeting: NSObject {
         return desc
     }
 }
+
+// MARK: - Helpers
+
+extension OptableTargeting {
+    
+    var id5Signature: String? {
+        guard let ortb2 = targetingData["ortb2"] as? [String: Any],
+              let user = ortb2["user"] as? [String: Any],
+              let eids = user["eids"] as? [[String: Any]] else {
+            return nil
+        }
+        
+        guard let rootRefs = targetingData["refs"] as? [String: Any] else { return nil }
+        
+        for eid in eids {
+            guard let source = eid["source"] as? String, source.range(of: "id5", options: [.caseInsensitive]) != nil else {
+                continue
+            }
+            
+            guard let uids = eid["uids"] as? [[String: Any]] else { continue }
+            
+            for uid in uids {
+                guard let ext = uid["ext"] as? [String: Any],
+                      let optable = ext["optable"] as? [String: Any],
+                      let uidRef = optable["ref"] as? String else {
+                    continue
+                }
+                
+                guard let ref = rootRefs[uidRef] as? [String: Any] else { continue }
+                
+                if let id5Signature = ref["signature"] as? String,
+                   id5Signature.trimmingCharacters(in: .whitespaces).isEmpty == false {
+                    return id5Signature
+                }
+            }
+        }
+
+        return nil
+    }
+}
