@@ -15,6 +15,7 @@ final class LocalStorage: NSObject {
     private let targetingDataKey: String
     private let gamTargetingKeywordsKey: String
     private let ortb2Key: String
+    private let id5SignatureKey: String
 
     let keyPfx: String = "OPTABLE"
     var passportKey: String
@@ -33,6 +34,7 @@ final class LocalStorage: NSObject {
         self.targetingDataKey = targetingKey + "_targetingData"
         self.gamTargetingKeywordsKey = targetingKey + "_gamTargetingKeywords"
         self.ortb2Key = targetingKey + "_ortb2"
+        self.id5SignatureKey = targetingKey + "_id5Signature"
     }
 
     func getPassport() -> String? {
@@ -68,5 +70,14 @@ final class LocalStorage: NSObject {
         UserDefaults.standard.removeObject(forKey: targetingDataKey)
         UserDefaults.standard.removeObject(forKey: gamTargetingKeywordsKey)
         UserDefaults.standard.removeObject(forKey: ortb2Key)
+        UserDefaults.standard.removeObject(forKey: id5SignatureKey)
+    }
+    
+    func getID5Signature() -> String? {
+        return UserDefaults.standard.string(forKey: id5SignatureKey)
+    }
+    
+    func setID5Signature(_ signature: String) {
+        UserDefaults.standard.set(signature, forKey: id5SignatureKey)
     }
 }
