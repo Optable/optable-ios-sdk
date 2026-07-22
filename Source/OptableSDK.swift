@@ -125,10 +125,9 @@ public extension OptableSDK {
           first-party graph before any third-party graphs). When provided, they take precedence over any
           identifier in the passport.
         - hids: hint identifiers, sent as `hid` query parameters in addition to `ids`. Hints drive resolver-specific
-          identity resolution on the DCN, such as ID5 Mobile In-App. Only the identifier types valid as hints are
-          forwarded: email address, phone number, IPv6 address, Apple IDFA, Google GAID and custom IDs — any other
-          type in `hids` is dropped client-side. Custom (`cN`) prefixes must be configured on the DCN; unconfigured
-          ones are ignored server-side.
+          identity resolution on the DCN, such as ID5 Mobile In-App. All identifier types are forwarded as-is;
+          which ones a resolver consumes is determined server-side. Custom (`cN`) prefixes must be configured on
+          the DCN; unconfigured ones are ignored server-side.
         - completion: on completion, the handler receives:
            - .success(OptableTargeting) on success
            - .failure(Error) on failure
@@ -159,8 +158,7 @@ public extension OptableSDK {
     /**
      This is the Swift Concurrency compatible version of the `targeting(ids, hids, completion)` API:
      `ids` match the user/device against the DCN, while `hids` are hint identifiers driving resolver-specific
-     identity resolution such as ID5 Mobile In-App — see `targeting(_:hids:completion:)` for details on which
-     identifier types are valid hints.
+     identity resolution such as ID5 Mobile In-App - see `targeting(_:hids:completion:)` for details.
 
      Instead of completion callbacks, results are returned via async/await.
      */

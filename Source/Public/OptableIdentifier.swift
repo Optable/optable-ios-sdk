@@ -133,22 +133,3 @@ public extension OptableIdentifier {
         }
     }
 }
-
-// MARK: - HIDs
-extension Array where Element == OptableIdentifier {
-    /// https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide/resolver-specific-parameters#id5-mobile-in-app
-    ///
-    /// Note: all `.custom` identifiers are passed through, but only the custom (`cN`) prefixes
-    /// configured on the DCN are valid resolver hints — unconfigured ones are ignored server-side.
-    var hids: [OptableIdentifier] {
-        filter {
-            switch $0 {
-            case .ipv6Address(_), .emailAddress(_), .phoneNumber(_),
-                 .appleIDFA(_), .googleGAID(_), .custom(_, _):
-                return true
-            default:
-                return false
-            }
-        }
-    }
-}

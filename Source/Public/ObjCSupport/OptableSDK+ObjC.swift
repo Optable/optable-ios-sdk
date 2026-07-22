@@ -42,9 +42,9 @@ public extension OptableSDK {
     /**
      This is the Objective-C compatible version of the `targeting(ids, hids, completion)` API:
      `ids` match the user/device against the DCN, while `hids` are hint identifiers driving resolver-specific
-     identity resolution such as ID5 Mobile In-App. Only email address, phone number, IPv6 address, Apple IDFA,
-     Google GAID and custom identifiers are valid hints — any other type in `hids` is dropped client-side, and
-     custom (`cN`) prefixes not configured on the DCN are ignored server-side.
+     identity resolution such as ID5 Mobile In-App. All identifier types are forwarded as-is; which ones a
+     resolver consumes is determined server-side. Custom (`cN`) prefixes not configured on the DCN are
+     ignored server-side.
 
      Instead of completion callbacks, delegate methods are called.
      */
