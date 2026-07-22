@@ -182,7 +182,8 @@ class EdgeAPITests: XCTestCase {
 
         let email: OptableIdentifier = .emailAddress("12345")
         let phone: OptableIdentifier = .phoneNumber("54321")
-        let urlRequest = try sdk.api.targeting(ids: [email, phone], hids: [email, phone])
+        let utiq: OptableIdentifier = .utiq("496f5db5-681f-4392-acd5-0d4f6e2f6b88")
+        let urlRequest = try sdk.api.targeting(ids: [email, phone], hids: [email, phone, utiq])
 
         // Method
         XCTAssertEqual(urlRequest?.httpMethod, HTTPMethod.GET.rawValue)
@@ -195,9 +196,10 @@ class EdgeAPITests: XCTestCase {
         XCTAssertTrue(urlComponents.queryItems?.contains(where: { $0.name == "id" && $0.value == email.extendedIdentifier }) ?? false)
         XCTAssertTrue(urlComponents.queryItems?.contains(where: { $0.name == "id" && $0.value == phone.extendedIdentifier }) ?? false)
 
-        // HIDs: email and phone are part of the HID set, so they are also emitted as `hid` params
+        // HIDs: every identifier passed as a hint is emitted as a repeated `hid` param, regardless of type
         XCTAssertTrue(urlComponents.queryItems?.contains(where: { $0.name == "hid" && $0.value == email.extendedIdentifier }) ?? false)
         XCTAssertTrue(urlComponents.queryItems?.contains(where: { $0.name == "hid" && $0.value == phone.extendedIdentifier }) ?? false)
+        XCTAssertTrue(urlComponents.queryItems?.contains(where: { $0.name == "hid" && $0.value == utiq.extendedIdentifier }) ?? false)
 
         // Resolver-specific parameters
         XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "ua" })?.value, T.api.userAgent)
@@ -210,6 +212,22 @@ class EdgeAPITests: XCTestCase {
         if let ver = Bundle.main.appVersionString {
             XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "ver" })?.value, ver)
         }
+    }
+
+    func test_targeting_request_percent_encodes_plus_in_query_values() throws {
+        // The edge decodes a literal `+` in the query as a space, which would corrupt
+        // base64 values such as the ID5 signature; it must go out as %2B on the wire.
+        sdk.api.storage.setID5Signature("sig+abc/123=")
+
+        let urlRequest = try sdk.api.targeting(ids: [], hids: [])
+        let rawQuery = try XCTUnwrap(urlRequest?.url?.query)
+
+        XCTAssertFalse(rawQuery.contains("+"))
+        XCTAssertTrue(rawQuery.contains("id5_signature=sig%2Babc/123"))
+
+        // The decoded value round-trips unchanged
+        let urlComponents = URLComponents(url: urlRequest!.url!, resolvingAgainstBaseURL: false)!
+        XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "id5_signature" })?.value, "sig+abc/123=")
     }
 
     func test_targeting_request_omits_id5_signature_when_no_cached_signature() throws {
