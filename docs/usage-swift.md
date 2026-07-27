@@ -188,6 +188,19 @@ OPTABLE!.targetingClearCache()
 
 Note that both `targetingFromCache()` and `targetingClearCache()` are synchronous.
 
+##### Cache Expiry
+
+Cached targeting data expires 24 hours after it was fetched. Once an entry has expired, `targetingFromCache()` reports it as absent by returning `nil`, and clears it from client storage. Call `targeting()` again to refresh it.
+
+You can change the lifetime with the optional `cacheTTL` parameter, expressed in seconds:
+
+```swift
+let config = OptableConfig(..., cacheTTL: 60 * 60) // expire cached targeting data after one hour
+OPTABLE = OptableSDK(config: config)
+```
+
+The default is `OptableConfig.defaultCacheTTL`, which is 24 hours. Setting `cacheTTL` to `0` effectively disables the cache, since every entry is then already expired by the time it is read.
+
 ### Witness API
 
 > :information_source: For more info check:

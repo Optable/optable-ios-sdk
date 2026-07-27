@@ -45,6 +45,7 @@
 				Misc/Constants.swift,
 				Unit/EdgeAPITests.swift,
 				Unit/LocalStorageTests.swift,
+				Unit/OptableConfigTests.swift,
 				Unit/OptableIdentifierEncoderTests.swift,
 				Unit/OptableIdentifiersTests.swift,
 				Unit/OptableSDKHelpersIdentifiersEnrichmentTests.swift,

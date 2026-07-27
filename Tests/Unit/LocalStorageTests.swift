@@ -97,6 +97,105 @@ class LocalStorageTests: XCTestCase {
         
         XCTAssert(localStorage.getTargeting() == nil)
     }
+    
+    // MARK: - Cache TTL
+    func testTargetingIsReturnedWithinTTL() {
+        let storage = makeStorageWithStoredTargeting(cacheTTL: 60)
+
+        setStoredAge(storage, to: 30)
+
+        XCTAssertNotNil(storage.getTargeting())
+    }
+
+    func testTargetingIsNilPastTTL() {
+        let storage = makeStorageWithStoredTargeting(cacheTTL: 60)
+
+        setStoredAge(storage, to: 61)
+
+        XCTAssertNil(storage.getTargeting())
+    }
+
+    func testExpiredTargetingIsClearedFromStorage() {
+        let storage = makeStorageWithStoredTargeting(cacheTTL: 60)
+
+        setStoredAge(storage, to: 61)
+        XCTAssertNil(storage.getTargeting())
+
+        setStoredAge(storage, to: 0)
+        XCTAssertNil(storage.getTargeting())
+    }
+
+    func testTargetingWithoutStoredTimestampIsTreatedAsExpired() {
+        let storage = makeStorageWithStoredTargeting(cacheTTL: 60)
+
+        UserDefaults.standard.removeObject(forKey: storage.targetingStoredAtKey)
+
+        XCTAssertNil(storage.getTargeting())
+    }
+
+    func testTargetingIsNilWhenStoredInTheFuture() {
+        let storage = makeStorageWithStoredTargeting(cacheTTL: 60)
+
+        setStoredAge(storage, to: -30)
+
+        XCTAssertNil(storage.getTargeting())
+    }
+
+    func testDefaultTTLKeepsTargetingFreshJustUnderTwentyFourHours() {
+        let storage = makeStorageWithStoredTargeting(cacheTTL: nil)
+
+        setStoredAge(storage, to: 24 * 60 * 60 - 60)
+
+        XCTAssertNotNil(storage.getTargeting())
+    }
+
+    func testDefaultTTLExpiresTargetingPastTwentyFourHours() {
+        let storage = makeStorageWithStoredTargeting(cacheTTL: nil)
+
+        setStoredAge(storage, to: 24 * 60 * 60 + 60)
+
+        XCTAssertNil(storage.getTargeting())
+    }
+
+    // MARK: Helpers
+    /**
+     Builds a LocalStorage with targeting already stored in it.
+
+     Each call uses a unique tenant so that tests never share UserDefaults keys.
+     Passing a nil `cacheTTL` leaves the config default in place.
+     */
+    private func makeStorageWithStoredTargeting(
+        cacheTTL: TimeInterval?,
+        function: String = #function
+    ) -> LocalStorage {
+        let config = OptableConfig(tenant: "tenant-\(function)", originSlug: "slug")
+        if let cacheTTL {
+            config.cacheTTL = cacheTTL
+        }
+
+        let storage = LocalStorage(config)
+        storage.setTargeting(
+            OptableTargeting(
+                optableTargeting: kOptableTargeting as! [String: Any],
+                gamTargetingKeywords: kGamTargetingKeywords as? [String: Any],
+                ortb2: kORTB2
+            )
+        )
+
+        return storage
+    }
+
+    /**
+     Backdates the stored entry so that it reads as `age` seconds old, standing in for the passage of time.
+
+     A negative age places the timestamp in the future.
+     */
+    private func setStoredAge(_ storage: LocalStorage, to age: TimeInterval) {
+        UserDefaults.standard.setValue(
+            Date().timeIntervalSince1970 - age,
+            forKey: storage.targetingStoredAtKey
+        )
+    }
 }
 
 private let kOptableTargeting: NSDictionary = [
