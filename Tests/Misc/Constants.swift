@@ -47,7 +47,9 @@ enum T {
         }
         
         static let userAgent: String = "ios-integration-tests"
-        
+
+        static let origin: String = "https://ios-integration-tests.optable.co"
+
         static let apiKey: String = "test-api-key"
         static let apiKeyBearer: String = "Bearer \(apiKey)"
     }

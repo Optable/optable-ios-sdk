@@ -178,6 +178,10 @@ extension EdgeAPI {
             headers[.userAgent] = userAgent
         }
 
+        if let origin = config.origin {
+            headers[.origin] = origin
+        }
+
         if let apiKey = config.apiKey {
             headers[.authorization] = "Bearer \(apiKey)"
         }

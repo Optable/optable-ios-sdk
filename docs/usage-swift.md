@@ -51,6 +51,13 @@ OPTABLE = OptableSDK(config: config)
 
 The default value of `nil` for the `customUserAgent` parameter enables the `WKWebView` auto-detection behavior.
 
+By default the SDK does not send an `Origin` HTTP header. If your DCN expects one, you can set the optional `origin` parameter, and its value will be sent as the `Origin` header on every Optable API request (`identify`, `targeting`, `profile`, `witness`):
+
+```swift
+let config = OptableConfig(..., origin: "https://dcn.customer.com")
+OPTABLE = OptableSDK(config: config)
+```
+
 ### Identify API
 
 To associate a user device with an authenticated identifier such as an Email address, or with other known IDs such as the Apple ID for Advertising (IDFA), or even your own vendor or app level `PPID`, you can call the `identify` API as follows:

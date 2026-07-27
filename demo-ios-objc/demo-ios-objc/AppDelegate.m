@@ -31,7 +31,8 @@ OptableSDK *OPTABLE = nil;
     
     OptableConfig *config = [[OptableConfig alloc] initWithTenant: @"prebidtest" originSlug: @"ios-sdk"];
     config.host = @"na.cloud.optable.co";
-    
+    config.origin = @"https://demo-ios-objc.optable.co";
+
     OPTABLE = [[OptableSDK alloc] initWithConfig: config];
     OPTABLE.delegate = delegate;
     
