@@ -185,6 +185,24 @@ class EdgeAPITests: XCTestCase {
     }
 
     /**
+     A blank `origin` (empty or whitespace-only) is suppressed rather than sent as an empty `Origin` header,
+     matching the Android SDK behavior.
+     */
+    func test_header_generation_origin_is_not_blank() throws {
+        let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK)
+        let edgeAPI = EdgeAPI(config)
+
+        config.origin = ""
+        XCTAssertNil(edgeAPI.resolveHeaders().asDict["Origin"])
+
+        config.origin = "   "
+        XCTAssertNil(edgeAPI.resolveHeaders().asDict["Origin"])
+
+        config.origin = T.api.origin
+        XCTAssertEqual(edgeAPI.resolveHeaders().asDict["Origin"], T.api.origin)
+    }
+
+    /**
      The `Origin` header is unrelated to `originSlug`, which is sent as the `o` query parameter.
      */
     func test_origin_does_not_affect_url_generation() throws {

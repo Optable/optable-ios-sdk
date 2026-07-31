@@ -178,7 +178,7 @@ extension EdgeAPI {
             headers[.userAgent] = userAgent
         }
 
-        if let origin = config.origin {
+        if let origin = config.origin, origin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
             headers[.origin] = origin
         }
 
