@@ -73,10 +73,10 @@ final class LocalStorage: NSObject {
         // Decompose object explicitly
         // Because Codable/NSSecureCoding does not support heterogeneous containers such as NSDictionary([String: Any])
         // However UserDefaults does support
+        UserDefaults.standard.setValue(Date().timeIntervalSince1970, forKey: targetingStoredAtKey)
         UserDefaults.standard.setValue(targeting.targetingData, forKey: targetingDataKey)
         UserDefaults.standard.setValue(targeting.gamTargetingKeywords, forKey: gamTargetingKeywordsKey)
         UserDefaults.standard.setValue(targeting.ortb2, forKey: ortb2Key)
-        UserDefaults.standard.setValue(Date().timeIntervalSince1970, forKey: targetingStoredAtKey)
     }
 
     func clearTargeting() {
