@@ -104,6 +104,6 @@ final class LocalStorage: NSObject {
         
         let age = Date().timeIntervalSince1970 - storedAt
         
-        return age >= 0 && age <= config.cacheTTL
+        return age >= 0 && age < config.cacheTTL
     }
 }

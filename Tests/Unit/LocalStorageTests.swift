@@ -115,6 +115,22 @@ class LocalStorageTests: XCTestCase {
         XCTAssertNil(storage.getTargeting())
     }
 
+    func testTargetingExpiresAtExactlyTTL() {
+        let storage = makeStorageWithStoredTargeting(cacheTTL: 60)
+
+        setStoredAge(storage, to: 60)
+
+        XCTAssertNil(storage.getTargeting())
+    }
+
+    func testZeroTTLDisablesCaching() {
+        let storage = makeStorageWithStoredTargeting(cacheTTL: 0)
+
+        setStoredAge(storage, to: 0)
+
+        XCTAssertNil(storage.getTargeting())
+    }
+
     func testExpiredTargetingIsClearedFromStorage() {
         let storage = makeStorageWithStoredTargeting(cacheTTL: 60)
 
