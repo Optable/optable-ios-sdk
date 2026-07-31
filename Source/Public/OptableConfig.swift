@@ -40,8 +40,9 @@ public class OptableConfig: NSObject {
     @objc
     public var customUserAgent: String?
 
-    /// An optional value sent as the `Origin` HTTP header on every Optable API request.
-    /// When `nil` (the default), no `Origin` header is sent.
+    /// An optional value sent as the `Origin` HTTP header on every Optable API request,
+    /// identifying the origin you want your mobile traffic attributed to. E.g. `https://www.acmeco.com`.
+    /// When `nil` (the default), no `Origin` header is sent. Unrelated to `originSlug`.
     @objc
     public var origin: String?
 
@@ -108,7 +109,7 @@ public class OptableConfig: NSObject {
      - insecure: Boolean flag that determines if insecure HTTP should be used instead of HTTPS. Default is false.
      - apiKey: An optional API key for authentication. If the API Endpoint is enabled as private, a Service Account API key will be required.
      - customUserAgent: An optional custom user agent string for network requests.
-     - origin: An optional value sent as the `Origin` HTTP header on every Optable API request. No header is sent when nil.
+     - origin: An optional value sent as the `Origin` HTTP header on every Optable API request, identifying the origin you want your mobile traffic attributed to. E.g. `https://www.acmeco.com`. No header is sent when nil. Unrelated to `originSlug`.
      - skipAdvertisingIdDetection: Boolean flag to skip the detection of advertising IDs. Default is false.
      */
     public init(
