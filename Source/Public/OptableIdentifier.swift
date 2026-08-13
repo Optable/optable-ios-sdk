@@ -43,6 +43,10 @@ public enum OptableIdentifier {
     // Optable VID
     case optableVID(String) // v
 
+    /// Pre-encoded EID sent as-is, e.g. a hashed Email `"e:<sha256>"`.
+    /// No encoding is applied, so never pass a plaintext value here.
+    case raw(String)
+
     public var prefix: String {
         switch self {
         case .emailAddress: return "e"
@@ -61,6 +65,9 @@ public enum OptableIdentifier {
         case .custom(nil, _): return "c"
         case let .custom(n?, _): return abs(n) == 0 ? "c" : "c\(abs(n))"
         case .optableVID: return "v"
+        case let .raw(value):
+            guard let separator = value.firstIndex(of: ":") else { return "" }
+            return String(value[value.startIndex ..< separator])
         }
     }
 
@@ -86,6 +93,7 @@ extension OptableIdentifier: Encodable {
 
 // MARK: - Init with ExtendedIdentifier
 public extension OptableIdentifier {
+    /// Hash-based types (`e`, `p`) resolve to `.raw` so re-encoding does not hash twice.
     init?(extendedIdentifier: String) {
         let parts = extendedIdentifier.split(separator: ":", maxSplits: 1).map(String.init)
         guard parts.count == 2 else { return nil }
@@ -94,8 +102,7 @@ public extension OptableIdentifier {
         let value = parts[1]
 
         switch prefix {
-        case "e": self = .emailAddress(value)
-        case "p": self = .phoneNumber(value)
+        case "e", "p": self = .raw(extendedIdentifier)
         case "z": self = .postalCode(value)
         case "i4": self = .ipv4Address(value)
         case "i6": self = .ipv6Address(value)

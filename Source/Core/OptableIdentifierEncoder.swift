@@ -31,8 +31,14 @@ enum OptableIdentifierEncoder {
         case let .utiq(value): utiq(prefix, value)
         case let .custom(idx, value): custom(prefix, idx: idx ?? 0, value)
         case let .optableVID(value): vid(prefix, value)
+        case let .raw(value): raw(value)
         }
         return eid
+    }
+
+    /// Passes through an already type-prefixed Extended Identifier without re-encoding it.
+    static func raw(_ eid: String) -> String {
+        return eid.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     }
 
     /// Builds Extended Identifier from Email address

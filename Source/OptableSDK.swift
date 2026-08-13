@@ -276,9 +276,10 @@ public extension OptableSDK {
     func tryIdentifyFromURL(_ urlString: String) throws {
         let eidStr = OptableIdentifierEncoder.eidFromURL(urlString)
 
-        guard let eid = OptableIdentifier(extendedIdentifier: eidStr) else { return }
+        guard eidStr.isEmpty == false else { return }
 
-        try self._identify([eid], completion: { _ in /* no-op */ })
+        // The oeid is already a SHA256 of the Email, so it must not be hashed again.
+        try self._identify([.raw(eidStr)], completion: { _ in /* no-op */ })
     }
 }
 

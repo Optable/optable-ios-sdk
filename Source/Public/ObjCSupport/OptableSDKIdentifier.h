@@ -31,8 +31,11 @@ typedef NS_ENUM(NSInteger, OptableSDKIdentifierType) {
     OptableSDKIdentifierType_UTIQ,
 
     OptableSDKIdentifierType_Custom,
-    
-    OptableSDKIdentifierType_OptableVID
+
+    OptableSDKIdentifierType_OptableVID,
+
+    /// Pre-encoded EID sent as-is, e.g. a hashed Email "e:<sha256>".
+    OptableSDKIdentifierType_Raw
 };
 
 @interface OptableSDKIdentifier : NSObject

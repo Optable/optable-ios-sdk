@@ -24,6 +24,7 @@ public extension OptableIdentifier {
         case .ID5: swiftType = .id5(identifier.value)
         case .UTIQ: swiftType = .utiq(identifier.value)
         case .optableVID: swiftType = .optableVID(identifier.value)
+        case .raw: swiftType = .raw(identifier.value)
         case .custom:
             swiftType = .custom(identifier.customIdx?.intValue, identifier.value)
         @unknown default:

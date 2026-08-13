@@ -142,6 +142,27 @@ class OptableIdentifierEncoderTests: XCTestCase {
         XCTAssertNotEqual(unexpected, SUT.custom(prefix, "foobarBAZ-01234#98765.!!!"))
     }
 
+    func test_raw() {
+        let hem = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
+
+        XCTAssertEqual("e:\(hem)", SUT.raw("e:\(hem)"))
+        XCTAssertEqual("e:\(hem)", SUT.raw("  e:\(hem)\n"))
+        XCTAssertEqual("c1:AaaZza.dh012", SUT.raw("c1:AaaZza.dh012"))
+    }
+
+    func test_raw_isNotHashedAgain() {
+        let hem = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
+
+        XCTAssertEqual("e:\(hem)", OptableIdentifier.raw("e:\(hem)").extendedIdentifier)
+        XCTAssertNotEqual(SUT.email("e", hem), OptableIdentifier.raw("e:\(hem)").extendedIdentifier)
+    }
+
+    func test_raw_prefix() {
+        XCTAssertEqual("e", OptableIdentifier.raw("e:abc").prefix)
+        XCTAssertEqual("c2", OptableIdentifier.raw("c2:abc").prefix)
+        XCTAssertEqual("", OptableIdentifier.raw("no-separator").prefix)
+    }
+
     // MARK: Legacy
     func test_eidFromURL_isCorrect() {
         let url = "http://some.domain.com/some/path?some=query&something=else&oeid=a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3&foo=bar&baz"
