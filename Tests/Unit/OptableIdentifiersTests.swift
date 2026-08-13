@@ -11,7 +11,7 @@ import XCTest
 class OptableIdentifiersTests: XCTestCase {
     func test_json_identifier() throws {
         let oids: [OptableIdentifier] = [
-            .hashedEmailAddress("a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"),
+            .hem("a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"),
             .hashedPhoneNumber("ebad3b64ae96005048fca1af2f15e5251ad3844d00fb80252711de9b651c8e46"),
             .emailAddress("foo@bar.com"),
             .phoneNumber("+15123465890"),

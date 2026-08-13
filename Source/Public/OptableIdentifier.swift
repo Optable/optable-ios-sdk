@@ -44,7 +44,7 @@ public enum OptableIdentifier {
     case optableVID(String) // v
 
     // Already-hashed personal identifiers, normalized but not hashed again
-    case hashedEmailAddress(String) // e
+    case hem(String) // e, Hashed Email: SHA256 of the normalized Email address
     case hashedPhoneNumber(String) // p
 
     public var prefix: String {
@@ -65,7 +65,7 @@ public enum OptableIdentifier {
         case .custom(nil, _): return "c"
         case let .custom(n?, _): return abs(n) == 0 ? "c" : "c\(abs(n))"
         case .optableVID: return "v"
-        case .hashedEmailAddress: return "e"
+        case .hem: return "e"
         case .hashedPhoneNumber: return "p"
         }
     }
@@ -101,7 +101,7 @@ public extension OptableIdentifier {
         let value = parts[1]
 
         switch prefix {
-        case "e": self = .hashedEmailAddress(value)
+        case "e": self = .hem(value)
         case "p": self = .hashedPhoneNumber(value)
         case "z": self = .postalCode(value)
         case "i4": self = .ipv4Address(value)

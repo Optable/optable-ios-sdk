@@ -142,8 +142,8 @@ class OptableIdentifierEncoderTests: XCTestCase {
         XCTAssertNotEqual(unexpected, SUT.custom(prefix, "foobarBAZ-01234#98765.!!!"))
     }
 
-    func test_hashedEmailAddress() {
-        let prefix = OptableIdentifier.hashedEmailAddress("").prefix
+    func test_hem() {
+        let prefix = OptableIdentifier.hem("").prefix
         let hem = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
 
         XCTAssertEqual("e:\(hem)", SUT.hashed(prefix, hem))
@@ -159,14 +159,14 @@ class OptableIdentifierEncoderTests: XCTestCase {
         XCTAssertEqual("p:\(hash)", SUT.hashed(prefix, " \(hash) "))
     }
 
-    func test_hashedEmailAddress_isNotHashedAgain() {
+    func test_hem_isNotHashedAgain() {
         let email = "test@foobarbaz.com"
         let hem = "9e9bff5609b2e4b721e682ce7a0759d4f042819bc15a698bcb99db7897555239"
 
         // Hashing the plaintext and supplying the hash must yield the same EID.
         XCTAssertEqual(
             OptableIdentifier.emailAddress(email).extendedIdentifier,
-            OptableIdentifier.hashedEmailAddress(hem).extendedIdentifier
+            OptableIdentifier.hem(hem).extendedIdentifier
         )
     }
 

@@ -31,7 +31,7 @@ enum OptableIdentifierEncoder {
         case let .utiq(value): utiq(prefix, value)
         case let .custom(idx, value): custom(prefix, idx: idx ?? 0, value)
         case let .optableVID(value): vid(prefix, value)
-        case let .hashedEmailAddress(value): hashed(prefix, value)
+        case let .hem(value): hashed(prefix, value)
         case let .hashedPhoneNumber(value): hashed(prefix, value)
         }
         return eid

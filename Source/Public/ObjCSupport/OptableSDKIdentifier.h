@@ -35,7 +35,7 @@ typedef NS_ENUM(NSInteger, OptableSDKIdentifierType) {
     OptableSDKIdentifierType_OptableVID,
 
     /// Already-hashed values, normalized but not hashed again.
-    OptableSDKIdentifierType_HashedEmailAddress,
+    OptableSDKIdentifierType_HEM,
     OptableSDKIdentifierType_HashedPhoneNumber
 };
 
