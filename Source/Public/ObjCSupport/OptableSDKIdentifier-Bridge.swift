@@ -24,7 +24,7 @@ public extension OptableIdentifier {
         case .ID5: swiftType = .id5(identifier.value)
         case .UTIQ: swiftType = .utiq(identifier.value)
         case .optableVID: swiftType = .optableVID(identifier.value)
-        case .hem: swiftType = .hem(identifier.value)
+        case .HEM: swiftType = .hem(identifier.value)
         case .hashedPhoneNumber: swiftType = .hashedPhoneNumber(identifier.value)
         case .custom:
             swiftType = .custom(identifier.customIdx?.intValue, identifier.value)
