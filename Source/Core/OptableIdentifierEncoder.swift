@@ -31,15 +31,24 @@ enum OptableIdentifierEncoder {
         case let .utiq(value): utiq(prefix, value)
         case let .custom(idx, value): custom(prefix, idx: idx ?? 0, value)
         case let .optableVID(value): vid(prefix, value)
-        case let .hem(value): hashed(prefix, value)
-        case let .hashedPhoneNumber(value): hashed(prefix, value)
+        case let .hem(value): hem(prefix, value)
+        case let .hashedPhoneNumber(value): hashedPhoneNumber(prefix, value)
         }
         return eid
     }
 
-    /// Builds Extended Identifier from an already-hashed Email address or Phone number.
-    static func hashed(_ prefix: String, _ hash: String) -> String {
-        let identifier = hash.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased()
+    /// Builds Extended Identifier from an already-hashed Email address (HEM).
+    /// Returns an empty string when the value is not a SHA256 digest, so that a
+    /// plaintext Email is never sent over the wire.
+    static func hem(_ prefix: String, _ hash: String) -> String {
+        guard let identifier = validSHA256(hash) else { return "" }
+        return "\(prefix):\(identifier)"
+    }
+
+    /// Builds Extended Identifier from an already-hashed Phone number.
+    /// Returns an empty string when the value is not a SHA256 digest.
+    static func hashedPhoneNumber(_ prefix: String, _ hash: String) -> String {
+        guard let identifier = validSHA256(hash) else { return "" }
         return "\(prefix):\(identifier)"
     }
 
@@ -173,6 +182,19 @@ enum OptableIdentifierEncoder {
     }
 
     // MARK: - Private
+    private static let sha256HexCharacters = CharacterSet(charactersIn: "0123456789abcdef")
+
+    /// Normalizes an already-hashed value, returning nil unless it is a SHA256 hex digest.
+    private static func validSHA256(_ hash: String) -> String? {
+        let identifier = hash.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased()
+
+        guard identifier.count == 64,
+              identifier.rangeOfCharacter(from: sha256HexCharacters.inverted) == nil
+        else { return nil }
+
+        return identifier
+    }
+
     private static func sha256(data: Data) -> String {
         #if canImport(CryptoKit)
             if #available(iOS 13.0, *) {

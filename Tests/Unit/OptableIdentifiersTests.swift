@@ -95,4 +95,24 @@ class OptableIdentifiersTests: XCTestCase {
 
         XCTAssertNil(OptableIdentifier(extendedIdentifier: "no-separator"))
     }
+
+    func test_objc_identifierWithString_detectsAlreadyHashedValues() throws {
+        let hem = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
+        let email = "test@foobarbaz.com"
+
+        func eid(_ string: String) throws -> String {
+            let objc = try XCTUnwrap(OptableSDKIdentifier(string: string), string)
+            return try XCTUnwrap(OptableIdentifier(objc: objc), string).extendedIdentifier
+        }
+
+        // A SHA256 is passed through, not hashed a second time.
+        XCTAssertEqual("e:\(hem)", try eid("e:\(hem)"))
+        XCTAssertEqual("p:\(hem)", try eid("p:\(hem)"))
+
+        // A plaintext value still gets hashed, as it did before.
+        XCTAssertEqual(OptableIdentifier.emailAddress(email).extendedIdentifier, try eid("e:\(email)"))
+
+        // Types that are never hashed are unaffected.
+        XCTAssertEqual("c9:custom-9-id", try eid("c9:custom-9-id"))
+    }
 }

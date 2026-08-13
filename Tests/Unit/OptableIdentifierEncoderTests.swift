@@ -146,17 +146,30 @@ class OptableIdentifierEncoderTests: XCTestCase {
         let prefix = OptableIdentifier.hem("").prefix
         let hem = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
 
-        XCTAssertEqual("e:\(hem)", SUT.hashed(prefix, hem))
-        XCTAssertEqual("e:\(hem)", SUT.hashed(prefix, "  \(hem)  "))
-        XCTAssertEqual("e:\(hem)", SUT.hashed(prefix, hem.uppercased()))
+        XCTAssertEqual("e:\(hem)", SUT.hem(prefix, hem))
+        XCTAssertEqual("e:\(hem)", SUT.hem(prefix, "  \(hem)  "))
+        XCTAssertEqual("e:\(hem)", SUT.hem(prefix, hem.uppercased()))
+    }
+
+    func test_hem_rejectsAnythingNotASHA256() {
+        let prefix = OptableIdentifier.hem("").prefix
+        let hem = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
+
+        // A plaintext Email must never reach the wire.
+        XCTAssertEqual("", SUT.hem(prefix, "test@foobarbaz.com"))
+        XCTAssertEqual("", SUT.hem(prefix, ""))
+        XCTAssertEqual("", SUT.hem(prefix, String(hem.dropLast()))) // too short
+        XCTAssertEqual("", SUT.hem(prefix, hem + "a")) // too long
+        XCTAssertEqual("", SUT.hem(prefix, String(hem.dropLast()) + "z")) // non-hex
     }
 
     func test_hashedPhoneNumber() {
         let prefix = OptableIdentifier.hashedPhoneNumber("").prefix
         let hash = "ebad3b64ae96005048fca1af2f15e5251ad3844d00fb80252711de9b651c8e46"
 
-        XCTAssertEqual("p:\(hash)", SUT.hashed(prefix, hash))
-        XCTAssertEqual("p:\(hash)", SUT.hashed(prefix, " \(hash) "))
+        XCTAssertEqual("p:\(hash)", SUT.hashedPhoneNumber(prefix, hash))
+        XCTAssertEqual("p:\(hash)", SUT.hashedPhoneNumber(prefix, " \(hash) "))
+        XCTAssertEqual("", SUT.hashedPhoneNumber(prefix, "+33555456789"))
     }
 
     func test_hem_isNotHashedAgain() {
