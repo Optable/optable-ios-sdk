@@ -31,14 +31,16 @@ enum OptableIdentifierEncoder {
         case let .utiq(value): utiq(prefix, value)
         case let .custom(idx, value): custom(prefix, idx: idx ?? 0, value)
         case let .optableVID(value): vid(prefix, value)
-        case let .raw(value): raw(value)
+        case let .hashedEmailAddress(value): hashed(prefix, value)
+        case let .hashedPhoneNumber(value): hashed(prefix, value)
         }
         return eid
     }
 
-    /// Passes through an already type-prefixed Extended Identifier without re-encoding it.
-    static func raw(_ eid: String) -> String {
-        return eid.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+    /// Builds Extended Identifier from an already-hashed Email address or Phone number.
+    static func hashed(_ prefix: String, _ hash: String) -> String {
+        let identifier = hash.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased()
+        return "\(prefix):\(identifier)"
     }
 
     /// Builds Extended Identifier from Email address

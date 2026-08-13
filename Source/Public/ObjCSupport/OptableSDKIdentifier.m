@@ -112,13 +112,7 @@
     NSString *typeRaw = [string substringToIndex:range.location];
     NSString *value   = [string substringFromIndex:range.location + 1];
 
-    // Validate the prefix, then keep the string pre-encoded so that hash-based
-    // types are not hashed a second time.
-    if ([[self alloc] initWithTypeRawValue:typeRaw value:value] == nil) return nil;
-
-    return [[self alloc] initWithType:OptableSDKIdentifierType_Raw
-                                value:string
-                            customIdx:nil];
+    return [[self alloc] initWithTypeRawValue:typeRaw value:value];
 }
 
 @end

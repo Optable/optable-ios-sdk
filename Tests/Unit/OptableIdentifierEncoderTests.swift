@@ -142,25 +142,32 @@ class OptableIdentifierEncoderTests: XCTestCase {
         XCTAssertNotEqual(unexpected, SUT.custom(prefix, "foobarBAZ-01234#98765.!!!"))
     }
 
-    func test_raw() {
+    func test_hashedEmailAddress() {
+        let prefix = OptableIdentifier.hashedEmailAddress("").prefix
         let hem = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
 
-        XCTAssertEqual("e:\(hem)", SUT.raw("e:\(hem)"))
-        XCTAssertEqual("e:\(hem)", SUT.raw("  e:\(hem)\n"))
-        XCTAssertEqual("c1:AaaZza.dh012", SUT.raw("c1:AaaZza.dh012"))
+        XCTAssertEqual("e:\(hem)", SUT.hashed(prefix, hem))
+        XCTAssertEqual("e:\(hem)", SUT.hashed(prefix, "  \(hem)  "))
+        XCTAssertEqual("e:\(hem)", SUT.hashed(prefix, hem.uppercased()))
     }
 
-    func test_raw_isNotHashedAgain() {
-        let hem = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
+    func test_hashedPhoneNumber() {
+        let prefix = OptableIdentifier.hashedPhoneNumber("").prefix
+        let hash = "ebad3b64ae96005048fca1af2f15e5251ad3844d00fb80252711de9b651c8e46"
 
-        XCTAssertEqual("e:\(hem)", OptableIdentifier.raw("e:\(hem)").extendedIdentifier)
-        XCTAssertNotEqual(SUT.email("e", hem), OptableIdentifier.raw("e:\(hem)").extendedIdentifier)
+        XCTAssertEqual("p:\(hash)", SUT.hashed(prefix, hash))
+        XCTAssertEqual("p:\(hash)", SUT.hashed(prefix, " \(hash) "))
     }
 
-    func test_raw_prefix() {
-        XCTAssertEqual("e", OptableIdentifier.raw("e:abc").prefix)
-        XCTAssertEqual("c2", OptableIdentifier.raw("c2:abc").prefix)
-        XCTAssertEqual("", OptableIdentifier.raw("no-separator").prefix)
+    func test_hashedEmailAddress_isNotHashedAgain() {
+        let email = "test@foobarbaz.com"
+        let hem = "9e9bff5609b2e4b721e682ce7a0759d4f042819bc15a698bcb99db7897555239"
+
+        // Hashing the plaintext and supplying the hash must yield the same EID.
+        XCTAssertEqual(
+            OptableIdentifier.emailAddress(email).extendedIdentifier,
+            OptableIdentifier.hashedEmailAddress(hem).extendedIdentifier
+        )
     }
 
     // MARK: Legacy

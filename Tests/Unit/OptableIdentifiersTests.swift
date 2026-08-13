@@ -11,7 +11,8 @@ import XCTest
 class OptableIdentifiersTests: XCTestCase {
     func test_json_identifier() throws {
         let oids: [OptableIdentifier] = [
-            .raw("e:a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"),
+            .hashedEmailAddress("a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"),
+            .hashedPhoneNumber("ebad3b64ae96005048fca1af2f15e5251ad3844d00fb80252711de9b651c8e46"),
             .emailAddress("foo@bar.com"),
             .phoneNumber("+15123465890"),
             .postalCode("M5V 3L9"),
@@ -36,6 +37,7 @@ class OptableIdentifiersTests: XCTestCase {
 
         // Test existance
         XCTAssertTrue(decodedData.contains(where: { $0 == "e:a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3" }))
+        XCTAssertTrue(decodedData.contains(where: { $0 == "p:ebad3b64ae96005048fca1af2f15e5251ad3844d00fb80252711de9b651c8e46" }))
         XCTAssertTrue(decodedData.contains(where: { $0 == "e:0c7e6a405862e402eb76a70f8a26fc732d07c32931e9fae9ab1582911d2e8a3b" }))
         XCTAssertTrue(decodedData.contains(where: { $0 == "p:f45562169005d99cdbb6908607fd5b50b66fd835a132a8225cc361d5692a8bd2" }))
         XCTAssertTrue(decodedData.contains(where: { $0 == "z:m5v 3l9" }))
