@@ -276,6 +276,8 @@ public extension OptableSDK {
     func tryIdentifyFromURL(_ urlString: String) throws {
         let eidStr = OptableIdentifierEncoder.eidFromURL(urlString)
 
+        // The oeid is already a SHA256 of the Email, so it resolves to .hashedEmailAddress
+        // and is not hashed again.
         guard let eid = OptableIdentifier(extendedIdentifier: eidStr) else { return }
 
         try self._identify([eid], completion: { _ in /* no-op */ })

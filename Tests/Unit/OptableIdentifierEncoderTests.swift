@@ -142,6 +142,47 @@ class OptableIdentifierEncoderTests: XCTestCase {
         XCTAssertNotEqual(unexpected, SUT.custom(prefix, "foobarBAZ-01234#98765.!!!"))
     }
 
+    func test_hem() {
+        let prefix = OptableIdentifier.hem("").prefix
+        let hem = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
+
+        XCTAssertEqual("e:\(hem)", SUT.hem(prefix, hem))
+        XCTAssertEqual("e:\(hem)", SUT.hem(prefix, "  \(hem)  "))
+        XCTAssertEqual("e:\(hem)", SUT.hem(prefix, hem.uppercased()))
+    }
+
+    func test_hem_rejectsAnythingNotASHA256() {
+        let prefix = OptableIdentifier.hem("").prefix
+        let hem = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
+
+        // A plaintext Email must never reach the wire.
+        XCTAssertEqual("", SUT.hem(prefix, "test@foobarbaz.com"))
+        XCTAssertEqual("", SUT.hem(prefix, ""))
+        XCTAssertEqual("", SUT.hem(prefix, String(hem.dropLast()))) // too short
+        XCTAssertEqual("", SUT.hem(prefix, hem + "a")) // too long
+        XCTAssertEqual("", SUT.hem(prefix, String(hem.dropLast()) + "z")) // non-hex
+    }
+
+    func test_hashedPhoneNumber() {
+        let prefix = OptableIdentifier.hashedPhoneNumber("").prefix
+        let hash = "ebad3b64ae96005048fca1af2f15e5251ad3844d00fb80252711de9b651c8e46"
+
+        XCTAssertEqual("p:\(hash)", SUT.hashedPhoneNumber(prefix, hash))
+        XCTAssertEqual("p:\(hash)", SUT.hashedPhoneNumber(prefix, " \(hash) "))
+        XCTAssertEqual("", SUT.hashedPhoneNumber(prefix, "+33555456789"))
+    }
+
+    func test_hem_isNotHashedAgain() {
+        let email = "test@foobarbaz.com"
+        let hem = "9e9bff5609b2e4b721e682ce7a0759d4f042819bc15a698bcb99db7897555239"
+
+        // Hashing the plaintext and supplying the hash must yield the same EID.
+        XCTAssertEqual(
+            OptableIdentifier.emailAddress(email).extendedIdentifier,
+            OptableIdentifier.hem(hem).extendedIdentifier
+        )
+    }
+
     // MARK: Legacy
     func test_eidFromURL_isCorrect() {
         let url = "http://some.domain.com/some/path?some=query&something=else&oeid=a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3&foo=bar&baz"

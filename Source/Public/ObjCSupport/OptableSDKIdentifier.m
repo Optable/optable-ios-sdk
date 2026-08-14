@@ -7,6 +7,18 @@
 
 #import "OptableSDKIdentifier.h"
 
+/// An Email address always contains "@", which is not a hex character, so a
+/// plaintext value can never be mistaken for a SHA256 digest.
+static BOOL OptableIsSHA256Hex(NSString *value)
+{
+    if (value.length != 64) return NO;
+
+    NSCharacterSet *nonHex =
+    [[NSCharacterSet characterSetWithCharactersInString:@"0123456789abcdefABCDEF"] invertedSet];
+
+    return [value rangeOfCharacterFromSet:nonHex].location == NSNotFound;
+}
+
 @implementation OptableSDKIdentifier {
     OptableSDKIdentifierType _type;
     NSString *_value;
@@ -112,7 +124,22 @@
     NSString *typeRaw = [string substringToIndex:range.location];
     NSString *value   = [string substringFromIndex:range.location + 1];
 
-    return [[self alloc] initWithTypeRawValue:typeRaw value:value];
+    OptableSDKIdentifier *identifier = [[self alloc] initWithTypeRawValue:typeRaw value:value];
+    if (identifier == nil) return nil;
+
+    // The packed form carries either a plaintext value or one that is already
+    // hashed, so the value itself decides which. Without this, a caller passing
+    // "e:<sha256>" would have it hashed a second time.
+    if (OptableIsSHA256Hex(value)) {
+        if (identifier.type == OptableSDKIdentifierType_EmailAddress) {
+            return [self identifierWithType:OptableSDKIdentifierType_HEM value:value];
+        }
+        if (identifier.type == OptableSDKIdentifierType_PhoneNumber) {
+            return [self identifierWithType:OptableSDKIdentifierType_HashedPhoneNumber value:value];
+        }
+    }
+
+    return identifier;
 }
 
 @end

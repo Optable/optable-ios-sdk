@@ -31,8 +31,12 @@ typedef NS_ENUM(NSInteger, OptableSDKIdentifierType) {
     OptableSDKIdentifierType_UTIQ,
 
     OptableSDKIdentifierType_Custom,
-    
-    OptableSDKIdentifierType_OptableVID
+
+    OptableSDKIdentifierType_OptableVID,
+
+    /// Already-hashed values, normalized but not hashed again.
+    OptableSDKIdentifierType_HEM,
+    OptableSDKIdentifierType_HashedPhoneNumber
 };
 
 @interface OptableSDKIdentifier : NSObject

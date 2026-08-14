@@ -41,7 +41,7 @@ final class EdgeAPI {
     // MARK: Endpoints
     func identify(ids: [OptableIdentifier]) throws -> URLRequest? {
         guard let url = buildEdgeAPIURL(endpoint: "identify") else { return nil }
-        let jsonData = try jsonEncoder.encode(ids)
+        let jsonData = try jsonEncoder.encode(ids.filter({ $0.extendedIdentifier.isEmpty == false }))
         let request = try buildRequest(.POST, url: url, headers: resolveHeaders(), data: jsonData)
         return request
     }
@@ -67,7 +67,8 @@ final class EdgeAPI {
         guard var url = buildEdgeAPIURL(endpoint: "targeting") else { return nil }
 
         let queryItems = ids
-            .compactMap({ $0.extendedIdentifier })
+            .map({ $0.extendedIdentifier })
+            .filter({ $0.isEmpty == false })
             .compactMap({ URLQueryItem(name: "id", value: $0) })
         url.compatAppend(queryItems: queryItems)
 
