@@ -358,10 +358,7 @@ extension OptableSDK {
 
                 /// We cache the latest targeting result in client storage for targetingFromCache() users:
                 self.api.storage.setTargeting(optableTargeting)
-                
-                if let id5Signature = optableTargeting.id5Signature {
-                    self.api.storage.setID5Signature(id5Signature)
-                }
+                self.api.storage.setID5Signature(optableTargeting.id5Signature)
 
                 completion(.success(optableTargeting))
             } catch {

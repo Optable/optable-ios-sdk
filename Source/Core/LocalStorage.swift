@@ -77,7 +77,7 @@ final class LocalStorage: NSObject {
         return UserDefaults.standard.string(forKey: id5SignatureKey)
     }
     
-    func setID5Signature(_ signature: String) {
+    func setID5Signature(_ signature: String?) {
         UserDefaults.standard.set(signature, forKey: id5SignatureKey)
     }
 }

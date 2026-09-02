@@ -147,7 +147,7 @@ On every targeting call the SDK automatically attaches the parameters required b
 - `ua`: the user agent of the device's default browser, detected asynchronously via `WKWebView` at SDK initialization. If a targeting call happens before detection completes, the parameter is omitted; set the `customUserAgent` configuration parameter to guarantee it is always present.
 - `id5_signature`: the ID5 signature cached from a previous targeting response, when available.
 
-When a targeting response contains an ID5 EID, the SDK extracts the associated signature and caches it in client storage. The cached signature persists across app restarts, is sent as `id5_signature` on subsequent targeting calls to improve ID5 resolve rates, and is removed by `targetingClearCache`.
+When a targeting response contains an ID5 EID, the SDK extracts the associated signature and caches it in client storage. The cached signature persists across app restarts, is sent as `id5_signature` on subsequent targeting calls to improve ID5 resolve rates, and is removed by `targetingClearCache`. A targeting response that contains no ID5 signature removes any previously cached one, so the SDK never sends a stale signature.
 
 In addition, unless `skipAdvertisingIdDetection` is set in the configuration, the device IDFA is automatically added to both `ids` and `hids` when ad tracking is authorized by the user.
 
