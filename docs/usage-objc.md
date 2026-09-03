@@ -73,7 +73,7 @@ OptableSDK *OPTABLE = nil;
 
 You can call various SDK APIs on the instance as shown in the examples below. It's also possible to configure multiple instances of `OptableSDK` in order to connect to other (e.g., partner) DCNs and/or reference other configured application slug IDs. Note that the `insecure` flag should always be set to `NO` unless you are testing a local instance of the DCN yourself.
 
-You can disable user agent `WKWebView` based auto-detection and provide your own value by setting the `useragent` parameter to a string value, similar to the Swift example.
+You can disable user agent `WKWebView` based auto-detection and provide your own value by setting the `customUserAgent` parameter to a string value, similar to the Swift example.
 
 ### Identify API
 
@@ -117,9 +117,39 @@ To get the targeting key values associated by the configured DCN with the device
 @import OptableSDK;
 ...
 NSError *error = nil;
-[OPTABLE targetingWithIds: @[@"c:1"] // NULL-able
+[OPTABLE targeting: @[
+    [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_EmailAddress value:@"test@test.test"]
+]
+             error: &error];
+```
+
+You may optionally supply hint identifiers (`hids`) which are forwarded as resolver-specific `hid` parameters, used by integrations such as ID5 Mobile In-App:
+
+```objective-c
+[OPTABLE targetingWithIds: @[
+    [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_EmailAddress value:@"test@test.test"]
+]
+                     hids: @[
+    [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_PhoneNumber value:@"+1234567890"]
+]
                     error: &error];
 ```
+
+> :information_source: For more details on `hid` parameters, including the supported identifier types, check:
+> [Optable Real-Time API Integrations Guide > Resolver Specific Parameters > ID5 Mobile In-App](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide/resolver-specific-parameters#id5-mobile-in-app)
+
+#### Resolver-Specific Parameters
+
+On every targeting call the SDK automatically attaches the parameters required by resolver-specific integrations such as ID5 Mobile In-App:
+
+- `bundle`: the application's bundle identifier.
+- `ver`: the application's version (`CFBundleShortVersionString`).
+- `ua`: the user agent of the device's default browser, detected asynchronously via `WKWebView` at SDK initialization. If a targeting call happens before detection completes, the parameter is omitted; set the `customUserAgent` configuration parameter to guarantee it is always present.
+- `id5_signature`: the ID5 signature cached from a previous targeting response, when available.
+
+When a targeting response contains an ID5 EID, the SDK extracts the associated signature and caches it in client storage. The cached signature persists across app restarts, is sent as `id5_signature` on subsequent targeting calls to improve ID5 resolve rates, and is removed by `targetingClearCache`. A targeting response that contains no ID5 signature removes any previously cached one, so the SDK never sends a stale signature.
+
+In addition, unless `skipAdvertisingIdDetection` is set in the configuration, the device IDFA is automatically added to both `ids` and `hids` when ad tracking is authorized by the user.
 
 #### Caching Targeting Data
 

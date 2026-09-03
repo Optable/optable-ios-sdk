@@ -116,18 +116,30 @@ public extension OptableSDK {
 // MARK: - Targeting
 public extension OptableSDK {
     /**
-     targeting(ids?, completion) calls the Optable Sandbox Targeting API and returns key-value targeting data
-     for the current user/device/app. You may optionally supply identifiers to enrich the request.
+     targeting(ids?, hids?, completion) calls the Optable Sandbox Targeting API and returns key-value targeting data
+     for the current user/device/app.
 
-     On completion, the handler receives:
-     - .success(OptableTargeting) on success
-     - .failure(Error) on failure
+     - Parameters:
+        - ids: one or more identifiers to resolve, sent as repeated `id` query parameters. The DCN evaluates them
+          in the order they are listed and returns the profile of the first successful match (querying the
+          first-party graph before any third-party graphs). When provided, they take precedence over any
+          identifier in the passport.
+        - hids: hint identifiers, sent as `hid` query parameters in addition to `ids`. Hints drive resolver-specific
+          identity resolution on the DCN, such as ID5 Mobile In-App. All identifier types are forwarded as-is;
+          which ones a resolver consumes is determined server-side. Custom (`cN`) prefixes must be configured on
+          the DCN; unconfigured ones are ignored server-side.
+        - completion: on completion, the handler receives:
+           - .success(OptableTargeting) on success
+           - .failure(Error) on failure
+
+     Unless `skipAdvertisingIdDetection` is set in the config, the device IDFA is automatically prepended to both
+     lists when ad tracking is authorized.
 
      On success, the result is cached in client storage. You can read it using targetingFromCache()
      and clear it using targetingClearCache().
      */
-    func targeting(_ ids: [OptableIdentifier]? = nil, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
-        try _targeting(ids: ids, completion: completion)
+    func targeting(_ ids: [OptableIdentifier]? = nil, hids: [OptableIdentifier]? = nil, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+        try _targeting(ids: ids, hids: hids, completion: completion)
     }
 
     /// targetingFromCache() returns the previously cached targeting data, if any.
@@ -144,15 +156,17 @@ public extension OptableSDK {
 
     // MARK: Async/Await support
     /**
-     This is the Swift Concurrency compatible version of the `targeting(completion)` API.
+     This is the Swift Concurrency compatible version of the `targeting(ids, hids, completion)` API:
+     `ids` match the user/device against the DCN, while `hids` are hint identifiers driving resolver-specific
+     identity resolution such as ID5 Mobile In-App - see `targeting(_:hids:completion:)` for details.
 
      Instead of completion callbacks, results are returned via async/await.
      */
     @available(iOS 13.0, *)
-    func targeting(_ ids: [OptableIdentifier]? = nil) async throws -> OptableTargeting {
+    func targeting(_ ids: [OptableIdentifier]? = nil, hids: [OptableIdentifier]? = nil) async throws -> OptableTargeting {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
-                try self._targeting(ids: ids, completion: { continuation.resume(with: $0) })
+                try self._targeting(ids: ids, hids: hids, completion: { continuation.resume(with: $0) })
             } catch {
                 continuation.resume(throwing: error)
             }
@@ -313,12 +327,14 @@ extension OptableSDK {
         }).resume()
     }
 
-    func _targeting(ids: [OptableIdentifier]?, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+    func _targeting(ids: [OptableIdentifier]?, hids: [OptableIdentifier]?, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
         var ids = ids ?? []
+        var hids = hids ?? []
 
         enrichIfNeeded(ids: &ids)
+        enrichIfNeeded(ids: &hids)
 
-        guard let request = try api.targeting(ids: ids) else {
+        guard let request = try api.targeting(ids: ids, hids: hids) else {
             throw OptableError.targeting("Failed to create targeting request")
         }
 
@@ -342,6 +358,7 @@ extension OptableSDK {
 
                 /// We cache the latest targeting result in client storage for targetingFromCache() users:
                 self.api.storage.setTargeting(optableTargeting)
+                self.api.storage.setID5Signature(optableTargeting.id5Signature)
 
                 completion(.success(optableTargeting))
             } catch {

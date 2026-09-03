@@ -42,14 +42,14 @@ OPTABLE = OptableSDK(config: config)
 
 Note that production DCNs only listen to TLS traffic. The `insecure: true` option is meant to be used by Optable developers running the DCN locally for testing.
 
-By default, the SDK detects the application user agent by sniffing `navigator.userAgent` from a `WKWebView`. The resulting user agent string is sent to your DCN for analytics purposes. To disable this behavior, you can provide an optional string parameter, `useragent`, which allows you to set whatever user agent string you would like to send instead. For example:
+By default, the SDK detects the application user agent by sniffing `navigator.userAgent` from a `WKWebView`. The resulting user agent string is sent to your DCN for analytics purposes. To disable this behavior, you can provide an optional string parameter, `customUserAgent`, which allows you to set whatever user agent string you would like to send instead. For example:
 
 ```swift
-let config = OptableConfig(..., useragent: "custom-ua")
+let config = OptableConfig(..., customUserAgent: "custom-ua")
 OPTABLE = OptableSDK(config: config)
 ```
 
-The default value of `nil` for the `useragent` parameter enables the `WKWebView` auto-detection behavior.
+The default value of `nil` for the `customUserAgent` parameter enables the `WKWebView` auto-detection behavior.
 
 ### Identify API
 
@@ -137,6 +137,37 @@ do {
 ```
 
 On success, the resulting key values are typically sent as part of a subsequent ad call. Therefore we recommend that you either call `targeting()` before each ad call, or in parallel periodically, caching the resulting key values which you then provide in ad calls.
+
+You may optionally supply identifiers to enrich the targeting request: `ids` are used to match the user, while `hids` are hint identifiers forwarded as resolver-specific `hid` parameters, used by integrations such as ID5 Mobile In-App:
+
+```swift
+let ids: [OptableIdentifier] = [
+    .emailAddress("test@test.test")
+]
+let hids: [OptableIdentifier] = [
+    .phoneNumber("+1234567890")
+]
+
+try OPTABLE!.targeting(ids, hids: hids) { result in
+    // ...
+}
+```
+
+> :information_source: For more details on `hid` parameters, including the supported identifier types, check:
+> [Optable Real-Time API Integrations Guide > Resolver Specific Parameters > ID5 Mobile In-App](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide/resolver-specific-parameters#id5-mobile-in-app)
+
+#### Resolver-Specific Parameters
+
+On every `targeting()` call the SDK automatically attaches the parameters required by resolver-specific integrations such as ID5 Mobile In-App:
+
+- `bundle`: the application's bundle identifier.
+- `ver`: the application's version (`CFBundleShortVersionString`).
+- `ua`: the user agent of the device's default browser, detected asynchronously via `WKWebView` at SDK initialization. If a targeting call happens before detection completes, the parameter is omitted; set `customUserAgent` in `OptableConfig` to guarantee it is always present.
+- `id5_signature`: the ID5 signature cached from a previous targeting response, when available.
+
+When a targeting response contains an ID5 EID, the SDK extracts the associated signature and caches it in client storage. The cached signature persists across app restarts, is sent as `id5_signature` on subsequent targeting calls to improve ID5 resolve rates, and is removed by `targetingClearCache()`. A targeting response that contains no ID5 signature removes any previously cached one, so the SDK never sends a stale signature.
+
+In addition, unless `skipAdvertisingIdDetection` is set in `OptableConfig`, the device IDFA is automatically added to both `ids` and `hids` when ad tracking is authorized by the user.
 
 #### Caching Targeting Data
 

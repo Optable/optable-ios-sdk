@@ -17,6 +17,11 @@ class EdgeAPITests: XCTestCase {
     )
     lazy var sdk = OptableSDK(config: config)
 
+    override func tearDown() {
+        sdk.api.storage.clearTargeting()
+        super.tearDown()
+    }
+
     // MARK: URL-s
     /**
      Expected output:
@@ -173,18 +178,65 @@ class EdgeAPITests: XCTestCase {
      For more info check: [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide/optable-real-time-api-endpoints/targeting)
      */
     func test_targeting_request_generation() throws {
-        let urlRequest = try sdk.api.targeting(ids: [.emailAddress("12345"), .phoneNumber("54321")])
-        
+        sdk.api.storage.setID5Signature("id5-sig-abc123")
+
+        let email: OptableIdentifier = .emailAddress("12345")
+        let phone: OptableIdentifier = .phoneNumber("54321")
+        let utiq: OptableIdentifier = .utiq("496f5db5-681f-4392-acd5-0d4f6e2f6b88")
+        let urlRequest = try sdk.api.targeting(ids: [email, phone], hids: [email, phone, utiq])
+
         // Method
         XCTAssertEqual(urlRequest?.httpMethod, HTTPMethod.GET.rawValue)
 
         // Path
         let urlComponents = URLComponents(url: urlRequest!.url!, resolvingAgainstBaseURL: false)!
         XCTAssert(urlComponents.path.contains("targeting"))
-        
-        // Query
-        XCTAssert(urlComponents.queryItems?.contains(where: { $0.name == "id" && $0.value == "e:12345" }) != nil)
-        XCTAssert(urlComponents.queryItems?.contains(where: { $0.name == "id" && $0.value == "p:54321" }) != nil)
+
+        // Query: every identifier is emitted as an `id` param (email/phone are SHA-256 hashed)
+        XCTAssertTrue(urlComponents.queryItems?.contains(where: { $0.name == "id" && $0.value == email.extendedIdentifier }) ?? false)
+        XCTAssertTrue(urlComponents.queryItems?.contains(where: { $0.name == "id" && $0.value == phone.extendedIdentifier }) ?? false)
+
+        // HIDs: every identifier passed as a hint is emitted as a repeated `hid` param, regardless of type
+        XCTAssertTrue(urlComponents.queryItems?.contains(where: { $0.name == "hid" && $0.value == email.extendedIdentifier }) ?? false)
+        XCTAssertTrue(urlComponents.queryItems?.contains(where: { $0.name == "hid" && $0.value == phone.extendedIdentifier }) ?? false)
+        XCTAssertTrue(urlComponents.queryItems?.contains(where: { $0.name == "hid" && $0.value == utiq.extendedIdentifier }) ?? false)
+
+        // Resolver-specific parameters
+        XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "ua" })?.value, T.api.userAgent)
+        XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "id5_signature" })?.value, "id5-sig-abc123")
+
+        if let bundle = Bundle.main.bundleIdentifier {
+            XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "bundle" })?.value, bundle)
+        }
+
+        if let ver = Bundle.main.appVersionString {
+            XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "ver" })?.value, ver)
+        }
+    }
+
+    func test_targeting_request_percent_encodes_plus_in_query_values() throws {
+        // The edge decodes a literal `+` in the query as a space, which would corrupt
+        // base64 values such as the ID5 signature; it must go out as %2B on the wire.
+        sdk.api.storage.setID5Signature("sig+abc/123=")
+
+        let urlRequest = try sdk.api.targeting(ids: [], hids: [])
+        let rawQuery = try XCTUnwrap(urlRequest?.url?.query)
+
+        XCTAssertFalse(rawQuery.contains("+"))
+        XCTAssertTrue(rawQuery.contains("id5_signature=sig%2Babc/123"))
+
+        // The decoded value round-trips unchanged
+        let urlComponents = URLComponents(url: urlRequest!.url!, resolvingAgainstBaseURL: false)!
+        XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "id5_signature" })?.value, "sig+abc/123=")
+    }
+
+    func test_targeting_request_omits_id5_signature_when_no_cached_signature() throws {
+        sdk.api.storage.setTargeting(OptableTargeting(optableTargeting: ["resolved_ids": ["v:123"]]))
+
+        let urlRequest = try sdk.api.targeting(ids: [.emailAddress("12345")], hids: [])
+        let urlComponents = URLComponents(url: urlRequest!.url!, resolvingAgainstBaseURL: false)!
+
+        XCTAssertNil(urlComponents.queryItems?.first(where: { $0.name == "id5_signature" }))
     }
 
     /**

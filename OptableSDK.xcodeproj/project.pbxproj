@@ -49,6 +49,7 @@
 				Unit/OptableIdentifiersTests.swift,
 				Unit/OptableSDKHelpersIdentifiersEnrichmentTests.swift,
 				Unit/OptableSDKHelpersTests.swift,
+				Unit/OptableTargetingTests.swift,
 			);
 			target = 6352AB0324EAD403002E66EB /* OptableSDKTests */;
 		};
