@@ -16,12 +16,15 @@ final class LocalStorage: NSObject {
     private let gamTargetingKeywordsKey: String
     private let ortb2Key: String
     private let id5SignatureKey: String
-    private let config: OptableConfig
 
     let keyPfx: String = "OPTABLE"
     var passportKey: String
     var targetingKey: String
     var targetingStoredAtKey: String
+    
+    private let config: OptableConfig
+    
+    private let lock = NSLock()
 
     init(_ config: OptableConfig) {
         // The key used for storage should be unique to the host+app that this instance was initialized with:
@@ -51,51 +54,58 @@ final class LocalStorage: NSObject {
     }
 
     func getTargeting() -> OptableTargeting? {
-        guard let targetingData = UserDefaults.standard.object(forKey: targetingDataKey) as? [String: Any] else {
-            return nil
+        lock.synchronized {
+            guard let targetingData = UserDefaults.standard.object(forKey: targetingDataKey) as? [String: Any] else {
+                return nil
+            }
+
+            guard isTargetingFresh() else {
+                removeTargetingEntry()
+                return nil
+            }
+
+            return OptableTargeting(
+                optableTargeting: targetingData,
+                gamTargetingKeywords: UserDefaults.standard.object(forKey: gamTargetingKeywordsKey) as? [String: Any],
+                ortb2: UserDefaults.standard.string(forKey: ortb2Key)
+            )
         }
-        
-        guard isTargetingFresh() else {
-            clearTargeting()
-            return nil
-        }
-        
-        let optableTargeting = OptableTargeting(
-            optableTargeting: targetingData,
-            gamTargetingKeywords: UserDefaults.standard.object(forKey: gamTargetingKeywordsKey) as? [String: Any],
-            ortb2: UserDefaults.standard.string(forKey: ortb2Key)
-        )
-        
-        return optableTargeting
     }
 
     func setTargeting(_ targeting: OptableTargeting) {
-        // Decompose object explicitly
-        // Because Codable/NSSecureCoding does not support heterogeneous containers such as NSDictionary([String: Any])
-        // However UserDefaults does support
-        UserDefaults.standard.setValue(Date().timeIntervalSince1970, forKey: targetingStoredAtKey)
-        UserDefaults.standard.setValue(targeting.targetingData, forKey: targetingDataKey)
-        UserDefaults.standard.setValue(targeting.gamTargetingKeywords, forKey: gamTargetingKeywordsKey)
-        UserDefaults.standard.setValue(targeting.ortb2, forKey: ortb2Key)
+        lock.synchronized {
+            // Decompose object explicitly
+            // Because Codable/NSSecureCoding does not support heterogeneous containers such as NSDictionary([String: Any])
+            // However UserDefaults does support
+            UserDefaults.standard.setValue(Date().timeIntervalSince1970, forKey: targetingStoredAtKey)
+            UserDefaults.standard.setValue(targeting.targetingData, forKey: targetingDataKey)
+            UserDefaults.standard.setValue(targeting.gamTargetingKeywords, forKey: gamTargetingKeywordsKey)
+            UserDefaults.standard.setValue(targeting.ortb2, forKey: ortb2Key)
+        }
     }
 
     func clearTargeting() {
-        UserDefaults.standard.removeObject(forKey: targetingDataKey)
-        UserDefaults.standard.removeObject(forKey: gamTargetingKeywordsKey)
-        UserDefaults.standard.removeObject(forKey: ortb2Key)
-        UserDefaults.standard.removeObject(forKey: id5SignatureKey)
-        UserDefaults.standard.removeObject(forKey: targetingStoredAtKey)
+        lock.synchronized { removeTargetingEntry() }
     }
     
     func getID5Signature() -> String? {
-        return UserDefaults.standard.string(forKey: id5SignatureKey)
+        UserDefaults.standard.string(forKey: id5SignatureKey)
     }
     
     func setID5Signature(_ signature: String?) {
         UserDefaults.standard.set(signature, forKey: id5SignatureKey)
     }
 
-    /// Whether the stored targeting entry was fetched recently enough to still be served, per `config.cacheTTL`.
+    /// Removes every key of the targeting entry.
+    private func removeTargetingEntry() {
+        UserDefaults.standard.removeObject(forKey: targetingDataKey)
+        UserDefaults.standard.removeObject(forKey: gamTargetingKeywordsKey)
+        UserDefaults.standard.removeObject(forKey: ortb2Key)
+        UserDefaults.standard.removeObject(forKey: id5SignatureKey)
+        UserDefaults.standard.removeObject(forKey: targetingStoredAtKey)
+    }
+
+    /// Whether the stored targeting entry was fetched recently enough to still be served, per `config.cacheTTL`. The caller must hold `lock`.
     private func isTargetingFresh() -> Bool {
         // NOTE: A missing timestamp means the entry predates cache expiry support, so its age is unknowable - treat it as expired.
         guard let storedAt = UserDefaults.standard.object(forKey: targetingStoredAtKey) as? TimeInterval else {
