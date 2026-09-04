@@ -173,6 +173,37 @@ class LocalStorageTests: XCTestCase {
         XCTAssertNil(storage.getTargeting())
     }
 
+    // MARK: - Thread safety
+    /**
+     A stale read must never wipe an entry that was stored concurrently.
+
+     Without mutual exclusion, `getTargeting()` can judge the old entry expired, then lose the CPU to a
+     `setTargeting(_:)` that stores a fresh one, then resume and clear it. Whichever order the two calls
+     serialize in, a fresh entry must be readable afterwards.
+     */
+    func testConcurrentReadOfExpiredEntryDoesNotWipeFreshWrite() {
+        let storage = makeStorageWithStoredTargeting(cacheTTL: 60)
+        let freshTargeting = OptableTargeting(
+            optableTargeting: kOptableTargeting as! [String: Any],
+            gamTargetingKeywords: kGamTargetingKeywords as? [String: Any],
+            ortb2: kORTB2
+        )
+
+        for iteration in 0..<500 {
+            storage.setTargeting(freshTargeting)
+            setStoredAge(storage, to: 61)
+
+            let group = DispatchGroup()
+            let queue = DispatchQueue.global(qos: .userInitiated)
+            queue.async(group: group) { _ = storage.getTargeting() }
+            queue.async(group: group) { storage.setTargeting(freshTargeting) }
+            group.wait()
+
+            XCTAssertNotNil(storage.getTargeting(), "fresh entry was wiped by a concurrent stale read on iteration \(iteration)")
+            if storage.getTargeting() == nil { break }
+        }
+    }
+
     // MARK: Helpers
     /**
      Builds a LocalStorage with targeting already stored in it.
