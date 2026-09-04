@@ -10,6 +10,11 @@ import Foundation
 
 @objc
 public class OptableConfig: NSObject {
+    // MARK: Constants
+    /// The default lifetime of cached targeting data: 24 hours.
+    @objc
+    public static let defaultCacheTTL: TimeInterval = 24 * 60 * 60
+
     // MARK: Required
     /// The tenant name associated with the configuration. E.g. `acmeco.optable.co` => `acmeco`.
     @objc
@@ -43,6 +48,15 @@ public class OptableConfig: NSObject {
     /// Boolean flag to skip the detection of advertising IDs. Default is false.
     @objc
     public var skipAdvertisingIdDetection: Bool = false
+
+    /**
+     How long, in seconds, targeting data cached by the `targeting` API stays valid. Default is `defaultCacheTTL` (24 hours).
+
+     Once a cached entry is older than this, `targetingFromCache()` reports it as absent and drops it from storage.
+     A value of `0` therefore disables caching entirely.
+     */
+    @objc
+    public var cacheTTL: TimeInterval = OptableConfig.defaultCacheTTL
 
     // MARK: Privacy Regulations
     /**
@@ -104,6 +118,7 @@ public class OptableConfig: NSObject {
      - apiKey: An optional API key for authentication. If the API Endpoint is enabled as private, a Service Account API key will be required.
      - customUserAgent: An optional custom user agent string for network requests.
      - skipAdvertisingIdDetection: Boolean flag to skip the detection of advertising IDs. Default is false.
+     - cacheTTL: How long, in seconds, cached targeting data stays valid. Default is `defaultCacheTTL` (24 hours).
      */
     public init(
         tenant: String,
@@ -113,7 +128,8 @@ public class OptableConfig: NSObject {
         insecure: Bool = false,
         apiKey: String? = nil,
         customUserAgent: String? = nil,
-        skipAdvertisingIdDetection: Bool = false
+        skipAdvertisingIdDetection: Bool = false,
+        cacheTTL: TimeInterval = OptableConfig.defaultCacheTTL
     ) {
         self.tenant = tenant
         self.originSlug = originSlug
@@ -123,5 +139,6 @@ public class OptableConfig: NSObject {
         self.apiKey = apiKey
         self.customUserAgent = customUserAgent
         self.skipAdvertisingIdDetection = skipAdvertisingIdDetection
+        self.cacheTTL = cacheTTL
     }
 }

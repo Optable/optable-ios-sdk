@@ -142,7 +142,9 @@ public extension OptableSDK {
         try _targeting(ids: ids, hids: hids, completion: completion)
     }
 
-    /// targetingFromCache() returns the previously cached targeting data, if any.
+    /// Returns the previously cached targeting data, if any.
+    /// Cached data expires after `OptableConfig.cacheTTL` (24 hours by default). An expired entry is
+    /// reported as absent and is cleared from storage.
     @objc
     func targetingFromCache() -> OptableTargeting? {
         return self.api.storage.getTargeting()

@@ -175,6 +175,20 @@ You can also clear the locally cached targeting data:
 
 Note that both `targetingFromCache` and `targetingClearCache` are synchronous.
 
+##### Cache Expiry
+
+Cached targeting data expires 24 hours after it was fetched. Once an entry has expired, `targetingFromCache` reports it as absent by returning `nil`, and clears it from client storage. Call the targeting API again to refresh it.
+
+You can change the lifetime by setting the `cacheTTL` property, expressed in seconds:
+
+```objective-c
+@import OptableSDK;
+...
+config.cacheTTL = 60 * 60; // expire cached targeting data after one hour
+```
+
+The default is `OptableConfig.defaultCacheTTL`, which is 24 hours. Setting `cacheTTL` to `0` effectively disables the cache, since every entry is then already expired by the time it is read.
+
 ### Witness API
 
 To send real-time event data from the user's device to the DCN for eventual audience assembly, you can call the witness API as follows:
