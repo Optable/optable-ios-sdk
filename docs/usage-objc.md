@@ -75,6 +75,12 @@ You can call various SDK APIs on the instance as shown in the examples below. It
 
 You can disable user agent `WKWebView` based auto-detection and provide your own value by setting the `customUserAgent` parameter to a string value, similar to the Swift example.
 
+By default the SDK does not send an `Origin` HTTP header. If your DCN expects one, you can set the optional `origin` parameter to the origin you want your mobile traffic attributed to, and its value will be sent as the `Origin` header on every Optable API request (`identify`, `targeting`, `profile`, `witness`):
+
+```objective-c
+config.origin = @"https://www.acmeco.com";
+```
+
 ### Identify API
 
 To associate a user device with an authenticated identifier such as an Email address, or with other known IDs such as the Apple ID for Advertising (IDFA), or even your own vendor or app level `PPID`, you can call the `identify` API as follows:

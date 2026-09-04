@@ -17,6 +17,15 @@ class EdgeAPITests: XCTestCase {
     )
     lazy var sdk = OptableSDK(config: config)
 
+    lazy var originConfig = OptableConfig(
+        tenant: T.api.tenant.prebidtest,
+        originSlug: T.api.slug.iosSDK,
+        apiKey: T.api.apiKey,
+        customUserAgent: T.api.userAgent,
+        origin: T.api.origin
+    )
+    lazy var originSDK = OptableSDK(config: originConfig)
+
     override func tearDown() {
         sdk.api.storage.clearTargeting()
         super.tearDown()
@@ -146,6 +155,84 @@ class EdgeAPITests: XCTestCase {
 
         XCTAssertEqual(generatedHeaders["User-Agent"], T.api.userAgent)
         XCTAssertEqual(generatedHeaders["Authorization"], T.api.apiKeyBearer)
+        XCTAssertNil(generatedHeaders["Origin"])
+    }
+
+    /**
+     When `origin` is configured, it is sent as the `Origin` header.
+     */
+    func test_header_generation_with_origin() throws {
+        let generatedHeaders = originSDK.api.resolveHeaders().asDict
+
+        XCTAssertEqual(generatedHeaders["User-Agent"], T.api.userAgent)
+        XCTAssertEqual(generatedHeaders["Authorization"], T.api.apiKeyBearer)
+        XCTAssertEqual(generatedHeaders["Origin"], T.api.origin)
+    }
+
+    /**
+     `origin` is optional, and mutable after the config has been created.
+     */
+    func test_header_generation_origin_is_optional() throws {
+        let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK)
+        let edgeAPI = EdgeAPI(config)
+
+        XCTAssertNil(config.origin)
+        XCTAssertNil(edgeAPI.resolveHeaders().asDict["Origin"])
+
+        config.origin = T.api.origin
+
+        XCTAssertEqual(edgeAPI.resolveHeaders().asDict["Origin"], T.api.origin)
+    }
+
+    /**
+     A blank `origin` (empty or whitespace-only) is suppressed rather than sent as an empty `Origin` header,
+     matching the Android SDK behavior.
+     */
+    func test_header_generation_origin_is_not_blank() throws {
+        let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK)
+        let edgeAPI = EdgeAPI(config)
+
+        config.origin = ""
+        XCTAssertNil(edgeAPI.resolveHeaders().asDict["Origin"])
+
+        config.origin = "   "
+        XCTAssertNil(edgeAPI.resolveHeaders().asDict["Origin"])
+
+        config.origin = T.api.origin
+        XCTAssertEqual(edgeAPI.resolveHeaders().asDict["Origin"], T.api.origin)
+    }
+
+    /**
+     The `Origin` header is unrelated to `originSlug`, which is sent as the `o` query parameter.
+     */
+    func test_origin_does_not_affect_url_generation() throws {
+        let generatedURL = originSDK.api.buildEdgeAPIURL(endpoint: T.api.endpoint.identify)
+        let generatedURLComponents = URLComponents(url: generatedURL!, resolvingAgainstBaseURL: false)!
+
+        XCTAssertEqual(generatedURLComponents.queryItems!.first(where: { $0.name == "o" })!.value, T.api.slug.iosSDK)
+        XCTAssertNil(generatedURLComponents.queryItems?.first(where: { $0.name == "origin" }))
+    }
+
+    /**
+     Every endpoint carries the configured `Origin` header, and none of them carry one when it is unset.
+     */
+    func test_origin_header_on_all_endpoints() throws {
+        typealias RequestFactory = (EdgeAPI) throws -> URLRequest?
+
+        let factories: [RequestFactory] = [
+            { try $0.identify(ids: [.postalCode("1234567890")]) },
+            { try $0.targeting(ids: [.emailAddress("12345")], hids: []) },
+            { try $0.profile(traits: ["test-key": "test-value"]) },
+            { try $0.witness(event: "test-event", properties: ["test-key": "test-value"]) },
+        ]
+
+        try factories.forEach({ makeRequest in
+            let withoutOrigin = try makeRequest(sdk.api)
+            XCTAssertNil(withoutOrigin?.value(forHTTPHeaderField: "Origin"))
+
+            let withOrigin = try makeRequest(originSDK.api)
+            XCTAssertEqual(withOrigin?.value(forHTTPHeaderField: "Origin"), T.api.origin)
+        })
     }
 
     // MARK: URLRequest-s
