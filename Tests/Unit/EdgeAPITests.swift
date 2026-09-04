@@ -22,7 +22,7 @@ class EdgeAPITests: XCTestCase {
         originSlug: T.api.slug.iosSDK,
         apiKey: T.api.apiKey,
         customUserAgent: T.api.userAgent,
-        origin: T.api.origin,
+        origin: T.api.origin
     )
     lazy var originSDK = OptableSDK(config: originConfig)
 
@@ -221,7 +221,7 @@ class EdgeAPITests: XCTestCase {
 
         let factories: [RequestFactory] = [
             { try $0.identify(ids: [.postalCode("1234567890")]) },
-            { try $0.targeting(ids: [.emailAddress("12345")]) },
+            { try $0.targeting(ids: [.emailAddress("12345")], hids: []) },
             { try $0.profile(traits: ["test-key": "test-value"]) },
             { try $0.witness(event: "test-event", properties: ["test-key": "test-value"]) },
         ]
