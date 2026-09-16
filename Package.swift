@@ -23,7 +23,8 @@ let package = Package(
             name: "OptableSDK",
             dependencies: [],
             path: "Source",
-            exclude: ["Info.plist", "Public/ObjCSupport"]),
+            exclude: ["Info.plist", "Public/ObjCSupport"],
+            resources: [.copy("PrivacyInfo.xcprivacy")]),
         .testTarget(
             name: "OptableSDKTests",
             dependencies: ["OptableSDK"],
