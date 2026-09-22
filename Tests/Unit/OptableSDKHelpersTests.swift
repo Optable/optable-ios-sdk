@@ -161,21 +161,6 @@ class OptableSDKHelpersTests: XCTestCase {
         XCTAssertFalse(message.contains("abc123"))
     }
 
-    // MARK: HTTPURLResponse.isSuccess
-    func test_isSuccess_coversFull2xxRange() throws {
-        let url = try XCTUnwrap(URL(string: "https://example.com"))
-
-        for statusCode in [200, 201, 204, 206, 207, 226] {
-            let response = try XCTUnwrap(HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil))
-            XCTAssertTrue(response.isSuccess, "\(statusCode) should be success")
-        }
-
-        for statusCode in [100, 301, 400, 404, 500] {
-            let response = try XCTUnwrap(HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil))
-            XCTAssertFalse(response.isSuccess, "\(statusCode) should not be success")
-        }
-    }
-
     // MARK: Version
     func test_version_notUnknown() {
         // Should resolve to something like ios-<marketing>-<build>

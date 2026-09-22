@@ -320,7 +320,7 @@ extension OptableSDK {
                 }
                 return
             }
-            guard response.isSuccess else {
+            guard (200 ..< 300).contains(response.statusCode) else {
                 let errDesc = OptableSDK.generateEdgeAPIErrorDescription(with: data, response: response)
                 completion(.failure(OptableError.identify(errDesc, code: response.statusCode)))
                 return
@@ -349,7 +349,7 @@ extension OptableSDK {
                 }
                 return
             }
-            guard response.isSuccess else {
+            guard (200 ..< 300).contains(response.statusCode) else {
                 let errDesc = OptableSDK.generateEdgeAPIErrorDescription(with: data, response: response)
                 completion(.failure(OptableError.targeting(errDesc, code: response.statusCode)))
                 return
@@ -383,7 +383,7 @@ extension OptableSDK {
                 }
                 return
             }
-            guard response.isSuccess else {
+            guard (200 ..< 300).contains(response.statusCode) else {
                 let errDesc = OptableSDK.generateEdgeAPIErrorDescription(with: data, response: response)
                 completion(.failure(OptableError.witness(errDesc, code: response.statusCode)))
                 return
@@ -406,7 +406,7 @@ extension OptableSDK {
                 }
                 return
             }
-            guard response.isSuccess else {
+            guard (200 ..< 300).contains(response.statusCode) else {
                 let errDesc = OptableSDK.generateEdgeAPIErrorDescription(with: data, response: response)
                 completion(.failure(OptableError.profile(errDesc, code: response.statusCode)))
                 return
