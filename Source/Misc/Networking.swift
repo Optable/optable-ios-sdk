@@ -175,3 +175,12 @@ enum HTTPStatusCode: Int {
         (500 ..< 600).contains(rawValue)
     }
 }
+
+// MARK: - HTTPURLResponse
+extension HTTPURLResponse {
+    /// Range check rather than an `HTTPStatusCode` lookup, so that a 2xx the enum
+    /// does not enumerate is still treated as success.
+    var isSuccess: Bool {
+        (200 ..< 300).contains(statusCode)
+    }
+}

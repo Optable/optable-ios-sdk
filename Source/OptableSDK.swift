@@ -314,13 +314,13 @@ extension OptableSDK {
         api.dispatch(request: request, completionHandler: { data, response, error in
             guard let response = response as? HTTPURLResponse, error == nil, data != nil else {
                 if let err = error {
-                    completion(.failure(OptableError.identify("Session error: \(err)")))
+                    completion(.failure(OptableError.identify("Session error: \(OptableSDK.generateSessionErrorDescription(with: err))")))
                 } else {
                     completion(.failure(OptableError.identify("Session error: Unknown")))
                 }
                 return
             }
-            guard HTTPStatusCode(rawValue: response.statusCode)?.isSuccess == true else {
+            guard response.isSuccess else {
                 let errDesc = OptableSDK.generateEdgeAPIErrorDescription(with: data, response: response)
                 completion(.failure(OptableError.identify(errDesc, code: response.statusCode)))
                 return
@@ -343,13 +343,13 @@ extension OptableSDK {
         api.dispatch(request: request, completionHandler: { data, response, error in
             guard let response = response as? HTTPURLResponse, error == nil, data != nil else {
                 if let err = error {
-                    completion(.failure(OptableError.targeting("Session error: \(err)")))
+                    completion(.failure(OptableError.targeting("Session error: \(OptableSDK.generateSessionErrorDescription(with: err))")))
                 } else {
                     completion(.failure(OptableError.targeting("Session error: Unknown")))
                 }
                 return
             }
-            guard HTTPStatusCode(rawValue: response.statusCode)?.isSuccess == true else {
+            guard response.isSuccess else {
                 let errDesc = OptableSDK.generateEdgeAPIErrorDescription(with: data, response: response)
                 completion(.failure(OptableError.targeting(errDesc, code: response.statusCode)))
                 return
@@ -377,13 +377,13 @@ extension OptableSDK {
         api.dispatch(request: request, completionHandler: { data, response, error in
             guard let response = response as? HTTPURLResponse, error == nil else {
                 if let err = error {
-                    completion(.failure(OptableError.witness("Session error: \(err)")))
+                    completion(.failure(OptableError.witness("Session error: \(OptableSDK.generateSessionErrorDescription(with: err))")))
                 } else {
                     completion(.failure(OptableError.witness("Session error: Unknown")))
                 }
                 return
             }
-            guard HTTPStatusCode(rawValue: response.statusCode)?.isSuccess == true else {
+            guard response.isSuccess else {
                 let errDesc = OptableSDK.generateEdgeAPIErrorDescription(with: data, response: response)
                 completion(.failure(OptableError.witness(errDesc, code: response.statusCode)))
                 return
@@ -400,13 +400,13 @@ extension OptableSDK {
         api.dispatch(request: request, completionHandler: { data, response, error in
             guard let response = response as? HTTPURLResponse, error == nil else {
                 if let err = error {
-                    completion(.failure(OptableError.profile("Session error: \(err)")))
+                    completion(.failure(OptableError.profile("Session error: \(OptableSDK.generateSessionErrorDescription(with: err))")))
                 } else {
                     completion(.failure(OptableError.profile("Session error: Unknown")))
                 }
                 return
             }
-            guard HTTPStatusCode(rawValue: response.statusCode)?.isSuccess == true else {
+            guard response.isSuccess else {
                 let errDesc = OptableSDK.generateEdgeAPIErrorDescription(with: data, response: response)
                 completion(.failure(OptableError.profile(errDesc, code: response.statusCode)))
                 return
@@ -457,6 +457,11 @@ extension OptableSDK {
             msg += ", data: \(json)"
         } catch {}
         return msg
+    }
+
+    static func generateSessionErrorDescription(with error: Error) -> String {
+        let error = error as NSError
+        return "\(error.domain) \(error.code): \(error.localizedDescription)"
     }
 
     static func generateGAMTargetingKeywords(from targetingData: NSDictionary?) -> NSDictionary? {

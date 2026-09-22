@@ -142,6 +142,40 @@ class OptableSDKHelpersTests: XCTestCase {
         XCTAssertFalse(message.contains("data:"))
     }
 
+    // MARK: SessionErrorDescription
+    func test_generateSessionErrorDescription_excludesFailingURL() {
+        let error = NSError(
+            domain: NSURLErrorDomain,
+            code: NSURLErrorTimedOut,
+            userInfo: [
+                NSLocalizedDescriptionKey: "The request timed out.",
+                NSURLErrorFailingURLStringErrorKey: "https://example.com/v2/targeting?id=e%3Aabc123&osdk=ios",
+            ]
+        )
+
+        let message = OptableSDK.generateSessionErrorDescription(with: error)
+        XCTAssertTrue(message.contains(NSURLErrorDomain))
+        XCTAssertTrue(message.contains("\(NSURLErrorTimedOut)"))
+        XCTAssertTrue(message.contains("The request timed out."))
+        XCTAssertFalse(message.contains("targeting"))
+        XCTAssertFalse(message.contains("abc123"))
+    }
+
+    // MARK: HTTPURLResponse.isSuccess
+    func test_isSuccess_coversFull2xxRange() throws {
+        let url = try XCTUnwrap(URL(string: "https://example.com"))
+
+        for statusCode in [200, 201, 204, 206, 207, 226] {
+            let response = try XCTUnwrap(HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil))
+            XCTAssertTrue(response.isSuccess, "\(statusCode) should be success")
+        }
+
+        for statusCode in [100, 301, 400, 404, 500] {
+            let response = try XCTUnwrap(HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil))
+            XCTAssertFalse(response.isSuccess, "\(statusCode) should not be success")
+        }
+    }
+
     // MARK: Version
     func test_version_notUnknown() {
         // Should resolve to something like ios-<marketing>-<build>
