@@ -46,7 +46,7 @@
             <false/>
             <key>NSPrivacyCollectedDataTypePurposes</key>
             <array>
-                <string>NSPrivacyCollectedDataTypePurposeFirstPartyAdvertising</string>
+                <string>NSPrivacyCollectedDataTypePurposeDeveloperAdvertising</string>
                 <string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
             </array>
         </dict>
@@ -61,7 +61,7 @@
             <false/>
             <key>NSPrivacyCollectedDataTypePurposes</key>
             <array>
-                <string>NSPrivacyCollectedDataTypePurposeFirstPartyAdvertising</string>
+                <string>NSPrivacyCollectedDataTypePurposeDeveloperAdvertising</string>
                 <string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
             </array>
         </dict>
@@ -76,7 +76,7 @@
             <false/>
             <key>NSPrivacyCollectedDataTypePurposes</key>
             <array>
-                <string>NSPrivacyCollectedDataTypePurposeFirstPartyAdvertising</string>
+                <string>NSPrivacyCollectedDataTypePurposeDeveloperAdvertising</string>
                 <string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
             </array>
         </dict>
@@ -91,7 +91,7 @@
             <false/>
             <key>NSPrivacyCollectedDataTypePurposes</key>
             <array>
-                <string>NSPrivacyCollectedDataTypePurposeFirstPartyAdvertising</string>
+                <string>NSPrivacyCollectedDataTypePurposeDeveloperAdvertising</string>
                 <string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
             </array>
         </dict>
@@ -122,7 +122,7 @@
             <false/>
             <key>NSPrivacyCollectedDataTypePurposes</key>
             <array>
-                <string>NSPrivacyCollectedDataTypePurposeFirstPartyAdvertising</string>
+                <string>NSPrivacyCollectedDataTypePurposeDeveloperAdvertising</string>
                 <string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
             </array>
         </dict>
