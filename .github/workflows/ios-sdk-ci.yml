@@ -10,7 +10,7 @@ on:
 jobs:
   sdk-tests:
     name: "SDK Tests"
-    runs-on: macos-15
+    runs-on: xcode-27
     steps:
       - name: Checkout Code
         uses: actions/checkout@v5
@@ -30,7 +30,7 @@ jobs:
 
   build-demo-swift:
     name: "Build Demo Swift"
-    runs-on: macos-15
+    runs-on: xcode-27
     needs: [sdk-tests]
     steps:
       - name: Checkout Code
@@ -58,7 +58,7 @@ jobs:
 
   build-demo-objc:
     name: "Build Demo Objective-C"
-    runs-on: macos-15
+    runs-on: xcode-27
     env:
       FL_OUTPUT_DIR: output
     needs: [sdk-tests]
