@@ -42,8 +42,6 @@
                 }
             #endif
 
-            // The SDK requires iOS 15+, where AppTrackingTransparency is always available, so the
-            // pre-iOS 14 `ASIdentifierManager.isAdvertisingTrackingEnabled` fallback no longer applies.
             #if canImport(AppTrackingTransparency)
                 return trackingStatus == .authorized
             #else
