@@ -118,25 +118,8 @@ extension EdgeAPI {
                 completionHandler(data, response, error)
                 return
             }
-            if #available(iOS 13.0, *) {
-                if let passport = res.value(forHTTPHeaderField: self.kPassportHeader) {
-                    self.storage.setPassport(passport)
-                }
-            } else {
-                // In older versions of iOS, we have to resort searching through headers via res.allHeaderFields
-                // Unlike res.value(forHTTPHeaderField:...) which was introduced in iOS 13.0, allHeaderFields is
-                // case-sensitive, so we need to take special care to perform a case-INsensitive search:
-                for (key, value) in res.allHeaderFields {
-                    if let header = key as? String {
-                        let result: ComparisonResult = header.compare(self.kPassportHeader, options: NSString.CompareOptions.caseInsensitive)
-                        if result == .orderedSame {
-                            if let pp = value as? String {
-                                self.storage.setPassport(pp)
-                                break
-                            }
-                        }
-                    }
-                }
+            if let passport = res.value(forHTTPHeaderField: self.kPassportHeader) {
+                self.storage.setPassport(passport)
             }
             completionHandler(data, response, error)
         }
