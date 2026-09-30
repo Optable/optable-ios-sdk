@@ -148,7 +148,9 @@ extension EdgeAPI {
     private func resolveUserAgent(callback: @escaping (_ useragent: String) -> Void) {
         var wkUserAgent = ""
         let myGroup = DispatchGroup()
-        let window = UIApplication.shared.keyWindow
+        let window = UIApplication.shared.connectedScenes
+            .compactMap { ($0 as? UIWindowScene)?.keyWindow }
+            .first
         let webView = WKWebView(frame: UIScreen.main.bounds)
 
         webView.isHidden = true

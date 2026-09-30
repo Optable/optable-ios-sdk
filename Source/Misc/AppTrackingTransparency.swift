@@ -29,21 +29,6 @@
             }
         #endif
 
-        // MARK: isAdvertisingTrackingEnabled
-
-        #if DEBUG
-            @available(iOS, introduced: 6, deprecated: 14,
-                       message: "Replaced by ATTrackingManager in AppTrackingTransparency.")
-            static var isAdvertisingTrackingEnabled_DebugOverride: Bool?
-            static var isAdvertisingTrackingEnabled: Bool {
-                isAdvertisingTrackingEnabled_DebugOverride ?? ASIdentifierManager.shared().isAdvertisingTrackingEnabled
-            }
-        #else
-            static var isAdvertisingTrackingEnabled: Bool {
-                ASIdentifierManager.shared().isAdvertisingTrackingEnabled
-            }
-        #endif
-
         // MARK: advertisingIdentifierAvailable
 
         #if DEBUG
@@ -57,14 +42,12 @@
                 }
             #endif
 
+            // The SDK requires iOS 15+, where AppTrackingTransparency is always available, so the
+            // pre-iOS 14 `ASIdentifierManager.isAdvertisingTrackingEnabled` fallback no longer applies.
             #if canImport(AppTrackingTransparency)
-                if #available(iOS 14, *) {
-                    return trackingStatus == .authorized
-                } else {
-                    return isAdvertisingTrackingEnabled
-                }
+                return trackingStatus == .authorized
             #else
-                return isAdvertisingTrackingEnabled
+                return false
             #endif
         }
 
