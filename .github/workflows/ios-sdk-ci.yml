@@ -92,7 +92,7 @@ jobs:
     steps:
       - name: Successful Release Post to Slack
         uses: slackapi/slack-github-action@v2.1.1
-        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && needs.build-demo-swift.result == 'success' && needs.build-demo-swift.result == 'success' }}
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && needs.build-demo-swift.result == 'success' && needs.build-demo-objc.result == 'success' }}
         with:
           method: chat.postMessage
           token: "${{ secrets.SLACK_MESSENGER_APP_TOKEN }}"
@@ -117,7 +117,7 @@ jobs:
                     text: ":white_check_mark: *iOS SDK release:*\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
       - name: Build failure Post to Slack
         uses: slackapi/slack-github-action@v2.1.1
-        if: ${{ github.event_name == 'pull_request' && (needs.build-demo-swift.result != 'success' || needs.build-demo-swift.result != 'success')}}
+        if: ${{ github.event_name == 'pull_request' && (needs.build-demo-swift.result != 'success' || needs.build-demo-objc.result != 'success')}}
         with:
           method: chat.postMessage
           token: "${{ secrets.SLACK_MESSENGER_APP_TOKEN }}"
