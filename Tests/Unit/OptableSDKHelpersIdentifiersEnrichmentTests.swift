@@ -63,7 +63,6 @@ class OptableSDKHelpersIdentifiersEnrichmentTests: XCTestCase {
         }
     }
 
-    @available(iOS 14, *)
     func test_idfa_detection_enabled_enrich_system_idfa_same_as_user_idfa_prepend() {
         ATT.advertisingIdentifierAvailable_DebugOverride = true
         ATT.advertisingIdentifier_DebugOverride = UUID(uuidString: systemIDFA)
@@ -94,7 +93,6 @@ class OptableSDKHelpersIdentifiersEnrichmentTests: XCTestCase {
         }
     }
 
-    @available(iOS 14, *)
     func test_idfa_detection_enabled_enrich_system_idfa_user_idfa_persist() {
         ATT.advertisingIdentifierAvailable_DebugOverride = true
         ATT.advertisingIdentifier_DebugOverride = UUID(uuidString: systemIDFA)
