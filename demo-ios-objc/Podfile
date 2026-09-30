@@ -11,3 +11,16 @@ target 'demo-ios-objc' do
   pod 'PrebidMobile'
   
 end
+
+# Xcode 27 refuses to build targets whose deployment target is below iOS 15. Some third-party pods
+# (Google-Mobile-Ads-SDK, GoogleUserMessagingPlatform, PrebidMobile) still declare older minimums,
+# so raise them to the platform version declared above.
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 15.0
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+      end
+    end
+  end
+end
