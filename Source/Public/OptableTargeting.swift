@@ -33,6 +33,11 @@ public class OptableTargeting: NSObject {
     }
 }
 
+// MARK: - Sendable
+/// Every stored property is a `let`, and the dictionaries only hold the immutable Foundation values
+/// produced by `JSONSerialization`, so instances can safely cross threads (e.g. resume a continuation).
+extension OptableTargeting: @unchecked Sendable {}
+
 // MARK: - Helpers
 
 extension OptableTargeting {
