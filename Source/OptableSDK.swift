@@ -11,6 +11,7 @@ import Foundation
 // MARK: - OptableDelegate
 /**
  OptableDelegate enables Objective-C and Swift apps to receive results via delegate callbacks.
+ Every callback is delivered on the main actor (the main thread).
 
  - Ok callbacks:
    - identifyOk and witnessOk receive an HTTPURLResponse on success.
@@ -22,6 +23,7 @@ import Foundation
  If a synchronous error occurs while preparing a request, the method sets the passed NSError**
  and does not invoke the delegate callbacks.
  */
+@MainActor
 @objc
 public protocol OptableDelegate {
     func identifyOk(_ result: HTTPURLResponse)
@@ -225,11 +227,13 @@ public extension OptableSDK {
     @objc
     func witness(event: String, properties: [String: Any]) throws {
         try self.witness(event: event, properties: properties) { result in
-            switch result {
-            case let .success(response):
-                self.delegate?.witnessOk(response)
-            case let .failure(error as NSError):
-                self.delegate?.witnessErr(error)
+            Task { @MainActor in
+                switch result {
+                case let .success(response):
+                    self.delegate?.witnessOk(response)
+                case let .failure(error as NSError):
+                    self.delegate?.witnessErr(error)
+                }
             }
         }
     }
@@ -276,11 +280,13 @@ public extension OptableSDK {
     @objc
     func profile(traits: [String: Any], id: String? = nil, neighbors: [String]? = nil) throws {
         try _profile(traits: traits, id: id, neighbors: neighbors, completion: { result in
-            switch result {
-            case let .success(response):
-                self.delegate?.profileOk(response)
-            case let .failure(error as NSError):
-                self.delegate?.profileErr(error)
+            Task { @MainActor in
+                switch result {
+                case let .success(response):
+                    self.delegate?.profileOk(response)
+                case let .failure(error as NSError):
+                    self.delegate?.profileErr(error)
+                }
             }
         })
     }
