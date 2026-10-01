@@ -237,7 +237,7 @@ class LocalStorageTests: XCTestCase {
     }
 }
 
-private let kOptableTargeting: NSDictionary = [
+private var kOptableTargeting: NSDictionary { [
     "user": [
     ],
     "resolved_ids": [
@@ -357,10 +357,10 @@ private let kOptableTargeting: NSDictionary = [
             ],
         ],
     ],
-]
+] }
 
-private let kGamTargetingKeywords: NSDictionary = [
+private var kGamTargetingKeywords: NSDictionary { [
     "optable-test": "082793f9",
-]
+] }
 
 private let kORTB2: String = "ortb2_data"
