@@ -22,19 +22,28 @@ final class EdgeAPI {
     var storage: LocalStorage
     var config: OptableConfig
 
-    var userAgent: String?
+    /// The `User-Agent` sent with every request: `config.customUserAgent` when set, otherwise the WebView's
+    /// user agent, resolved asynchronously on the main actor at init (nil until it arrives).
+    var userAgent: String? {
+        get { userAgentStore.withLock { $0 } }
+        set { userAgentStore.withLock { $0 = newValue } }
+    }
+
+    private let userAgentStore: Locked<String?>
 
     private lazy var jsonEncoder = JSONEncoder()
 
     init(_ config: OptableConfig) {
         self.config = config
         self.storage = LocalStorage(config)
+        self.userAgentStore = Locked(config.customUserAgent)
+
         if config.customUserAgent == nil {
-            self.resolveUserAgent { realUserAgent in
-                self.userAgent = realUserAgent
+            let userAgentStore = self.userAgentStore
+            Task { @MainActor in
+                let realUserAgent = await EdgeAPI.resolveWebViewUserAgent()
+                userAgentStore.withLock { $0 = realUserAgent }
             }
-        } else {
-            self.userAgent = config.customUserAgent
         }
     }
 
@@ -128,9 +137,10 @@ extension EdgeAPI {
 
 // MARK: - Private
 extension EdgeAPI {
-    private func resolveUserAgent(callback: @escaping (_ useragent: String) -> Void) {
-        var wkUserAgent = ""
-        let myGroup = DispatchGroup()
+    /// Reads `navigator.userAgent` from a hidden, throwaway WKWebView attached to the key window.
+    /// Returns an empty string when the WebView cannot provide one.
+    @MainActor
+    private static func resolveWebViewUserAgent() async -> String {
         let window = UIApplication.shared.connectedScenes
             .compactMap { ($0 as? UIWindowScene)?.keyWindow }
             .first
@@ -138,20 +148,15 @@ extension EdgeAPI {
 
         webView.isHidden = true
         window?.addSubview(webView)
-        myGroup.enter()
-
-        webView.loadHTMLString("<html></html>", baseURL: nil)
-        webView.evaluateJavaScript("navigator.userAgent", completionHandler: { (userAgent: Any?, error: Error?) in
-            if let userAgent = userAgent as? String {
-                wkUserAgent = userAgent
-            }
+        defer {
             webView.stopLoading()
             webView.removeFromSuperview()
-            myGroup.leave()
-        })
-        myGroup.notify(queue: .main) {
-            callback(wkUserAgent)
         }
+
+        webView.loadHTMLString("<html></html>", baseURL: nil)
+
+        let userAgent = try? await webView.evaluateJavaScript("navigator.userAgent")
+        return (userAgent as? String) ?? ""
     }
 
     func resolveHeaders() -> HTTPHeaders {
