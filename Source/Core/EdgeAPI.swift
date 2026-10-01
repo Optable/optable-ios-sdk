@@ -17,10 +17,10 @@ import WebKit
 
  */
 final class EdgeAPI {
-    private let kPassportHeader: String = "X-Optable-Visitor"
+    private static let kPassportHeader: String = "X-Optable-Visitor"
 
-    var storage: LocalStorage
-    var config: OptableConfig
+    let storage: LocalStorage
+    let config: OptableConfig
 
     /// The `User-Agent` sent with every request: `config.customUserAgent` when set, otherwise the WebView's
     /// user agent, resolved asynchronously on the main actor at init (nil until it arrives).
@@ -31,7 +31,7 @@ final class EdgeAPI {
 
     private let userAgentStore: Locked<String?>
 
-    private lazy var jsonEncoder = JSONEncoder()
+    private let jsonEncoder = JSONEncoder()
 
     init(_ config: OptableConfig) {
         self.config = config
@@ -117,8 +117,8 @@ final class EdgeAPI {
 
 // MARK: - Dispatch
 extension EdgeAPI {
-    func dispatch(request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
-        return URLSession.shared.dataTask(with: request) { data, response, error in
+    func dispatch(request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
+        return URLSession.shared.dataTask(with: request) { [storage] data, response, error in
             guard let res = response as? HTTPURLResponse, error == nil else {
                 completionHandler(data, response, error)
                 return
@@ -127,8 +127,8 @@ extension EdgeAPI {
                 completionHandler(data, response, error)
                 return
             }
-            if let passport = res.value(forHTTPHeaderField: self.kPassportHeader) {
-                self.storage.setPassport(passport)
+            if let passport = res.value(forHTTPHeaderField: Self.kPassportHeader) {
+                storage.setPassport(passport)
             }
             completionHandler(data, response, error)
         }
@@ -177,7 +177,7 @@ extension EdgeAPI {
         }
 
         if let passport: String = storage.getPassport() {
-            headers[kPassportHeader] = passport
+            headers[Self.kPassportHeader] = passport
         }
 
         return headers

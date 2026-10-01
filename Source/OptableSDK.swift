@@ -47,7 +47,12 @@ public protocol OptableDelegate {
 @objc
 public class OptableSDK: NSObject {
     @objc
-    public var delegate: OptableDelegate?
+    public var delegate: OptableDelegate? {
+        get { delegateStore.withLock { $0 } }
+        set { delegateStore.withLock { $0 = newValue } }
+    }
+
+    private let delegateStore = Locked<OptableDelegate?>(nil)
 
     let config: OptableConfig
     let api: EdgeAPI
@@ -72,6 +77,11 @@ public class OptableSDK: NSObject {
     }
 }
 
+// MARK: - Sendable
+/// `@unchecked`: `delegate` is lock-guarded, `api` holds no mutable state beyond its lock-guarded user agent,
+/// and `config` is the integrator's object, which the SDK only reads.
+extension OptableSDK: @unchecked Sendable {}
+
 // MARK: - Identify
 public extension OptableSDK {
     /**
@@ -91,7 +101,7 @@ public extension OptableSDK {
      }
      ```
      */
-    func identify(_ ids: [OptableIdentifier], completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    func identify(_ ids: [OptableIdentifier], completion: @escaping @Sendable (Result<HTTPURLResponse, Error>) -> Void) throws {
         try _identify(ids, completion: completion)
     }
 
@@ -137,7 +147,7 @@ public extension OptableSDK {
      On success, the result is cached in client storage. You can read it using targetingFromCache()
      and clear it using targetingClearCache().
      */
-    func targeting(_ ids: [OptableIdentifier]? = nil, hids: [OptableIdentifier]? = nil, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+    func targeting(_ ids: [OptableIdentifier]? = nil, hids: [OptableIdentifier]? = nil, completion: @escaping @Sendable (Result<OptableTargeting, Error>) -> Void) throws {
         try _targeting(ids: ids, hids: hids, completion: completion)
     }
 
@@ -185,7 +195,7 @@ public extension OptableSDK {
      - .success(HTTPURLResponse) on success
      - .failure(Error) on failure
      */
-    func witness(event: String, properties: [String: Any], _ completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    func witness(event: String, properties: [String: Any], _ completion: @escaping @Sendable (Result<HTTPURLResponse, Error>) -> Void) throws {
         try _witness(event: event, properties: properties, completion: completion)
     }
 
@@ -236,7 +246,7 @@ public extension OptableSDK {
 
      The resulting OptableTargeting is also cached for targetingFromCache().
      */
-    func profile(traits: [String: Any], id: String? = nil, neighbors: [String]? = nil, _ completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+    func profile(traits: [String: Any], id: String? = nil, neighbors: [String]? = nil, _ completion: @escaping @Sendable (Result<OptableTargeting, Error>) -> Void) throws {
         try _profile(traits: traits, id: id, neighbors: neighbors, completion: completion)
     }
 
@@ -298,7 +308,7 @@ public extension OptableSDK {
 
 // MARK: - Internal
 extension OptableSDK {
-    func _identify(_ ids: [OptableIdentifier], completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    func _identify(_ ids: [OptableIdentifier], completion: @escaping @Sendable (Result<HTTPURLResponse, Error>) -> Void) throws {
         var ids = ids
 
         enrichIfNeeded(ids: &ids)
@@ -325,7 +335,7 @@ extension OptableSDK {
         }).resume()
     }
 
-    func _targeting(ids: [OptableIdentifier]?, hids: [OptableIdentifier]?, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+    func _targeting(ids: [OptableIdentifier]?, hids: [OptableIdentifier]?, completion: @escaping @Sendable (Result<OptableTargeting, Error>) -> Void) throws {
         var ids = ids ?? []
         var hids = hids ?? []
 
@@ -365,7 +375,7 @@ extension OptableSDK {
         }).resume()
     }
 
-    func _witness(event: String, properties: [String: Any], completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    func _witness(event: String, properties: [String: Any], completion: @escaping @Sendable (Result<HTTPURLResponse, Error>) -> Void) throws {
         guard let request = try api.witness(event: event, properties: properties) else {
             throw OptableError.witness("Failed to create witness request")
         }
@@ -388,7 +398,7 @@ extension OptableSDK {
         }).resume()
     }
 
-    func _profile(traits: [String: Any], id: String?, neighbors: [String]?, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+    func _profile(traits: [String: Any], id: String?, neighbors: [String]?, completion: @escaping @Sendable (Result<OptableTargeting, Error>) -> Void) throws {
         guard let request = try api.profile(traits: traits, id: id, neighbors: neighbors) else {
             throw OptableError.profile("Failed to create profile request")
         }

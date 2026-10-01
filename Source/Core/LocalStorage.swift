@@ -10,17 +10,20 @@ import Foundation
 
 /**
  The OptableSDK keeps some state in UserDefaults (https://developer.apple.com/documentation/foundation/userdefaults), a key/value store persisted across launches of the app. The state is therefore unique to the app+device, and not globally unique to the app across devices.
+
+ `@unchecked Sendable`: `UserDefaults` is thread-safe, targeting reads and writes are serialized by `lock`,
+ and the remaining state is immutable (`config` is only read).
  */
-final class LocalStorage: NSObject {
+final class LocalStorage: NSObject, @unchecked Sendable {
     private let targetingDataKey: String
     private let gamTargetingKeywordsKey: String
     private let ortb2Key: String
     private let id5SignatureKey: String
 
     let keyPfx: String = "OPTABLE"
-    var passportKey: String
-    var targetingKey: String
-    var targetingStoredAtKey: String
+    let passportKey: String
+    let targetingKey: String
+    let targetingStoredAtKey: String
     
     private let config: OptableConfig
     
