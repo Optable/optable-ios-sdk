@@ -79,7 +79,8 @@ public class OptableSDK: NSObject {
 
 // MARK: - Sendable
 /// `@unchecked`: `delegate` is lock-guarded, `api` holds no mutable state beyond its lock-guarded user agent,
-/// and `config` is the integrator's object, which the SDK only reads.
+/// and `config` is `Sendable`. Unchecked only because `OptableDelegate` is an `@objc` protocol whose conformers
+/// cannot be required to be `Sendable`.
 extension OptableSDK: @unchecked Sendable {}
 
 // MARK: - Identify
