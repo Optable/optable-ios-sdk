@@ -11,10 +11,10 @@ import Foundation
 /**
  The OptableSDK keeps some state in UserDefaults (https://developer.apple.com/documentation/foundation/userdefaults), a key/value store persisted across launches of the app. The state is therefore unique to the app+device, and not globally unique to the app across devices.
 
- `@unchecked Sendable`: `UserDefaults` is thread-safe, targeting reads and writes are serialized by `lock`,
- and the remaining state is immutable (`config` is only read).
+ `Sendable`: every stored property is immutable, `UserDefaults` is thread-safe, and targeting reads and writes
+ are serialized by `lock`.
  */
-final class LocalStorage: NSObject, @unchecked Sendable {
+final class LocalStorage: NSObject, Sendable {
     private let targetingDataKey: String
     private let gamTargetingKeywordsKey: String
     private let ortb2Key: String
@@ -24,9 +24,7 @@ final class LocalStorage: NSObject, @unchecked Sendable {
     let passportKey: String
     let targetingKey: String
     let targetingStoredAtKey: String
-    
-    private let config: OptableConfig
-    
+
     private let lock = NSLock()
 
     init(_ config: OptableConfig) {
@@ -35,8 +33,6 @@ final class LocalStorage: NSObject, @unchecked Sendable {
             .joined(separator: "/")
             .data(using: .utf8)?
             .base64EncodedString()
-
-        self.config = config
 
         self.passportKey = self.keyPfx + "_PASS_" + (base64Key ?? "UNKNOWN")
         self.targetingKey = self.keyPfx + "_TGT_" + (base64Key ?? "UNKNOWN")
@@ -56,13 +52,15 @@ final class LocalStorage: NSObject, @unchecked Sendable {
         UserDefaults.standard.set(passport, forKey: passportKey)
     }
 
-    func getTargeting() -> OptableTargeting? {
+    /// Returns the stored targeting entry while it is younger than `cacheTTL`. An expired entry is removed
+    /// from storage and reported as absent.
+    func getTargeting(cacheTTL: TimeInterval) -> OptableTargeting? {
         lock.synchronized {
             guard let targetingData = UserDefaults.standard.object(forKey: targetingDataKey) as? [String: Any] else {
                 return nil
             }
 
-            guard isTargetingFresh() else {
+            guard isTargetingFresh(cacheTTL: cacheTTL) else {
                 removeTargetingEntry()
                 return nil
             }
@@ -108,8 +106,8 @@ final class LocalStorage: NSObject, @unchecked Sendable {
         UserDefaults.standard.removeObject(forKey: targetingStoredAtKey)
     }
 
-    /// Whether the stored targeting entry was fetched recently enough to still be served, per `config.cacheTTL`. The caller must hold `lock`.
-    private func isTargetingFresh() -> Bool {
+    /// Whether the stored targeting entry was fetched recently enough to still be served, per `cacheTTL`. The caller must hold `lock`.
+    private func isTargetingFresh(cacheTTL: TimeInterval) -> Bool {
         // NOTE: A missing timestamp means the entry predates cache expiry support, so its age is unknowable - treat it as expired.
         guard let storedAt = UserDefaults.standard.object(forKey: targetingStoredAtKey) as? TimeInterval else {
             return false
@@ -117,6 +115,6 @@ final class LocalStorage: NSObject, @unchecked Sendable {
         
         let age = Date().timeIntervalSince1970 - storedAt
         
-        return age >= 0 && age < config.cacheTTL
+        return age >= 0 && age < cacheTTL
     }
 }

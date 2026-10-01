@@ -156,7 +156,7 @@ public extension OptableSDK {
     /// reported as absent and is cleared from storage.
     @objc
     func targetingFromCache() -> OptableTargeting? {
-        return self.api.storage.getTargeting()
+        return self.api.storage.getTargeting(cacheTTL: config.cacheTTL)
     }
 
     /// targetingClearCache() clears any previously cached targeting data.

@@ -29,7 +29,7 @@ class LocalStorageTests: XCTestCase {
         
         localStorage.setTargeting(optableTargetingFull)
         
-        let readTargeting = localStorage.getTargeting()
+        let readTargeting = localStorage.getTargeting(cacheTTL: OptableConfig.defaultCacheTTL)
         XCTAssert(readTargeting != nil)
         XCTAssert(readTargeting!.targetingData as NSDictionary == kOptableTargeting)
         XCTAssert(readTargeting!.gamTargetingKeywords as? NSDictionary == kGamTargetingKeywords)
@@ -45,7 +45,7 @@ class LocalStorageTests: XCTestCase {
         
         localStorage.setTargeting(optableTargetingFull)
         
-        let readTargeting = localStorage.getTargeting()
+        let readTargeting = localStorage.getTargeting(cacheTTL: OptableConfig.defaultCacheTTL)
         XCTAssert(readTargeting != nil)
         XCTAssert(readTargeting!.targetingData as NSDictionary == kOptableTargeting)
         XCTAssert(readTargeting!.gamTargetingKeywords as? NSDictionary == nil)
@@ -61,7 +61,7 @@ class LocalStorageTests: XCTestCase {
         
         localStorage.setTargeting(optableTargetingFull)
         
-        let readTargeting = localStorage.getTargeting()
+        let readTargeting = localStorage.getTargeting(cacheTTL: OptableConfig.defaultCacheTTL)
         XCTAssert(readTargeting != nil)
         XCTAssert(readTargeting!.targetingData as NSDictionary == kOptableTargeting)
         XCTAssert(readTargeting!.gamTargetingKeywords as? NSDictionary == kGamTargetingKeywords)
@@ -95,94 +95,94 @@ class LocalStorageTests: XCTestCase {
         
         localStorage.clearTargeting()
         
-        XCTAssert(localStorage.getTargeting() == nil)
+        XCTAssert(localStorage.getTargeting(cacheTTL: OptableConfig.defaultCacheTTL) == nil)
     }
     
     // MARK: - Cache TTL
     func testTargetingIsReturnedWithinTTL() {
-        let storage = makeStorageWithStoredTargeting(cacheTTL: 60)
+        let storage = makeStorageWithStoredTargeting()
 
         setStoredAge(storage, to: 30)
 
-        XCTAssertNotNil(storage.getTargeting())
+        XCTAssertNotNil(storage.getTargeting(cacheTTL: 60))
     }
 
     func testTargetingIsNilPastTTL() {
-        let storage = makeStorageWithStoredTargeting(cacheTTL: 60)
+        let storage = makeStorageWithStoredTargeting()
 
         setStoredAge(storage, to: 61)
 
-        XCTAssertNil(storage.getTargeting())
+        XCTAssertNil(storage.getTargeting(cacheTTL: 60))
     }
 
     func testTargetingExpiresAtExactlyTTL() {
-        let storage = makeStorageWithStoredTargeting(cacheTTL: 60)
+        let storage = makeStorageWithStoredTargeting()
 
         setStoredAge(storage, to: 60)
 
-        XCTAssertNil(storage.getTargeting())
+        XCTAssertNil(storage.getTargeting(cacheTTL: 60))
     }
 
     func testZeroTTLDisablesCaching() {
-        let storage = makeStorageWithStoredTargeting(cacheTTL: 0)
+        let storage = makeStorageWithStoredTargeting()
 
         setStoredAge(storage, to: 0)
 
-        XCTAssertNil(storage.getTargeting())
+        XCTAssertNil(storage.getTargeting(cacheTTL: 0))
     }
 
     func testExpiredTargetingIsClearedFromStorage() {
-        let storage = makeStorageWithStoredTargeting(cacheTTL: 60)
+        let storage = makeStorageWithStoredTargeting()
 
         setStoredAge(storage, to: 61)
-        XCTAssertNil(storage.getTargeting())
+        XCTAssertNil(storage.getTargeting(cacheTTL: 60))
 
         setStoredAge(storage, to: 0)
-        XCTAssertNil(storage.getTargeting())
+        XCTAssertNil(storage.getTargeting(cacheTTL: 60))
     }
 
     func testTargetingWithoutStoredTimestampIsTreatedAsExpired() {
-        let storage = makeStorageWithStoredTargeting(cacheTTL: 60)
+        let storage = makeStorageWithStoredTargeting()
 
         UserDefaults.standard.removeObject(forKey: storage.targetingStoredAtKey)
 
-        XCTAssertNil(storage.getTargeting())
+        XCTAssertNil(storage.getTargeting(cacheTTL: 60))
     }
 
     func testTargetingIsNilWhenStoredInTheFuture() {
-        let storage = makeStorageWithStoredTargeting(cacheTTL: 60)
+        let storage = makeStorageWithStoredTargeting()
 
         setStoredAge(storage, to: -30)
 
-        XCTAssertNil(storage.getTargeting())
+        XCTAssertNil(storage.getTargeting(cacheTTL: 60))
     }
 
     func testDefaultTTLKeepsTargetingFreshJustUnderTwentyFourHours() {
-        let storage = makeStorageWithStoredTargeting(cacheTTL: nil)
+        let storage = makeStorageWithStoredTargeting()
 
         setStoredAge(storage, to: 24 * 60 * 60 - 60)
 
-        XCTAssertNotNil(storage.getTargeting())
+        XCTAssertNotNil(storage.getTargeting(cacheTTL: OptableConfig.defaultCacheTTL))
     }
 
     func testDefaultTTLExpiresTargetingPastTwentyFourHours() {
-        let storage = makeStorageWithStoredTargeting(cacheTTL: nil)
+        let storage = makeStorageWithStoredTargeting()
 
         setStoredAge(storage, to: 24 * 60 * 60 + 60)
 
-        XCTAssertNil(storage.getTargeting())
+        XCTAssertNil(storage.getTargeting(cacheTTL: OptableConfig.defaultCacheTTL))
     }
 
     // MARK: - Thread safety
     /**
      A stale read must never wipe an entry that was stored concurrently.
 
-     Without mutual exclusion, `getTargeting()` can judge the old entry expired, then lose the CPU to a
+     Without mutual exclusion, `getTargeting(cacheTTL:)` can judge the old entry expired, then lose the CPU to a
      `setTargeting(_:)` that stores a fresh one, then resume and clear it. Whichever order the two calls
      serialize in, a fresh entry must be readable afterwards.
      */
     func testConcurrentReadOfExpiredEntryDoesNotWipeFreshWrite() {
-        let storage = makeStorageWithStoredTargeting(cacheTTL: 60)
+        let storage = makeStorageWithStoredTargeting()
         let freshTargeting = OptableTargeting(
             optableTargeting: kOptableTargeting as! [String: Any],
             gamTargetingKeywords: kGamTargetingKeywords as? [String: Any],
@@ -195,12 +195,12 @@ class LocalStorageTests: XCTestCase {
 
             let group = DispatchGroup()
             let queue = DispatchQueue.global(qos: .userInitiated)
-            queue.async(group: group) { _ = storage.getTargeting() }
+            queue.async(group: group) { _ = storage.getTargeting(cacheTTL: 60) }
             queue.async(group: group) { storage.setTargeting(freshTargeting) }
             group.wait()
 
-            XCTAssertNotNil(storage.getTargeting(), "fresh entry was wiped by a concurrent stale read on iteration \(iteration)")
-            if storage.getTargeting() == nil { break }
+            XCTAssertNotNil(storage.getTargeting(cacheTTL: 60), "fresh entry was wiped by a concurrent stale read on iteration \(iteration)")
+            if storage.getTargeting(cacheTTL: 60) == nil { break }
         }
     }
 
@@ -209,17 +209,9 @@ class LocalStorageTests: XCTestCase {
      Builds a LocalStorage with targeting already stored in it.
 
      Each call uses a unique tenant so that tests never share UserDefaults keys.
-     Passing a nil `cacheTTL` leaves the config default in place.
      */
-    private func makeStorageWithStoredTargeting(
-        cacheTTL: TimeInterval?,
-        function: String = #function
-    ) -> LocalStorage {
+    private func makeStorageWithStoredTargeting(function: String = #function) -> LocalStorage {
         let config = OptableConfig(tenant: "tenant-\(function)", originSlug: "slug")
-        if let cacheTTL {
-            config.cacheTTL = cacheTTL
-        }
-
         let storage = LocalStorage(config)
         storage.setTargeting(
             OptableTargeting(
