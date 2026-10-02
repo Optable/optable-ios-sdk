@@ -95,6 +95,7 @@ public extension OptableSDK {
      }
      ```
      */
+    @preconcurrency
     func identify(_ ids: [OptableIdentifier], completion: @escaping @Sendable (Result<HTTPURLResponse, Error>) -> Void) throws {
         try _identify(ids, completion: completion)
     }
@@ -141,6 +142,7 @@ public extension OptableSDK {
      On success, the result is cached in client storage. You can read it using targetingFromCache()
      and clear it using targetingClearCache().
      */
+    @preconcurrency
     func targeting(_ ids: [OptableIdentifier]? = nil, hids: [OptableIdentifier]? = nil, completion: @escaping @Sendable (Result<OptableTargeting, Error>) -> Void) throws {
         try _targeting(ids: ids, hids: hids, completion: completion)
     }
@@ -189,6 +191,7 @@ public extension OptableSDK {
      - .success(HTTPURLResponse) on success
      - .failure(Error) on failure
      */
+    @preconcurrency
     func witness(event: String, properties: [String: Any], _ completion: @escaping @Sendable (Result<HTTPURLResponse, Error>) -> Void) throws {
         try _witness(event: event, properties: properties, completion: completion)
     }
@@ -242,6 +245,7 @@ public extension OptableSDK {
 
      The resulting OptableTargeting is also cached for targetingFromCache().
      */
+    @preconcurrency
     func profile(traits: [String: Any], id: String? = nil, neighbors: [String]? = nil, _ completion: @escaping @Sendable (Result<OptableTargeting, Error>) -> Void) throws {
         try _profile(traits: traits, id: id, neighbors: neighbors, completion: completion)
     }
