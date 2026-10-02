@@ -23,8 +23,7 @@ import Foundation
  If a synchronous error occurs while preparing a request, the method sets the passed NSError**
  and does not invoke the delegate callbacks.
  */
-@MainActor
-@objc
+@preconcurrency @MainActor @objc
 public protocol OptableDelegate {
     func identifyOk(_ result: HTTPURLResponse)
     func identifyErr(_ error: NSError)
