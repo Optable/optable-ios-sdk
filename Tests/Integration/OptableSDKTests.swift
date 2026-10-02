@@ -19,7 +19,8 @@ class OptableSDKTests: XCTestCase {
     lazy var witnessExpectation = expectation(description: "witness-delegate-expectation")
     lazy var profileExpectation = expectation(description: "profile-delegate-expectation")
 
-    override func setUpWithError() throws {
+    @MainActor
+    override func setUp() async throws {
         sdk.delegate = self
     }
 
