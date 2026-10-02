@@ -11,6 +11,7 @@ import Foundation
 // MARK: - OptableDelegate
 /**
  OptableDelegate enables Objective-C and Swift apps to receive results via delegate callbacks.
+ Every callback is delivered on the main actor (the main thread).
 
  - Ok callbacks:
    - identifyOk and witnessOk receive an HTTPURLResponse on success.
@@ -22,7 +23,7 @@ import Foundation
  If a synchronous error occurs while preparing a request, the method sets the passed NSError**
  and does not invoke the delegate callbacks.
  */
-@objc
+@preconcurrency @MainActor @objc
 public protocol OptableDelegate {
     func identifyOk(_ result: HTTPURLResponse)
     func identifyErr(_ error: NSError)
@@ -45,8 +46,8 @@ public protocol OptableDelegate {
  The OptableSDK keeps some state in [UserDefaults](https://developer.apple.com/documentation/foundation/userdefaults), a key/value store persisted across launches of the app.  The state is therefore unique to the app+device, and not globally unique to the app across devices.
  */
 @objc
-public class OptableSDK: NSObject {
-    @objc
+public final class OptableSDK: NSObject {
+    @preconcurrency @MainActor @objc
     public var delegate: OptableDelegate?
 
     let config: OptableConfig
@@ -72,6 +73,9 @@ public class OptableSDK: NSObject {
     }
 }
 
+// MARK: - Sendable
+extension OptableSDK: Sendable {}
+
 // MARK: - Identify
 public extension OptableSDK {
     /**
@@ -91,7 +95,8 @@ public extension OptableSDK {
      }
      ```
      */
-    func identify(_ ids: [OptableIdentifier], completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    @preconcurrency
+    func identify(_ ids: [OptableIdentifier], completion: @escaping @Sendable (Result<HTTPURLResponse, Error>) -> Void) throws {
         try _identify(ids, completion: completion)
     }
 
@@ -137,7 +142,8 @@ public extension OptableSDK {
      On success, the result is cached in client storage. You can read it using targetingFromCache()
      and clear it using targetingClearCache().
      */
-    func targeting(_ ids: [OptableIdentifier]? = nil, hids: [OptableIdentifier]? = nil, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+    @preconcurrency
+    func targeting(_ ids: [OptableIdentifier]? = nil, hids: [OptableIdentifier]? = nil, completion: @escaping @Sendable (Result<OptableTargeting, Error>) -> Void) throws {
         try _targeting(ids: ids, hids: hids, completion: completion)
     }
 
@@ -146,7 +152,7 @@ public extension OptableSDK {
     /// reported as absent and is cleared from storage.
     @objc
     func targetingFromCache() -> OptableTargeting? {
-        return self.api.storage.getTargeting()
+        return self.api.storage.getTargeting(cacheTTL: config.cacheTTL)
     }
 
     /// targetingClearCache() clears any previously cached targeting data.
@@ -185,7 +191,8 @@ public extension OptableSDK {
      - .success(HTTPURLResponse) on success
      - .failure(Error) on failure
      */
-    func witness(event: String, properties: [String: Any], _ completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    @preconcurrency
+    func witness(event: String, properties: [String: Any], _ completion: @escaping @Sendable (Result<HTTPURLResponse, Error>) -> Void) throws {
         try _witness(event: event, properties: properties, completion: completion)
     }
 
@@ -214,11 +221,13 @@ public extension OptableSDK {
     @objc
     func witness(event: String, properties: [String: Any]) throws {
         try self.witness(event: event, properties: properties) { result in
-            switch result {
-            case let .success(response):
-                self.delegate?.witnessOk(response)
-            case let .failure(error as NSError):
-                self.delegate?.witnessErr(error)
+            Task { @MainActor in
+                switch result {
+                case let .success(response):
+                    self.delegate?.witnessOk(response)
+                case let .failure(error as NSError):
+                    self.delegate?.witnessErr(error)
+                }
             }
         }
     }
@@ -236,7 +245,8 @@ public extension OptableSDK {
 
      The resulting OptableTargeting is also cached for targetingFromCache().
      */
-    func profile(traits: [String: Any], id: String? = nil, neighbors: [String]? = nil, _ completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+    @preconcurrency
+    func profile(traits: [String: Any], id: String? = nil, neighbors: [String]? = nil, _ completion: @escaping @Sendable (Result<OptableTargeting, Error>) -> Void) throws {
         try _profile(traits: traits, id: id, neighbors: neighbors, completion: completion)
     }
 
@@ -265,11 +275,13 @@ public extension OptableSDK {
     @objc
     func profile(traits: [String: Any], id: String? = nil, neighbors: [String]? = nil) throws {
         try _profile(traits: traits, id: id, neighbors: neighbors, completion: { result in
-            switch result {
-            case let .success(response):
-                self.delegate?.profileOk(response)
-            case let .failure(error as NSError):
-                self.delegate?.profileErr(error)
+            Task { @MainActor in
+                switch result {
+                case let .success(response):
+                    self.delegate?.profileOk(response)
+                case let .failure(error as NSError):
+                    self.delegate?.profileErr(error)
+                }
             }
         })
     }
@@ -298,7 +310,7 @@ public extension OptableSDK {
 
 // MARK: - Internal
 extension OptableSDK {
-    func _identify(_ ids: [OptableIdentifier], completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    func _identify(_ ids: [OptableIdentifier], completion: @escaping @Sendable (Result<HTTPURLResponse, Error>) -> Void) throws {
         var ids = ids
 
         enrichIfNeeded(ids: &ids)
@@ -325,7 +337,7 @@ extension OptableSDK {
         }).resume()
     }
 
-    func _targeting(ids: [OptableIdentifier]?, hids: [OptableIdentifier]?, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+    func _targeting(ids: [OptableIdentifier]?, hids: [OptableIdentifier]?, completion: @escaping @Sendable (Result<OptableTargeting, Error>) -> Void) throws {
         var ids = ids ?? []
         var hids = hids ?? []
 
@@ -365,7 +377,7 @@ extension OptableSDK {
         }).resume()
     }
 
-    func _witness(event: String, properties: [String: Any], completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) throws {
+    func _witness(event: String, properties: [String: Any], completion: @escaping @Sendable (Result<HTTPURLResponse, Error>) -> Void) throws {
         guard let request = try api.witness(event: event, properties: properties) else {
             throw OptableError.witness("Failed to create witness request")
         }
@@ -388,7 +400,7 @@ extension OptableSDK {
         }).resume()
     }
 
-    func _profile(traits: [String: Any], id: String?, neighbors: [String]?, completion: @escaping (Result<OptableTargeting, Error>) -> Void) throws {
+    func _profile(traits: [String: Any], id: String?, neighbors: [String]?, completion: @escaping @Sendable (Result<OptableTargeting, Error>) -> Void) throws {
         guard let request = try api.profile(traits: traits, id: id, neighbors: neighbors) else {
             throw OptableError.profile("Failed to create profile request")
         }

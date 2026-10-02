@@ -8,7 +8,7 @@
 import Foundation
 
 @objcMembers
-public class OptableTargeting: NSObject {
+public final class OptableTargeting: NSObject {
     public let targetingData: [String: Any]
     public let gamTargetingKeywords: [String: Any]?
     public let ortb2: String?
@@ -32,6 +32,9 @@ public class OptableTargeting: NSObject {
         return desc
     }
 }
+
+// MARK: - Sendable
+extension OptableTargeting: @unchecked Sendable {}
 
 // MARK: - Helpers
 
