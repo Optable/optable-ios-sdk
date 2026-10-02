@@ -16,7 +16,7 @@ import WebKit
  [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide)
 
  */
-final class EdgeAPI {
+final class EdgeAPI: Sendable {
     private static let kPassportHeader: String = "X-Optable-Visitor"
 
     let storage: LocalStorage

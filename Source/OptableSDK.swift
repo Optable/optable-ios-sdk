@@ -46,7 +46,7 @@ public protocol OptableDelegate {
  The OptableSDK keeps some state in [UserDefaults](https://developer.apple.com/documentation/foundation/userdefaults), a key/value store persisted across launches of the app.  The state is therefore unique to the app+device, and not globally unique to the app across devices.
  */
 @objc
-public class OptableSDK: NSObject {
+public final class OptableSDK: NSObject {
     @preconcurrency @MainActor @objc
     public var delegate: OptableDelegate?
 
@@ -74,7 +74,7 @@ public class OptableSDK: NSObject {
 }
 
 // MARK: - Sendable
-extension OptableSDK: @unchecked Sendable {}
+extension OptableSDK: Sendable {}
 
 // MARK: - Identify
 public extension OptableSDK {
