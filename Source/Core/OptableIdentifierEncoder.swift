@@ -5,11 +5,8 @@
 //  Copyright © 2026 Optable Technologies, Inc. All rights reserved.
 //
 
-import CommonCrypto
+import CryptoKit
 import Foundation
-#if canImport(CryptoKit)
-    import CryptoKit
-#endif
 
 // MARK: - OptableIdentifierEncoder
 enum OptableIdentifierEncoder {
@@ -196,25 +193,9 @@ enum OptableIdentifierEncoder {
     }
 
     private static func sha256(data: Data) -> String {
-        #if canImport(CryptoKit)
-            if #available(iOS 13.0, *) {
-                return SHA256
-                    .hash(data: data)
-                    .compactMap({ String(format: "%02x", $0) })
-                    .joined()
-            }
-        #endif
-
-        return cchash(data)
-    }
-
-    private static func cchash(_ input: Data) -> String {
-        var digest = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
-        input.withUnsafeBytes { bytes in
-            _ = CC_SHA256(bytes.baseAddress, CC_LONG(input.count), &digest)
-        }
-        return digest.makeIterator().compactMap {
-            String(format: "%02x", $0)
-        }.joined()
+        SHA256
+            .hash(data: data)
+            .compactMap({ String(format: "%02x", $0) })
+            .joined()
     }
 }

@@ -101,7 +101,6 @@ public extension OptableSDK {
 
      Instead of completion callbacks, results are returned via async/await.
      */
-    @available(iOS 13.0, *)
     func identify(_ ids: [OptableIdentifier]) async throws -> HTTPURLResponse {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
@@ -164,7 +163,6 @@ public extension OptableSDK {
 
      Instead of completion callbacks, results are returned via async/await.
      */
-    @available(iOS 13.0, *)
     func targeting(_ ids: [OptableIdentifier]? = nil, hids: [OptableIdentifier]? = nil) async throws -> OptableTargeting {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
@@ -197,7 +195,6 @@ public extension OptableSDK {
 
      Instead of completion callbacks, results are returned via async/await.
      */
-    @available(iOS 13.0, *)
     func witness(event: String, properties: [String: Any]) async throws -> HTTPURLResponse {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
@@ -249,7 +246,6 @@ public extension OptableSDK {
 
      Instead of completion callbacks, results are returned via async/await.
      */
-    @available(iOS 13.0, *)
     func profile(traits: [String: Any], id: String? = nil, neighbors: [String]? = nil) async throws -> OptableTargeting {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
@@ -432,18 +428,11 @@ extension OptableSDK {
            ATT.advertisingIdentifier != UUID(uuid: uuid_t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) {
             let systemIDFA = ATT.advertisingIdentifier.uuidString
 
-            var idfaMatchingSystemIdxs: [Int] = []
-
-            for idx in ids.indices {
-                if case let .appleIDFA(value) = ids[idx] {
-                    if value == systemIDFA {
-                        idfaMatchingSystemIdxs.append(idx)
-                    }
-                }
-            }
-
             // Remove all matching systemIDFA (deduplicate)
-            ids.removeCompat(atOffsets: IndexSet(idfaMatchingSystemIdxs))
+            ids.removeAll { id in
+                if case let .appleIDFA(value) = id { return value == systemIDFA }
+                return false
+            }
 
             // Prepend all identifiers with systemIDFA
             ids.insert(.appleIDFA(systemIDFA), at: ids.startIndex)
