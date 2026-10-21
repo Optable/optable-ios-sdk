@@ -52,46 +52,6 @@
             return trackingStatus == .authorized
         }
 
-        // MARK: attAvailable
-
-        #if DEBUG
-            private static let _attAvailable_DebugOverride = Locked<Bool?>(nil)
-            static var attAvailable_DebugOverride: Bool? {
-                get { _attAvailable_DebugOverride.withLock { $0 } }
-                set { _attAvailable_DebugOverride.withLock { $0 = newValue } }
-            }
-        #endif
-
-        static var attAvailable: Bool {
-            #if DEBUG
-                if let override = attAvailable_DebugOverride {
-                    return override
-                }
-            #endif
-
-            return true
-        }
-
-        // MARK: canAuthorize
-
-        #if DEBUG
-            private static let _canAuthorize_DebugOverride = Locked<Bool?>(nil)
-            static var canAuthorize_DebugOverride: Bool? {
-                get { _canAuthorize_DebugOverride.withLock { $0 } }
-                set { _canAuthorize_DebugOverride.withLock { $0 = newValue } }
-            }
-        #endif
-
-        static var canAuthorize: Bool {
-            #if DEBUG
-                if let override = canAuthorize_DebugOverride {
-                    return override
-                }
-            #endif
-
-            return ATTrackingManager.trackingAuthorizationStatus == .notDetermined
-        }
-
         // MARK: trackingStatus
 
         #if DEBUG
@@ -108,37 +68,6 @@
             #else
                 return ATTrackingManager.trackingAuthorizationStatus
             #endif
-        }
-
-        // MARK: RequestAuthorization
-
-        static func requestATTAuthorization(completion: (@Sendable (Bool) -> Void)? = nil) {
-            #if DEBUG
-                if let override = trackingStatus_DebugOverride {
-                    completion?(override == .authorized)
-                    return
-                }
-            #endif
-
-            ATTrackingManager.requestTrackingAuthorization { status in
-                switch status {
-                case .authorized:
-                    completion?(true)
-                case .denied, .notDetermined, .restricted:
-                    completion?(false)
-                @unknown default:
-                    completion?(true)
-                }
-            }
-        }
-
-        @discardableResult
-        static func requestATTAuthorization() async -> Bool {
-            await withCheckedContinuation { continuation in
-                requestATTAuthorization { isAuthorized in
-                    continuation.resume(returning: isAuthorized)
-                }
-            }
         }
     }
 

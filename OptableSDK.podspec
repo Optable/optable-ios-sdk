@@ -19,6 +19,7 @@ Pod::Spec.new do |spec|
 
   spec.source        = { :git => "https://github.com/Optable/optable-ios-sdk.git", :tag => "#{spec.version}" }
   spec.source_files  = "Source/**/*.{h,m,swift}"
+  spec.resource_bundles = { "OptableSDK_Privacy" => ["Source/PrivacyInfo.xcprivacy"] }
 
   spec.frameworks    = 'Foundation', 'WebKit', 'CryptoKit', 'AdSupport'
 end
