@@ -15,7 +15,7 @@ import Foundation
  [](https://docs.optable.co/optable-documentation/getting-started/reference/identifier-types)
 
  */
-public enum OptableIdentifier {
+public enum OptableIdentifier: Sendable {
     // Personal identifiers,
     case emailAddress(String) // e
     case phoneNumber(String) // p

@@ -19,7 +19,8 @@ class OptableSDKTests: XCTestCase {
     lazy var witnessExpectation = expectation(description: "witness-delegate-expectation")
     lazy var profileExpectation = expectation(description: "profile-delegate-expectation")
 
-    override func setUpWithError() throws {
+    @MainActor
+    override func setUp() async throws {
         sdk.delegate = self
     }
 
@@ -96,6 +97,23 @@ class OptableSDKTests: XCTestCase {
 
         // Clear and verify empty
         sdk.targetingClearCache()
+        XCTAssertNil(sdk.targetingFromCache())
+    }
+
+    func test_targetingFromCache_usesCurrentConfigCacheTTL() {
+        let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK, cacheTTL: 60)
+        let sdk = OptableSDK(config: config)
+
+        // Seed storage with an entry that is 90 seconds old
+        sdk.api.storage.setTargeting(OptableTargeting(optableTargeting: ["foo": "bar"]))
+        UserDefaults.standard.setValue(Date().timeIntervalSince1970 - 90, forKey: sdk.api.storage.targetingStoredAtKey)
+
+        // Raising the TTL after init keeps the entry readable
+        config.cacheTTL = 120
+        XCTAssertNotNil(sdk.targetingFromCache())
+
+        // Lowering it below the entry's age expires it
+        config.cacheTTL = 60
         XCTAssertNil(sdk.targetingFromCache())
     }
 

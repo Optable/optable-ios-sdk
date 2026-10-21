@@ -8,8 +8,14 @@
 
 import Foundation
 
+/**
+ The configuration of an `OptableSDK` instance.
+
+ Every property is backed by its own lock, so the integrator may read and write it from any thread while the SDK
+ reads it.
+ */
 @objc
-public class OptableConfig: NSObject {
+public final class OptableConfig: NSObject, Sendable {
     // MARK: Constants
     /// The default lifetime of cached targeting data: 24 hours.
     @objc
@@ -18,42 +24,78 @@ public class OptableConfig: NSObject {
     // MARK: Required
     /// The tenant name associated with the configuration. E.g. `acmeco.optable.co` => `acmeco`.
     @objc
-    public var tenant: String
+    public var tenant: String {
+        get { tenantStore.withLock { $0 } }
+        set { tenantStore.withLock { $0 = newValue } }
+    }
+    private let tenantStore: Locked<String>
 
     /// The DCN's Source Slug. E.g. `acmeco-sdk`.
     @objc
-    public var originSlug: String
+    public var originSlug: String {
+        get { originSlugStore.withLock { $0 } }
+        set { originSlugStore.withLock { $0 = newValue } }
+    }
+    private let originSlugStore: Locked<String>
 
     // MARK: Optional
     /// The hostname of the Optable endpoint. Default value is "na.edge.optable.co".
     @objc
-    public var host: String = "na.edge.optable.co"
+    public var host: String {
+        get { hostStore.withLock { $0 } }
+        set { hostStore.withLock { $0 = newValue } }
+    }
+    private let hostStore = Locked("na.edge.optable.co")
 
     /// The API path to be appended to the host. Default value is "v2".
     @objc
-    public var path: String = "v2"
+    public var path: String {
+        get { pathStore.withLock { $0 } }
+        set { pathStore.withLock { $0 = newValue } }
+    }
+    private let pathStore = Locked("v2")
 
     /// Boolean flag that determines if insecure HTTP should be used instead of HTTPS. Default is false.
     @objc
-    public var insecure: Bool = false
+    public var insecure: Bool {
+        get { insecureStore.withLock { $0 } }
+        set { insecureStore.withLock { $0 = newValue } }
+    }
+    private let insecureStore = Locked(false)
 
     /// An optional API key for authentication. If the API Endpoint is enabled as private, a Service Account API key will be required.
     @objc
-    public var apiKey: String?
+    public var apiKey: String? {
+        get { apiKeyStore.withLock { $0 } }
+        set { apiKeyStore.withLock { $0 = newValue } }
+    }
+    private let apiKeyStore = Locked<String?>(nil)
 
     /// An optional custom user agent string for network requests.
     @objc
-    public var customUserAgent: String?
+    public var customUserAgent: String? {
+        get { customUserAgentStore.withLock { $0 } }
+        set { customUserAgentStore.withLock { $0 = newValue } }
+    }
+    private let customUserAgentStore = Locked<String?>(nil)
 
     /// An optional value sent as the `Origin` HTTP header on every Optable API request,
     /// identifying the origin you want your mobile traffic attributed to. E.g. `https://www.acmeco.com`.
     /// When `nil` (the default), no `Origin` header is sent. Unrelated to `originSlug`.
     @objc
-    public var origin: String?
+    public var origin: String? {
+        get { originStore.withLock { $0 } }
+        set { originStore.withLock { $0 = newValue } }
+    }
+    private let originStore = Locked<String?>(nil)
 
     /// Boolean flag to skip the detection of advertising IDs. Default is false.
     @objc
-    public var skipAdvertisingIdDetection: Bool = false
+    public var skipAdvertisingIdDetection: Bool {
+        get { skipAdvertisingIdDetectionStore.withLock { $0 } }
+        set { skipAdvertisingIdDetectionStore.withLock { $0 = newValue } }
+    }
+    private let skipAdvertisingIdDetectionStore = Locked(false)
 
     /**
      How long, in seconds, targeting data cached by the `targeting` API stays valid. Default is `defaultCacheTTL` (24 hours).
@@ -62,14 +104,22 @@ public class OptableConfig: NSObject {
      A value of `0` therefore disables caching entirely.
      */
     @objc
-    public var cacheTTL: TimeInterval = OptableConfig.defaultCacheTTL
+    public var cacheTTL: TimeInterval {
+        get { cacheTTLStore.withLock { $0 } }
+        set { cacheTTLStore.withLock { $0 = newValue } }
+    }
+    private let cacheTTLStore = Locked(OptableConfig.defaultCacheTTL)
 
     // MARK: Privacy Regulations
     /**
      Optable privacy regulation override, which can be one of: gdpr, can, us, or null and will override all other privacy regulations when present.
      */
     @objc
-    public var reg: String?
+    public var reg: String? {
+        get { regStore.withLock { $0 } }
+        set { regStore.withLock { $0 = newValue } }
+    }
+    private let regStore = Locked<String?>(nil)
 
     /**
      TCF EU v2 consent string.
@@ -77,7 +127,11 @@ public class OptableConfig: NSObject {
      > If not set, SDK will try to fetch data from UserDefaults => `IABTCF_TCString`, as stated in [](https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#in-app-details)
      */
     @objc
-    public var gdprConsent: String?
+    public var gdprConsent: String? {
+        get { gdprConsentStore.withLock { $0 } }
+        set { gdprConsentStore.withLock { $0 = newValue } }
+    }
+    private let gdprConsentStore = Locked<String?>(nil)
 
     /**
      A boolean indicating whether GDPR applies, represented as a integer (0 when it does not apply, 1 when it does). This value should be present when gdpr_consent is supplied.
@@ -85,7 +139,11 @@ public class OptableConfig: NSObject {
      > If not set, SDK will try to fetch data from UserDefaults => `IABTCF_gdprApplies`, as stated in [](https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#in-app-details)
      */
     @objc
-    public var gdpr: NSNumber?
+    public var gdpr: NSNumber? {
+        get { gdprStore.withLock { $0 } }
+        set { gdprStore.withLock { $0 = newValue } }
+    }
+    private let gdprStore = Locked<NSNumber?>(nil)
 
     /**
      GPP privacy string.
@@ -93,13 +151,21 @@ public class OptableConfig: NSObject {
      > If not set, SDK will try to fetch data from UserDefaults => `IABGPP_2_TCString`, as stated in [](https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#in-app-details)
      */
     @objc
-    public var gpp: String?
+    public var gpp: String? {
+        get { gppStore.withLock { $0 } }
+        set { gppStore.withLock { $0 = newValue } }
+    }
+    private let gppStore = Locked<String?>(nil)
 
     /**
      A comma-separated list of up to two sections applicable in a given GPP privacy string. This value is required when gpp is present.
      */
     @objc
-    public var gppSid: String?
+    public var gppSid: String? {
+        get { gppSidStore.withLock { $0 } }
+        set { gppSidStore.withLock { $0 = newValue } }
+    }
+    private let gppSidStore = Locked<String?>(nil)
 
     // MARK: Inits
     /**
@@ -109,8 +175,8 @@ public class OptableConfig: NSObject {
      */
     @objc
     public init(tenant: String, originSlug: String) {
-        self.tenant = tenant
-        self.originSlug = originSlug
+        self.tenantStore = Locked(tenant)
+        self.originSlugStore = Locked(originSlug)
         super.init()
     }
 
@@ -139,8 +205,9 @@ public class OptableConfig: NSObject {
         skipAdvertisingIdDetection: Bool = false,
         cacheTTL: TimeInterval = OptableConfig.defaultCacheTTL
     ) {
-        self.tenant = tenant
-        self.originSlug = originSlug
+        self.tenantStore = Locked(tenant)
+        self.originSlugStore = Locked(originSlug)
+        super.init()
         self.host = host
         self.path = path
         self.insecure = insecure

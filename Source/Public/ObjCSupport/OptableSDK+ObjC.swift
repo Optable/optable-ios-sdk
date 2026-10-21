@@ -20,11 +20,13 @@ public extension OptableSDK {
     func identify(_ ids: [OptableSDKIdentifier]) throws {
         let bridgedIds = ids.compactMap({ OptableIdentifier(objc: $0) })
         try self._identify(bridgedIds) { result in
-            switch result {
-            case let .success(response):
-                self.delegate?.identifyOk(response)
-            case let .failure(error as NSError):
-                self.delegate?.identifyErr(error)
+            Task { @MainActor in
+                switch result {
+                case let .success(response):
+                    self.delegate?.identifyOk(response)
+                case let .failure(error as NSError):
+                    self.delegate?.identifyErr(error)
+                }
             }
         }
     }
@@ -54,11 +56,13 @@ public extension OptableSDK {
         let bridgedHIds = hids.compactMap({ OptableIdentifier(objc: $0) })
 
         try self._targeting(ids: bridgedIds, hids: bridgedHIds, completion: { result in
-            switch result {
-            case let .success(optableTargeting):
-                self.delegate?.targetingOk(optableTargeting)
-            case let .failure(error as NSError):
-                self.delegate?.targetingErr(error)
+            Task { @MainActor in
+                switch result {
+                case let .success(optableTargeting):
+                    self.delegate?.targetingOk(optableTargeting)
+                case let .failure(error as NSError):
+                    self.delegate?.targetingErr(error)
+                }
             }
         })
     }
