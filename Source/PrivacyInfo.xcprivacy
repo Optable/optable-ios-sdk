@@ -99,6 +99,21 @@
             </array>
         </dict>
 
+        <!-- IP address transmitted with every network request to the DCN -->
+        <dict>
+            <key>NSPrivacyCollectedDataType</key>
+            <string>NSPrivacyCollectedDataTypeIPAddress</string>
+            <key>NSPrivacyCollectedDataTypeLinked</key>
+            <true/>
+            <key>NSPrivacyCollectedDataTypeTracking</key>
+            <false/>
+            <key>NSPrivacyCollectedDataTypePurposes</key>
+            <array>
+                <string>NSPrivacyCollectedDataTypePurposeDeveloperAdvertising</string>
+                <string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
+            </array>
+        </dict>
+
         <!-- App events logged via the witness() API (e.g. screen views, button presses) -->
         <dict>
             <key>NSPrivacyCollectedDataType</key>
