@@ -8,11 +8,7 @@
 #if canImport(AdSupport)
 
     import AdSupport
-
-    #if canImport(AppTrackingTransparency)
-        import AppTrackingTransparency
-    #endif
-
+    import AppTrackingTransparency
     import Foundation
 
     enum ATT {
@@ -29,21 +25,6 @@
             }
         #endif
 
-        // MARK: isAdvertisingTrackingEnabled
-
-        #if DEBUG
-            @available(iOS, introduced: 6, deprecated: 14,
-                       message: "Replaced by ATTrackingManager in AppTrackingTransparency.")
-            static var isAdvertisingTrackingEnabled_DebugOverride: Bool?
-            static var isAdvertisingTrackingEnabled: Bool {
-                isAdvertisingTrackingEnabled_DebugOverride ?? ASIdentifierManager.shared().isAdvertisingTrackingEnabled
-            }
-        #else
-            static var isAdvertisingTrackingEnabled: Bool {
-                ASIdentifierManager.shared().isAdvertisingTrackingEnabled
-            }
-        #endif
-
         // MARK: advertisingIdentifierAvailable
 
         #if DEBUG
@@ -57,110 +38,22 @@
                 }
             #endif
 
-            #if canImport(AppTrackingTransparency)
-                if #available(iOS 14, *) {
-                    return trackingStatus == .authorized
-                } else {
-                    return isAdvertisingTrackingEnabled
-                }
-            #else
-                return isAdvertisingTrackingEnabled
-            #endif
+            return trackingStatus == .authorized
         }
 
-        // MARK: attAvailable
+        // MARK: trackingStatus
 
         #if DEBUG
-            static var attAvailable_DebugOverride: Bool?
+            static var trackingStatus_DebugOverride: ATTrackingManager.AuthorizationStatus?
         #endif
 
-        static var attAvailable: Bool {
+        static var trackingStatus: ATTrackingManager.AuthorizationStatus {
             #if DEBUG
-                if let override = attAvailable_DebugOverride {
-                    return override
-                }
+                return trackingStatus_DebugOverride ?? ATTrackingManager.trackingAuthorizationStatus
+            #else
+                return ATTrackingManager.trackingAuthorizationStatus
             #endif
-
-            if #available(iOS 14, *) {
-                return true
-            } else {
-                return false
-            }
         }
-
-        #if canImport(AppTrackingTransparency)
-
-            // MARK: canAuthorize
-
-            #if DEBUG
-                @available(iOS 14, *)
-                static var canAuthorize_DebugOverride: Bool?
-            #endif
-
-            static var canAuthorize: Bool {
-                if #available(iOS 14, *) {
-                    #if DEBUG
-                        if let override = canAuthorize_DebugOverride {
-                            return override
-                        }
-                    #endif
-
-                    return ATTrackingManager.trackingAuthorizationStatus == .notDetermined
-                } else {
-                    return false
-                }
-            }
-
-            // MARK: trackingStatus
-
-            #if DEBUG
-                @available(iOS 14, *)
-                static var trackingStatus_DebugOverride: ATTrackingManager.AuthorizationStatus?
-            #endif
-
-            @available(iOS 14, *)
-            static var trackingStatus: ATTrackingManager.AuthorizationStatus {
-                #if DEBUG
-                    return trackingStatus_DebugOverride ?? ATTrackingManager.trackingAuthorizationStatus
-                #else
-                    return ATTrackingManager.trackingAuthorizationStatus
-                #endif
-            }
-
-            // MARK: RequestAuthorization
-
-            @available(iOS 14, *)
-            static func requestATTAuthorization(completion: ((Bool) -> Void)? = nil) {
-                #if DEBUG
-                    if let override = trackingStatus_DebugOverride {
-                        completion?(override == .authorized)
-                        return
-                    }
-                #endif
-
-                ATTrackingManager.requestTrackingAuthorization { status in
-                    switch status {
-                    case .authorized:
-                        completion?(true)
-                    case .denied, .notDetermined, .restricted:
-                        completion?(false)
-                    @unknown default:
-                        completion?(true)
-                    }
-                }
-            }
-
-            @available(iOS 14, *)
-            @discardableResult
-            static func requestATTAuthorization() async -> Bool {
-                await withCheckedContinuation { continuation in
-                    requestATTAuthorization { isAuthorized in
-                        continuation.resume(returning: isAuthorized)
-                    }
-                }
-            }
-
-        #endif
     }
 
 #endif

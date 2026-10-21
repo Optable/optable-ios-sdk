@@ -24,7 +24,6 @@ class OptableSDKTests: XCTestCase {
     }
 
     // MARK: Identify
-    @available(iOS 13.0, *)
     func test_identify_async() async throws {
         let response = try await sdk.identify([.emailAddress("test@test.com")])
         XCTAssert(response.allHeaderFields.keys.contains("x-optable-visitor"))
@@ -52,7 +51,6 @@ class OptableSDKTests: XCTestCase {
     }
 
     // MARK: Target
-    @available(iOS 13.0, *)
     func test_target_async() async throws {
         let response = try await sdk.targeting([.emailAddress("test@test.com")])
         XCTAssert(response.targetingData.keys.isEmpty == false)
@@ -102,7 +100,6 @@ class OptableSDKTests: XCTestCase {
     }
 
     // MARK: Witness
-    @available(iOS 13.0, *)
     func test_witness_async() async throws {
         let response: HTTPURLResponse = try await sdk.witness(event: "test", properties: ["integration-test-witness": "integration-test-witness-value"])
         XCTAssert(response.allHeaderFields.keys.contains("x-optable-visitor"))
@@ -130,7 +127,6 @@ class OptableSDKTests: XCTestCase {
     }
 
     // MARK: Profile
-    @available(iOS 13.0, *)
     func test_profile_async() async throws {
         let response = try await sdk.profile(traits: ["integration-test-profile": "integration-test-profile-value"])
         XCTAssert(response.targetingData.keys.isEmpty == false)
