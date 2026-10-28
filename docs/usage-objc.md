@@ -97,9 +97,11 @@ NSArray *ids = @[
 [OPTABLE identify: ids error: &error];
 ```
 
-Note that `error` will be set only in case of an internal SDK exception. Otherwise, any configured delegate `identifyOk` or `identifyErr` will be invoked to signal success or failure, respectively. Providing an empty `ppid` as in the above example simply will not send any `ppid`.
+Note that `error` will be set only in case of an internal SDK exception. Otherwise, any configured delegate `identifyOk` or `identifyErr` will be invoked to signal success or failure, respectively.
 
-> :warning: **IDFA requires user authorization**: Apple requires permission to use IDFA via the [AppTrackingTransparency](https://developer.apple.com/app-store/user-privacy-and-data-use/) framework. If you intend to set `aaid` to `YES` in calls to `identify`, the SDK will automatically trigger the ATT user prompt before sending the IDFA value to your DCN. We recommend configuring the _Privacy - Tracking Usage Description_ attribute string in your application's `Info.plist` to customize the prompt.
+The SDK automatically adds the Apple ID for Advertising (IDFA) to the identifiers sent by `identify` and `targeting` whenever the user has authorized tracking. You don't need to pass it yourself. To turn this off, set `skipAdvertisingIdDetection` to `YES` on your `OptableConfig`.
+
+> :warning: **IDFA requires user authorization**: Apple requires permission to use IDFA via the [AppTrackingTransparency](https://developer.apple.com/app-store/user-privacy-and-data-use/) framework. The SDK only reads the current authorization status and **does not** show the ATT prompt itself. Your application must request authorization, for example with `[ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:]`, and must set the _Privacy - Tracking Usage Description_ (`NSUserTrackingUsageDescription`) string in its `Info.plist`. Until the user authorizes tracking, no IDFA is sent.
 
 ### Profile API
 
