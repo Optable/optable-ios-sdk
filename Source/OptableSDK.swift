@@ -1,6 +1,6 @@
 //
 //  OptableSDK.swift
-//  demo-ios-swift
+//  OptableSDK
 //
 //  Copyright © 2020 Optable Technologies Inc. All rights reserved.
 //  See LICENSE for details.
@@ -300,7 +300,7 @@ public extension OptableSDK {
     func tryIdentifyFromURL(_ urlString: String) throws {
         let eidStr = OptableIdentifierEncoder.eidFromURL(urlString)
 
-        // The oeid is already a SHA256 of the Email, so it resolves to .hashedEmailAddress
+        // The oeid is already a SHA256 of the Email, so it resolves to .hem
         // and is not hashed again.
         guard let eid = OptableIdentifier(extendedIdentifier: eidStr) else { return }
 
