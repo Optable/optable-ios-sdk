@@ -87,9 +87,9 @@ The SDK `identify()` method will asynchronously connect to the configured DCN an
 >
 > The email address / phone number is **not** sent by the device in plain text.
 
-Since the `sendIDFA` value provided to `identify()` via the `aaid` (Apple Advertising ID or IDFA) boolean parameter is `true`, the SDK will attempt to fetch and send the Apple IDFA in the call to `identify` too, unless the user has turned on "Limit ad tracking" in their iOS device privacy settings.
+The SDK automatically adds the Apple ID for Advertising (IDFA) to the identifiers sent by `identify()` and `targeting()` whenever the user has authorized tracking. You don't need to pass it yourself. To turn this off, set `skipAdvertisingIdDetection` to `true` in `OptableConfig`.
 
-> :warning: **IDFA requires user authorization**: Apple requires permission to use IDFA via the [AppTrackingTransparency](https://developer.apple.com/app-store/user-privacy-and-data-use/) framework. If you intend to set `aaid` to `true` in calls to `identify()`, the SDK will automatically trigger the ATT user prompt before sending the IDFA value to your DCN. We recommend configuring the _Privacy - Tracking Usage Description_ attribute string in your application's `Info.plist` to customize the prompt.
+> :warning: **IDFA requires user authorization**: Apple requires permission to use IDFA via the [AppTrackingTransparency](https://developer.apple.com/app-store/user-privacy-and-data-use/) framework. The SDK only reads the current authorization status and **does not** show the ATT prompt itself. Your application must request authorization, for example with `ATTrackingManager.requestTrackingAuthorization`, and must set the _Privacy - Tracking Usage Description_ (`NSUserTrackingUsageDescription`) string in its `Info.plist`. Until the user authorizes tracking, no IDFA is sent.
 
 The frequency of invocation of `identify` is up to you, however for optimal identity resolution we recommended to call the `identify()` method on your SDK instance every time you authenticate a user, as well as periodically, such as for example once every 15 to 60 minutes while the application is being actively used and an internet connection is available.
 
