@@ -247,30 +247,35 @@ import GoogleMobileAds
 
 do {
     try OPTABLE!.targeting() { result in
-        var tdata: NSDictionary = [:]
+        let optableTargeting: OptableTargeting?
 
         switch result {
-        case .success(let keyvalues):
-            // Save targeting data in `tdata`:
-            tdata = keyvalues
+        case .success(let targeting):
+            optableTargeting = targeting
 
         case .failure(let error):
-            // handle targeting API failure in `error`
+            // handle targeting API failure in `error`, and still load an ad without targeting:
+            optableTargeting = nil
         }
 
-        // We assume bannerView is a DFPBannerView() instance that has already been
-        // initialized and added to our view:
-        bannerView.adUnitID = "/12345/some-ad-unit-id/in-your-gam360-account"
+        // The completion handler is not called on the main thread, so load the ad from there:
+        DispatchQueue.main.async {
+            // We assume bannerView is a BannerView instance that has already been
+            // initialized and added to our view:
+            bannerView.adUnitID = "/12345/some-ad-unit-id/in-your-gam360-account"
 
-        // Build GAM ad request with key values and load banner:
-        let req = DFPRequest()
-        req.customTargeting = tdata as! [String: Any]
-        bannerView.load(req)
+            // Build GAM ad request with key values and load banner:
+            let adRequest = AdManagerRequest()
+            adRequest.customTargeting = optableTargeting?.gamTargetingKeywords as? [String: Any]
+            bannerView.load(adRequest)
+        }
     }
 } catch {
     // handle thrown exception in `error`
 }
 ```
+
+The example above uses the class names from version 12 and later of the Google Mobile Ads SDK (`BannerView`, `AdManagerRequest`). Earlier versions name them `GAMBannerView` and `GAMRequest`.
 
 A working example is available in the demo application.
 
