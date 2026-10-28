@@ -101,6 +101,23 @@ Note that `error` will be set only in case of an internal SDK exception. Otherwi
 
 > :warning: **IDFA requires user authorization**: Apple requires permission to use IDFA via the [AppTrackingTransparency](https://developer.apple.com/app-store/user-privacy-and-data-use/) framework. If you intend to set `aaid` to `YES` in calls to `identify`, the SDK will automatically trigger the ATT user prompt before sending the IDFA value to your DCN. We recommend configuring the _Privacy - Tracking Usage Description_ attribute string in your application's `Info.plist` to customize the prompt.
 
+#### Hashed identifiers
+
+The SDK computes the SHA-256 hash of email addresses and phone numbers on the device, so they are **not** sent in plain text. Before hashing, it removes all whitespace and lowercases the value, but does not otherwise reformat it. In particular, phone numbers are not converted to [E.164](https://en.wikipedia.org/wiki/E.164), so pass them in E.164 format (for example, `@"+15551234567"`) so that they match the identifiers in your DCN.
+
+If you already have the SHA-256 hash of an email address or phone number, pass it with the `OptableSDKIdentifierType_HEM` or `OptableSDKIdentifierType_HashedPhoneNumber` type so that the SDK doesn't hash it a second time:
+
+```objective-c
+NSArray *ids = @[
+    [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_HEM value:@"<sha256 of the normalized email address>"],
+    [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_HashedPhoneNumber value:@"<sha256 of the E.164 phone number>"],
+];
+
+[OPTABLE identify: ids error: &error];
+```
+
+The value must be a 64-character hexadecimal SHA-256 digest, computed with the same normalization the SDK uses. Values that aren't a valid SHA-256 digest are dropped and not sent. Do not pass a hash with the `EmailAddress` or `PhoneNumber` types, which always hash their value. Already-hashed identifiers work the same way with `targeting`.
+
 ### Profile API
 
 To associate key value traits with the device, for eventual audience assembly, you can call the profile API as follows:

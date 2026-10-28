@@ -93,6 +93,28 @@ Since the `sendIDFA` value provided to `identify()` via the `aaid` (Apple Advert
 
 The frequency of invocation of `identify` is up to you, however for optimal identity resolution we recommended to call the `identify()` method on your SDK instance every time you authenticate a user, as well as periodically, such as for example once every 15 to 60 minutes while the application is being actively used and an internet connection is available.
 
+#### Normalization before hashing
+
+Before hashing, the SDK removes all whitespace and lowercases the value. It does **not** otherwise reformat it. In particular, phone numbers are not converted to [E.164](https://en.wikipedia.org/wiki/E.164), so `"+1 555-123-4567"`, `"+15551234567"` and `"5551234567"` produce three different hashes. Pass phone numbers in E.164 format (for example, `"+15551234567"`) so that they match the identifiers in your DCN.
+
+#### Already-hashed identifiers
+
+If you already have the SHA-256 hash of an email address or phone number, for example from your backend, pass it with `.hem` or `.hashedPhoneNumber` so that the SDK doesn't hash it a second time:
+
+```swift
+let ids: [OptableIdentifier] = [
+    .hem("<sha256 of the normalized email address>"),
+    .hashedPhoneNumber("<sha256 of the E.164 phone number>")
+]
+try OPTABLE!.identify(ids) { result in
+    // ...
+}
+```
+
+The value must be a 64-character hexadecimal SHA-256 digest, computed with the same normalization the SDK uses (whitespace removed, lowercased). The SDK lowercases the digest but does not hash it again. Values that aren't a valid SHA-256 digest are dropped and not sent, so a plain-text email address or phone number passed by mistake never leaves the device.
+
+Do not pass a hash to `.emailAddress` or `.phoneNumber`: those cases always hash their value, so the DCN would receive a hash of the hash. Already-hashed identifiers work the same way with `targeting()`.
+
 ### Profile API
 
 > :information_source: For more info check:
