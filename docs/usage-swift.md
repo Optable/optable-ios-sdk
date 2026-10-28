@@ -130,9 +130,11 @@ To get the targeting key values associated by the configured DCN with the device
 do {
     try OPTABLE!.targeting() { result in
         switch result {
-        case .success(let keyvalues):
-            // keyvalues is an NSDictionary containing targeting key-values that can be
-            // passed on to ad servers or other decisioning systems
+        case .success(let optableTargeting):
+            // optableTargeting is an OptableTargeting containing:
+            // - targetingData: the raw targeting response as [String: Any]
+            // - gamTargetingKeywords: key-values ready for GAM custom targeting
+            // - ortb2: an ORTB2 JSON string, e.g. for Prebid's global ORTB config
 
         case .failure(let error):
             // handle targeting API failure in `error`
@@ -181,9 +183,8 @@ In addition, unless `skipAdvertisingIdDetection` is set in `OptableConfig`, the 
 The `targeting` API will automatically cache resulting key value data in client storage on success. You can subsequently retrieve the cached key value data as follows:
 
 ```swift
-let cachedTargetingData = OPTABLE!.targetingFromCache()
-if (cachedTargetingData != nil) {
-  // cachedTargetingData! is an NSDictionary which you can cast as! [String: Any]
+if let cachedOptableTargeting = OPTABLE!.targetingFromCache() {
+  // cachedOptableTargeting is an OptableTargeting, the same type returned by targeting()
 }
 ```
 
