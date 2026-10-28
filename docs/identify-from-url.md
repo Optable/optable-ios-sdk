@@ -26,7 +26,7 @@ When iOS launches your app after a user taps a universal link, you receive an `N
 func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
     if userActivity.activityType == NSUserActivityTypeBrowsingWeb {
         let url = userActivity.webpageURL!
-        try OPTABLE!.tryIdentifyFromURL(url)
+        try? OPTABLE!.tryIdentifyFromURL(url.absoluteString)
     }
     ...
 }
