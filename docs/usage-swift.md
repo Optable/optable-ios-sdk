@@ -1,6 +1,6 @@
 ## Usage (Swift)
 
-To configure an instance of the SDK integrating with the [Optable](https://optable.co/) DCN of tenant `acmeco`, from a configured Swift application source identified by slug `my-app`, you simply create an instance of the `OptableSDK` class through which you can communicate to the DCN. For example, from your `AppDelegate`:
+To configure the SDK, create an instance of the `OptableSDK` class with an `OptableConfig` for your tenant and SDK source. For example, from your `AppDelegate`:
 
 ```swift
 import OptableSDK
@@ -18,7 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ...
         let config = OptableConfig(
             tenant: "acmeco",
-            originSlug: "my-app"
+            originSlug: "my-app",
+            host: "na.edge.optable.co"
         )
         OPTABLE = OptableSDK(config: config)
         ...
@@ -28,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 ```
 
-The `tenant` is your tenant name (for example, `acmeco` for `acmeco.optable.co`) and `originSlug` is the slug of the SDK source configured in your DCN. Requests go to `na.edge.optable.co` by default; pass the optional `host` parameter if your DCN uses a different Optable endpoint.
+`tenant` is your Optable tenant name (here `acmeco`), sent as the `t` query parameter, and `originSlug` is the slug of your SDK source (here `my-app`), sent as `o`. `host` is the regional service domain enabled for your account: `na.edge.optable.co` (North America, the default), `au.edge.optable.co` (Australia / New Zealand) or `eu.edge.optable.co` (Europe). Contact your account representative if you're unsure which regions you have.
 
 Note that while the `OPTABLE` variable is global, we initialize it with an instance of `OptableSDK` in the `application()` method which runs at app launch, and not at the time it is declared. This is done because Swift's lazy-loading otherwise delays initialization to the first use of the variable. Both approaches work, though forcing early initialization allows the SDK to configure itself early. In particular, as part of its internal configuration the SDK will attempt to read the User-Agent string exposed by WebView and, since this is an asynchronous operation, it is best done as early as possible in the application lifecycle.
 
