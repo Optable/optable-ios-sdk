@@ -89,9 +89,9 @@ The SDK `identify()` method will asynchronously connect to the configured DCN an
 >
 > The email address / phone number is **not** sent by the device in plain text.
 
-Since the `sendIDFA` value provided to `identify()` via the `aaid` (Apple Advertising ID or IDFA) boolean parameter is `true`, the SDK will attempt to fetch and send the Apple IDFA in the call to `identify` too, unless the user has turned on "Limit ad tracking" in their iOS device privacy settings.
+The SDK automatically adds the Apple ID for Advertising (IDFA) to the identifiers sent by `identify()` and `targeting()` whenever the user has authorized tracking. You don't need to pass it yourself. To turn this off, set `skipAdvertisingIdDetection` to `true` in `OptableConfig`.
 
-> :warning: **IDFA requires user authorization**: Apple requires permission to use IDFA via the [AppTrackingTransparency](https://developer.apple.com/app-store/user-privacy-and-data-use/) framework. If you intend to set `aaid` to `true` in calls to `identify()`, the SDK will automatically trigger the ATT user prompt before sending the IDFA value to your DCN. We recommend configuring the _Privacy - Tracking Usage Description_ attribute string in your application's `Info.plist` to customize the prompt.
+> :warning: **IDFA requires user authorization**: Apple requires permission to use IDFA via the [AppTrackingTransparency](https://developer.apple.com/app-store/user-privacy-and-data-use/) framework. The SDK only reads the current authorization status and **does not** show the ATT prompt itself. Your application must request authorization, for example with `ATTrackingManager.requestTrackingAuthorization`, and must set the _Privacy - Tracking Usage Description_ (`NSUserTrackingUsageDescription`) string in its `Info.plist`. Until the user authorizes tracking, no IDFA is sent.
 
 The frequency of invocation of `identify` is up to you, however for optimal identity resolution we recommended to call the `identify()` method on your SDK instance every time you authenticate a user, as well as periodically, such as for example once every 15 to 60 minutes while the application is being actively used and an internet connection is available.
 
@@ -148,9 +148,11 @@ To get the targeting key values associated by the configured DCN with the device
 do {
     try OPTABLE!.targeting() { result in
         switch result {
-        case .success(let keyvalues):
-            // keyvalues is an NSDictionary containing targeting key-values that can be
-            // passed on to ad servers or other decisioning systems
+        case .success(let optableTargeting):
+            // optableTargeting is an OptableTargeting containing:
+            // - targetingData: the raw targeting response as [String: Any]
+            // - gamTargetingKeywords: key-values ready for GAM custom targeting
+            // - ortb2: an ORTB2 JSON string, e.g. for Prebid's global ORTB config
 
         case .failure(let error):
             // handle targeting API failure in `error`
@@ -199,9 +201,8 @@ In addition, unless `skipAdvertisingIdDetection` is set in `OptableConfig`, the 
 The `targeting` API will automatically cache resulting key value data in client storage on success. You can subsequently retrieve the cached key value data as follows:
 
 ```swift
-let cachedTargetingData = OPTABLE!.targetingFromCache()
-if (cachedTargetingData != nil) {
-  // cachedTargetingData! is an NSDictionary which you can cast as! [String: Any]
+if let cachedOptableTargeting = OPTABLE!.targetingFromCache() {
+  // cachedOptableTargeting is an OptableTargeting, the same type returned by targeting()
 }
 ```
 
@@ -264,30 +265,35 @@ import GoogleMobileAds
 
 do {
     try OPTABLE!.targeting() { result in
-        var tdata: NSDictionary = [:]
+        let optableTargeting: OptableTargeting?
 
         switch result {
-        case .success(let keyvalues):
-            // Save targeting data in `tdata`:
-            tdata = keyvalues
+        case .success(let targeting):
+            optableTargeting = targeting
 
         case .failure(let error):
-            // handle targeting API failure in `error`
+            // handle targeting API failure in `error`, and still load an ad without targeting:
+            optableTargeting = nil
         }
 
-        // We assume bannerView is a DFPBannerView() instance that has already been
-        // initialized and added to our view:
-        bannerView.adUnitID = "/12345/some-ad-unit-id/in-your-gam360-account"
+        // The completion handler is not called on the main thread, so load the ad from there:
+        DispatchQueue.main.async {
+            // We assume bannerView is a BannerView instance that has already been
+            // initialized and added to our view:
+            bannerView.adUnitID = "/12345/some-ad-unit-id/in-your-gam360-account"
 
-        // Build GAM ad request with key values and load banner:
-        let req = DFPRequest()
-        req.customTargeting = tdata as! [String: Any]
-        bannerView.load(req)
+            // Build GAM ad request with key values and load banner:
+            let adRequest = AdManagerRequest()
+            adRequest.customTargeting = optableTargeting?.gamTargetingKeywords as? [String: Any]
+            bannerView.load(adRequest)
+        }
     }
 } catch {
     // handle thrown exception in `error`
 }
 ```
+
+The example above uses the class names from version 12 and later of the Google Mobile Ads SDK (`BannerView`, `AdManagerRequest`). Earlier versions name them `GAMBannerView` and `GAMRequest`.
 
 A working example is available in the demo application.
 
