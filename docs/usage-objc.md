@@ -25,14 +25,14 @@ And in the accompanying `OptableSDKDelegate.m` follows a simple implementation o
 - (void)identifyErr:(NSError *)error {
     NSLog(@"Error on identify API call: %@", [error localizedDescription]);
 }
-- (void)profileOk:(NSHTTPURLResponse *)result {
-    NSLog(@"Success on profile API call. HTTP Status Code: %ld", result.statusCode);
+- (void)profileOk:(OptableTargeting *)result {
+    NSLog(@"Success on profile API call: %@", result.targetingData);
 }
 - (void)profileErr:(NSError *)error {
     NSLog(@"Error on profile API call: %@", [error localizedDescription]);
 }
-- (void)targetingOk:(NSDictionary *)result {
-    NSLog(@"Success on targeting API call: %@", result);
+- (void)targetingOk:(OptableTargeting *)result {
+    NSLog(@"Success on targeting API call: %@", result.targetingData);
 }
 - (void)targetingErr:(NSError *)error {
     NSLog(@"Error on targeting API call: %@", [error localizedDescription]);
@@ -46,10 +46,10 @@ And in the accompanying `OptableSDKDelegate.m` follows a simple implementation o
 @end
 ```
 
-You can then configure an instance of the SDK integrating with an [Optable](https://optable.co/) DCN running at hostname `dcn.customer.com`, from a configured origin identified by slug `my-app` from your main `AppDelegate.m`, and point it to your delegate implementation as in the following example:
+You can then create an instance of the SDK with an `OptableConfig` for your tenant and SDK source from your main `AppDelegate.m`, and point it to your delegate implementation as in the following example:
 
 ```objective-c
-#import "OptabletSDKDelegate.h"
+#import "OptableSDKDelegate.h"
 @import OptableSDK;
 
 OptableSDK *OPTABLE = nil;
@@ -60,8 +60,8 @@ OptableSDK *OPTABLE = nil;
 
     OptableSDKDelegate *delegate = [OptableSDKDelegate new];
 
-    OptableConfig *config = [[OptableConfig alloc] initWithTenant: @"prebidtest" originSlug: @"ios-sdk"];
-    config.host = @"prebidtest.cloud.optable.co";
+    OptableConfig *config = [[OptableConfig alloc] initWithTenant: @"acmeco" originSlug: @"my-app"];
+    config.host = @"na.edge.optable.co";
 
     OPTABLE = [[OptableSDK alloc] initWithConfig: config];
     OPTABLE.delegate = delegate;
@@ -70,6 +70,8 @@ OptableSDK *OPTABLE = nil;
 }
 @end
 ```
+
+`tenant` is your Optable tenant name (here `acmeco`), sent as the `t` query parameter, and `originSlug` is the slug of your SDK source (here `my-app`), sent as `o`. `host` is the regional service domain enabled for your account: `na.edge.optable.co` (North America, the default), `au.edge.optable.co` (Australia / New Zealand) or `eu.edge.optable.co` (Europe). Contact your account representative if you're unsure which regions you have.
 
 You can call various SDK APIs on the instance as shown in the examples below. It's also possible to configure multiple instances of `OptableSDK` in order to connect to other (e.g., partner) DCNs and/or reference other configured application slug IDs. Note that the `insecure` flag should always be set to `NO` unless you are testing a local instance of the DCN yourself.
 
@@ -117,6 +119,10 @@ NSError *error = nil;
                      error: &error];
 ```
 
+On success, the delegate's `profileOk` receives the updated `OptableTargeting` for the device, which is also cached for `targetingFromCache`.
+
+> :warning: Unlike `identify` and `targeting`, `id` and `neighbors` are plain type-prefixed strings (such as `c:2`) that are sent exactly as given: the SDK does **not** normalize or hash them. Never pass a plain-text email address or phone number here; hash it first.
+
 ### Targeting API
 
 To get the targeting key values associated by the configured DCN with the device in real-time, you can call the `targeting` API and expect that on success, the resulting keyvalues to be used for targeting will be sent in the `targetingOk` message to your delegate (see the example delegate implementation above):
@@ -161,15 +167,14 @@ In addition, unless `skipAdvertisingIdDetection` is set in the configuration, th
 
 #### Caching Targeting Data
 
-The `targetingAndReturnError` method will automatically cache resulting key value data in client storage on success. You can subsequently retrieve the cached key value data as follows:
+The `targeting:error:` and `targetingWithIds:hids:error:` methods automatically cache the resulting `OptableTargeting` in client storage on success. You can subsequently retrieve the cached key value data as follows:
 
 ```objective-c
 @import OptableSDK;
 ...
-NSDictionary *cachedTargetingData = nil;
-cachedTargetingData = [OPTABLE targetingFromCache];
-if (cachedTargetingData != nil) {
-  // cachedTargetingData! is an NSDictionary
+OptableTargeting *cachedOptableTargeting = [OPTABLE targetingFromCache];
+if (cachedOptableTargeting != nil) {
+  // cachedOptableTargeting is an OptableTargeting, the same type passed to targetingOk
 }
 ```
 
@@ -219,22 +224,22 @@ We also extend the `targetingErr` delegate handler to load a GAM ad without targ
 ```objective-c
 @implementation OptableSDKDelegate
   ...
-- (void)targetingOk:(NSDictionary *)result {
+- (void)targetingOk:(OptableTargeting *)result {
     // Update the GAM banner view with result targeting keyvalues:
-    DFPRequest *request = [DFPRequest request];
-    request.customTargeting = result;
+    GAMRequest *request = [GAMRequest request];
+    request.customTargeting = result.gamTargetingKeywords;
     [self.bannerView loadRequest:request];
 }
 - (void)targetingErr:(NSError *)error {
     // Load GAM banner even in case of targeting API error:
-    DFPRequest *request = [DFPRequest request];
-    [self.bannerView loadRequest: request];
+    GAMRequest *request = [GAMRequest request];
+    [self.bannerView loadRequest:request];
 }
   ...
 @end
 ```
 
-It's assumed in the above code snippet that `self.bannerView` is a pointer to a `DFPBannerView` instance which resides in your delegate and which has already been initialized and configured by a view controller.
+It's assumed in the above code snippet that `self.bannerView` is a pointer to a `GAMBannerView` instance which resides in your delegate and which has already been initialized and configured by a view controller. Delegate methods are always called on the main thread, so the ad can be loaded directly from them.
 
 ### Identifying visitors arriving from Email newsletters
 
