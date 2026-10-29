@@ -41,7 +41,7 @@ final class EdgeAPI: Sendable {
         if config.customUserAgent == nil {
             let userAgentStore = self.userAgentStore
             Task { @MainActor in
-                let realUserAgent = await EdgeAPI.resolveWebViewUserAgent()
+                let realUserAgent = await EdgeAPI.webViewUserAgent()
                 userAgentStore.withLock { $0 = realUserAgent }
             }
         }
@@ -137,6 +137,26 @@ extension EdgeAPI {
 
 // MARK: - Private
 extension EdgeAPI {
+    /// The WebView user agent lookup shared by every EdgeAPI in the process.
+    @MainActor
+    private static var webViewUserAgentTask: Task<String, Never>?
+
+    /// Returns the WebView's user agent, creating at most one WebView per process however many SDK instances
+    /// ask for it. An empty result is not kept, so the next instance tries again.
+    @MainActor
+    private static func webViewUserAgent() async -> String {
+        if let task = webViewUserAgentTask {
+            return await task.value
+        }
+        let task = Task { await resolveWebViewUserAgent() }
+        webViewUserAgentTask = task
+        let userAgent = await task.value
+        if userAgent.isEmpty {
+            webViewUserAgentTask = nil
+        }
+        return userAgent
+    }
+
     /// Reads `navigator.userAgent` from a hidden, throwaway WKWebView attached to the key window.
     /// Returns an empty string when the WebView cannot provide one.
     @MainActor
