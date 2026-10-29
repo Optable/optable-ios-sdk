@@ -105,6 +105,29 @@ The SDK automatically adds the Apple ID for Advertising (IDFA) to the identifier
 
 > :warning: **IDFA requires user authorization**: Apple requires permission to use IDFA via the [AppTrackingTransparency](https://developer.apple.com/app-store/user-privacy-and-data-use/) framework. The SDK only reads the current authorization status and **does not** show the ATT prompt itself. Your application must request authorization, for example with `[ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:]`, and must set the _Privacy - Tracking Usage Description_ (`NSUserTrackingUsageDescription`) string in its `Info.plist`. Until the user authorizes tracking, no IDFA is sent.
 
+#### Normalization before hashing
+
+The SDK computes the SHA-256 hash of email addresses and phone numbers on the device, so they are **not** sent in plain text.
+
+Before hashing, the SDK removes all whitespace and lowercases the value. It does **not** otherwise reformat it. In particular, phone numbers are not converted to [E.164](https://en.wikipedia.org/wiki/E.164), so `@"+1 555-123-4567"`, `@"+15551234567"` and `@"5551234567"` produce three different hashes. Pass phone numbers in E.164 format (for example, `@"+15551234567"`) so that they match the identifiers in your DCN.
+
+#### Already-hashed identifiers
+
+If you already have the SHA-256 hash of an email address or phone number, for example from your backend, pass it with the `OptableSDKIdentifierType_HEM` or `OptableSDKIdentifierType_HashedPhoneNumber` type so that the SDK doesn't hash it a second time:
+
+```objective-c
+NSArray *ids = @[
+    [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_HEM value:@"<sha256 of the normalized email address>"],
+    [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_HashedPhoneNumber value:@"<sha256 of the E.164 phone number>"],
+];
+
+[OPTABLE identify: ids error: &error];
+```
+
+The value must be a 64-character hexadecimal SHA-256 digest, computed with the same normalization the SDK uses (whitespace removed, lowercased). The SDK lowercases the digest but does not hash it again. Values that aren't a valid SHA-256 digest are dropped and not sent, so a plain-text email address or phone number passed by mistake never leaves the device.
+
+Do not pass a hash with the `OptableSDKIdentifierType_EmailAddress` or `OptableSDKIdentifierType_PhoneNumber` types: those types always hash their value, so the DCN would receive a hash of the hash. Already-hashed identifiers work the same way with `targeting`.
+
 ### Profile API
 
 To associate key value traits with the device, for eventual audience assembly, you can call the profile API as follows:
