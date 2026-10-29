@@ -82,6 +82,8 @@ class EdgeAPITests: XCTestCase {
         UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABTCF_gdprApplies)
         UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABTCF_TCString)
         UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_2_TCString)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_HDR_GppString)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_GppSID)
 
         let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK)
         let generatedURL = OptableSDK(config: config).api.buildEdgeAPIURL(endpoint: T.api.endpoint.identify)
@@ -100,7 +102,9 @@ class EdgeAPITests: XCTestCase {
     func test_url_generation_privacy_regulations_global() throws {
         UserDefaults.standard.set("0", forKey: IABConsent.Keys.IABTCF_gdprApplies)
         UserDefaults.standard.set("globalGDPRConsent", forKey: IABConsent.Keys.IABTCF_TCString)
-        UserDefaults.standard.set("globalGPP", forKey: IABConsent.Keys.IABGPP_2_TCString)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_2_TCString)
+        UserDefaults.standard.set("globalGPP", forKey: IABConsent.Keys.IABGPP_HDR_GppString)
+        UserDefaults.standard.set("2_7", forKey: IABConsent.Keys.IABGPP_GppSID)
 
         let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK)
         let generatedURL = OptableSDK(config: config).api.buildEdgeAPIURL(endpoint: T.api.endpoint.identify)
@@ -113,7 +117,40 @@ class EdgeAPITests: XCTestCase {
         XCTAssertEqual(generatedURLComponents.queryItems!.first(where: { $0.name == "gdpr" })!.value, "0")
         XCTAssertNotNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp" }))
         XCTAssertEqual(generatedURLComponents.queryItems!.first(where: { $0.name == "gpp" })!.value, "globalGPP")
+        XCTAssertNotNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp_sid" }))
+        XCTAssertEqual(generatedURLComponents.queryItems!.first(where: { $0.name == "gpp_sid" })!.value, "2,7")
+    }
+
+    func test_url_generation_privacy_regulations_global_legacyGPPKey() throws {
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_HDR_GppString)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_GppSID)
+        UserDefaults.standard.set("legacyGPP", forKey: IABConsent.Keys.IABGPP_2_TCString)
+
+        let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK)
+        let generatedURL = OptableSDK(config: config).api.buildEdgeAPIURL(endpoint: T.api.endpoint.identify)
+        let generatedURLComponents = URLComponents(url: generatedURL!, resolvingAgainstBaseURL: false)!
+
+        XCTAssertEqual(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp" })?.value, "legacyGPP")
         XCTAssertNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp_sid" }))
+
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_2_TCString)
+    }
+
+    func test_url_generation_privacy_regulations_explicitGPP_ignoresGlobalGPPSid() throws {
+        UserDefaults.standard.set("globalGPP", forKey: IABConsent.Keys.IABGPP_HDR_GppString)
+        UserDefaults.standard.set("2_7", forKey: IABConsent.Keys.IABGPP_GppSID)
+
+        let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK)
+        config.gpp = "gpp"
+
+        let generatedURL = OptableSDK(config: config).api.buildEdgeAPIURL(endpoint: T.api.endpoint.identify)
+        let generatedURLComponents = URLComponents(url: generatedURL!, resolvingAgainstBaseURL: false)!
+
+        XCTAssertEqual(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp" })?.value, "gpp")
+        XCTAssertNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp_sid" }))
+
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_HDR_GppString)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_GppSID)
     }
 
     /**
@@ -123,6 +160,8 @@ class EdgeAPITests: XCTestCase {
         UserDefaults.standard.set("0", forKey: IABConsent.Keys.IABTCF_gdprApplies)
         UserDefaults.standard.set("globalGDPRConsent", forKey: IABConsent.Keys.IABTCF_TCString)
         UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_2_TCString)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_HDR_GppString)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_GppSID)
 
         let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK)
         config.reg = "reg"

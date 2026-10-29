@@ -261,6 +261,9 @@ extension EdgeAPI {
             ])
         }
 
+        // The CMP's section IDs are only used with the CMP's GPP string, never with one set in config.
+        var gppSid = config.gppSid
+
         if let gpp = config.gpp {
             components.queryItems?.append(
                 .init(name: "gpp", value: gpp)
@@ -269,9 +272,10 @@ extension EdgeAPI {
             components.queryItems?.append(
                 .init(name: "gpp", value: globalGPP)
             )
+            gppSid = gppSid ?? IABConsent.gppSid
         }
 
-        if let gppSid = config.gppSid {
+        if let gppSid {
             components.queryItems?.append(
                 .init(name: "gpp_sid", value: gppSid)
             )
