@@ -62,7 +62,21 @@ public final class OptableSDKIdentifier: NSObject, Sendable {
     /// Convenience initializer using raw type string ("e", "c3", "id5", etc.)
     @objc
     public convenience init?(typeRawValue: String, value: String) {
-        guard let (type, customIdx) = Self.parse(typeRawValue: typeRawValue) else { return nil }
+        guard var (type, customIdx) = Self.parse(typeRawValue: typeRawValue) else { return nil }
+
+        // A raw "e" or "p" carries either a plaintext value or one that is already
+        // hashed, so the value itself decides which. Without this, a caller passing
+        // "e" with a SHA256 would have it hashed a second time.
+        if Self.isSHA256Hex(value) {
+            if type == .emailAddress {
+                type = .HEM
+                customIdx = nil
+            } else if type == .phoneNumber {
+                type = .hashedPhoneNumber
+                customIdx = nil
+            }
+        }
+
         self.init(type: type, value: value, customIdx: customIdx)
     }
 
@@ -80,22 +94,7 @@ public final class OptableSDKIdentifier: NSObject, Sendable {
         let typeRaw = String(string[..<separator])
         let value = String(string[string.index(after: separator)...])
 
-        guard var (type, customIdx) = Self.parse(typeRawValue: typeRaw) else { return nil }
-
-        // The packed form carries either a plaintext value or one that is already
-        // hashed, so the value itself decides which. Without this, a caller passing
-        // "e:<sha256>" would have it hashed a second time.
-        if Self.isSHA256Hex(value) {
-            if type == .emailAddress {
-                type = .HEM
-                customIdx = nil
-            } else if type == .phoneNumber {
-                type = .hashedPhoneNumber
-                customIdx = nil
-            }
-        }
-
-        self.init(type: type, value: value, customIdx: customIdx)
+        self.init(typeRawValue: typeRaw, value: value)
     }
 }
 
