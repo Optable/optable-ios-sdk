@@ -1,6 +1,6 @@
 ## Usage (Swift)
 
-To configure an instance of the SDK integrating with an [Optable](https://optable.co/) DCN running at hostname `dcn.customer.com`, from a configured Swift application origin identified by slug `my-app`, you simply create an instance of the `OptableSDK` class through which you can communicate to the DCN. For example, from your `AppDelegate`:
+To configure the SDK, create an instance of the `OptableSDK` class with an `OptableConfig` for your tenant and SDK source. For example, from your `AppDelegate`:
 
 ```swift
 import OptableSDK
@@ -17,9 +17,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                      [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         ...
         let config = OptableConfig(
-            tenant: "dcn.customer.com",
+            tenant: "acmeco",
             originSlug: "my-app",
-            host: "dcn.customer.com"
+            host: "na.edge.optable.co"
         )
         OPTABLE = OptableSDK(config: config)
         ...
@@ -29,11 +29,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 ```
 
+`tenant` is your Optable tenant name (here `acmeco`), sent as the `t` query parameter, and `originSlug` is the slug of your SDK source (here `my-app`), sent as `o`. `host` is the regional service domain enabled for your account: `na.edge.optable.co` (North America, the default), `au.edge.optable.co` (Australia / New Zealand) or `eu.edge.optable.co` (Europe). Contact your account representative if you're unsure which regions you have.
+
 Note that while the `OPTABLE` variable is global, we initialize it with an instance of `OptableSDK` in the `application()` method which runs at app launch, and not at the time it is declared. This is done because Swift's lazy-loading otherwise delays initialization to the first use of the variable. Both approaches work, though forcing early initialization allows the SDK to configure itself early. In particular, as part of its internal configuration the SDK will attempt to read the User-Agent string exposed by WebView and, since this is an asynchronous operation, it is best done as early as possible in the application lifecycle.
 
 You can call various SDK APIs on the instance as shown in the examples below. It's also possible to configure multiple instances of `OptableSDK` in order to connect to other (e.g., partner) DCNs and/or reference other configured application slug IDs.
 
-Note that all SDK communication with Optable DCNs is done over TLS. The only exception to this is if you instantiate the `OptableSDK` class with a third optional boolean parameter, `insecure`, set to `true`. For example:
+Note that all SDK communication with Optable DCNs is done over TLS. The only exception to this is if you set the optional `insecure` parameter of `OptableConfig` to `true`. For example:
 
 ```swift
 let config = OptableConfig(..., insecure: true)
@@ -104,8 +106,9 @@ To associate key value traits with the device, for eventual audience assembly, y
 do {
     try OPTABLE!.profile(traits: ["gender": "F", "age": 38, "hasAccount": true]) { result in
         switch (result) {
-        case .success(let response):
-            // profile API success, response.statusCode is HTTP response status 200
+        case .success(let optableTargeting):
+            // profile API success, optableTargeting is the updated OptableTargeting
+            // for the device, also cached for targetingFromCache()
         case .failure(let error):
             // handle profile API failure in `error`
         }
@@ -117,7 +120,22 @@ do {
 
 The specified traits are associated with the user's device and can be matched during audience assembly.
 
-Note that the traits are of type `NSDictionary` and should consist of key value pairs, where the keys are strings and the values are either strings, numbers, or booleans.
+Note that the traits are of type `[String: Any]` and should consist of key value pairs, where the keys are strings and the values are either strings, numbers, or booleans.
+
+You can optionally pass an `id` to profile and a list of `neighbors` (related identifiers) along with the traits:
+
+```swift
+let id = OptableIdentifier.custom(nil, "user-1234").extendedIdentifier // "c:user-1234"
+let neighbors = [
+    OptableIdentifier.emailAddress("some.email@address.com").extendedIdentifier // "e:<sha256>"
+]
+
+try OPTABLE!.profile(traits: ["hasAccount": true], id: id, neighbors: neighbors) { result in
+    // ...
+}
+```
+
+> :warning: Unlike `identify()` and `targeting()`, `id` and `neighbors` are plain type-prefixed strings that are sent exactly as given: the SDK does **not** normalize or hash them. Build them from `OptableIdentifier` values with `.extendedIdentifier`, as above, so that email addresses and phone numbers are hashed before they leave the device.
 
 ### Targeting API
 
