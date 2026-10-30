@@ -54,14 +54,17 @@ final class GAMBannerViewController: UIViewController {
     @IBAction func loadBannerWithTargeting(_ sender: UIButton) {
         do {
             try OPTABLE!.targeting { [weak self] result in
-                switch result {
-                case let .success(optableTargeting):
-                    print("[OptableSDK] ✅ Success on /targeting API call: \(optableTargeting)")
-                    self?.loadBanner(optableTargeting)
+                // The completion handler is not called on the main thread, and ads must be loaded on it.
+                DispatchQueue.main.async {
+                    switch result {
+                    case let .success(optableTargeting):
+                        print("[OptableSDK] ✅ Success on /targeting API call: \(optableTargeting)")
+                        self?.loadBanner(optableTargeting)
 
-                case let .failure(error):
-                    print("[OptableSDK] 🚫 Error on /targeting API call: \(error)")
-                    self?.loadBanner()
+                    case let .failure(error):
+                        print("[OptableSDK] 🚫 Error on /targeting API call: \(error)")
+                        self?.loadBanner()
+                    }
                 }
             }
         } catch {
