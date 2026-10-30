@@ -60,6 +60,44 @@ let config = OptableConfig(..., origin: "https://www.acmeco.com")
 OPTABLE = OptableSDK(config: config)
 ```
 
+### Configuration options
+
+Besides `tenant`, `originSlug` and `host`, `OptableConfig` accepts the following optional parameters. All of them are also settable properties on the config.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `path` | `"v2"` | The API path, used to build request URLs such as `https://na.edge.optable.co/v2/identify`. You should not normally need to change it. |
+| `insecure` | `false` | Use HTTP instead of HTTPS. Only for testing against a local DCN. |
+| `apiKey` | `nil` | A Service Account API key, sent as an `Authorization: Bearer` header. Required when the API endpoint is configured as private. |
+| `customUserAgent` | `nil` | A `User-Agent` to send instead of the one detected from `WKWebView`. |
+| `origin` | `nil` | A value sent as the `Origin` HTTP header. |
+| `skipAdvertisingIdDetection` | `false` | When `true`, the SDK never adds the device IDFA to `identify` and `targeting` requests. |
+| `cacheTTL` | 24 hours | How long, in seconds, cached targeting data stays valid. |
+
+#### Privacy and consent
+
+The SDK forwards consent signals with every request. You can set them explicitly as properties on `OptableConfig`:
+
+```swift
+let config = OptableConfig(tenant: "acmeco", originSlug: "my-app")
+config.reg = "gdpr"                 // privacy regulation override: "gdpr", "can" or "us"
+config.gdpr = 1                     // whether GDPR applies: 1 or 0
+config.gdprConsent = "<TCF string>" // TCF EU v2 consent string
+config.gpp = "<GPP string>"         // GPP consent string
+config.gppSid = "2,7"               // GPP section IDs that apply, required when gpp is set
+```
+
+If you don't set them, the SDK reads the values that an IAB-compliant consent management platform (CMP) stores in `UserDefaults`:
+
+| Config property | `UserDefaults` fallback key | Sent as |
+|---|---|---|
+| `gdpr` + `gdprConsent` | `IABTCF_gdprApplies` + `IABTCF_TCString` | `gdpr`, `gdpr_consent` |
+| `gpp` | `IABGPP_2_TCString` | `gpp` |
+| `gppSid` | none | `gpp_sid` |
+| `reg` | none | `reg` |
+
+`gdpr` and `gdprConsent` are used together: if either one is missing from the config, the SDK ignores both and uses the `UserDefaults` values instead. `gppSid` has no `UserDefaults` fallback, so if you rely on your CMP for `gpp`, set `gppSid` yourself.
+
 ### Identify API
 
 To associate a user device with an authenticated identifier such as an Email address, or with other known IDs such as the Apple ID for Advertising (IDFA), or even your own vendor or app level `PPID`, you can call the `identify` API as follows:
