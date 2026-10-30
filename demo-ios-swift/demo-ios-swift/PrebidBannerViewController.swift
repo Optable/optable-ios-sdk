@@ -58,14 +58,17 @@ final class PrebidBannerViewController: UIViewController { // Outlets
     @IBAction func loadBannerWithTargeting(_ sender: UIButton) {
         do {
             try OPTABLE!.targeting { [weak self] result in
-                switch result {
-                case let .success(optableTargeting):
-                    print("[OptableSDK] ✅ Success on /targeting API call: \(optableTargeting)")
-                    self?.loadBanner(optableTargeting)
+                // The completion handler is not called on the main thread, and ads must be loaded on it.
+                DispatchQueue.main.async {
+                    switch result {
+                    case let .success(optableTargeting):
+                        print("[OptableSDK] ✅ Success on /targeting API call: \(optableTargeting)")
+                        self?.loadBanner(optableTargeting)
 
-                case let .failure(error):
-                    print("[OptableSDK] 🚫 Error on /targeting API call: \(error)")
-                    self?.loadBanner()
+                    case let .failure(error):
+                        print("[OptableSDK] 🚫 Error on /targeting API call: \(error)")
+                        self?.loadBanner()
+                    }
                 }
             }
         } catch {
@@ -107,7 +110,9 @@ private extension PrebidBannerViewController {
         pbmBannerAdUnit = BannerAdUnit(configId: PREBID_STORED_IMP, size: .init(width: 320, height: 50))
         pbmBannerAdUnit.fetchDemand(adObject: adRequest) { [weak self] status in
             print("[PrebidMobile]:fetchDemand(adObject:): \(status.name())")
-            self?.loadGAMAd(adRequest)
+            DispatchQueue.main.async {
+                self?.loadGAMAd(adRequest)
+            }
         }
     }
 
