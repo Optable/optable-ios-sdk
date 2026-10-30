@@ -148,7 +148,7 @@ public final class OptableConfig: NSObject, Sendable {
     /**
      GPP privacy string.
 
-     > If not set, SDK will try to fetch data from UserDefaults => `IABGPP_2_TCString`, as stated in [](https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#in-app-details)
+     > If not set, SDK will try to fetch data from UserDefaults => `IABGPP_HDR_GppString`, as stated in [](https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/Core/CMP%20API%20Specification.md)
      */
     @objc
     public var gpp: String? {
@@ -159,6 +159,8 @@ public final class OptableConfig: NSObject, Sendable {
 
     /**
      A comma-separated list of up to two sections applicable in a given GPP privacy string. This value is required when gpp is present.
+
+     > If not set and `gpp` is read from UserDefaults, SDK will also read `IABGPP_GppSID` from UserDefaults, as stated in [](https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/Core/CMP%20API%20Specification.md)
      */
     @objc
     public var gppSid: String? {

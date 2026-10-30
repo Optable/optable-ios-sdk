@@ -16,6 +16,9 @@ enum IABConsent {
     enum Keys {
         static let IABTCF_TCString = "IABTCF_TCString"
         static let IABTCF_gdprApplies = "IABTCF_gdprApplies"
+        static let IABGPP_HDR_GppString = "IABGPP_HDR_GppString"
+        static let IABGPP_GppSID = "IABGPP_GppSID"
+        /// Not an IAB key, read before `IABGPP_HDR_GppString` was. Kept as a fallback for apps that write it.
         static let IABGPP_2_TCString = "IABGPP_2_TCString"
     }
 
@@ -31,6 +34,13 @@ enum IABConsent {
     }
 
     static var gppTC: String? {
-        UserDefaults.standard.string(forKey: Keys.IABGPP_2_TCString)
+        UserDefaults.standard.string(forKey: Keys.IABGPP_HDR_GppString)
+            ?? UserDefaults.standard.string(forKey: Keys.IABGPP_2_TCString)
+    }
+
+    /// The CMP stores section IDs separated by underscores ("2_7"); the Edge API takes them comma-separated ("2,7").
+    static var gppSid: String? {
+        UserDefaults.standard.string(forKey: Keys.IABGPP_GppSID)?
+            .replacingOccurrences(of: "_", with: ",")
     }
 }
