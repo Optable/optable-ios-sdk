@@ -4,6 +4,9 @@ on:
   pull_request:
   push:
     tags:
+      # Release tags are bare (1.3.0), as the podspec's :tag expects; v-prefixed ones are kept for older releases.
+      - "[0-9]+.[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+-*"
       - v[0-9]+.[0-9]+.[0-9]+
       - v[0-9]+.[0-9]+.[0-9]+-*
 
