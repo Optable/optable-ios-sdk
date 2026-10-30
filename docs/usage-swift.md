@@ -309,6 +309,8 @@ import GoogleMobileAds
 import PrebidMobile
 ...
 
+// In the class that owns bannerAdUnit (a Prebid BannerAdUnit) and bannerView (a GAM AdManagerBannerView),
+// both already initialized:
 func loadPrebidAd(_ optableTargeting: OptableTargeting?) {
     // Pass Optable data to Prebid, or clear it when there is none:
     Targeting.shared.setGlobalORTBConfig(optableTargeting?.ortb2)
@@ -316,11 +318,9 @@ func loadPrebidAd(_ optableTargeting: OptableTargeting?) {
     let adRequest = AdManagerRequest()
     adRequest.customTargeting = optableTargeting?.gamTargetingKeywords as? [String: Any]
 
-    // We assume bannerAdUnit is a Prebid BannerAdUnit and bannerView a GAM AdManagerBannerView
-    // that have already been initialized:
-    bannerAdUnit.fetchDemand(adObject: adRequest) { _ in
+    bannerAdUnit.fetchDemand(adObject: adRequest) { [weak self] _ in
         DispatchQueue.main.async {
-            bannerView.load(adRequest)
+            self?.bannerView.load(adRequest)
         }
     }
 }

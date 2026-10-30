@@ -253,6 +253,8 @@ If you use [Prebid Mobile](https://docs.prebid.org/prebid-mobile/prebid-mobile.h
 @import PrebidMobile;
 ...
 
+// In the class that owns bannerAdUnit (a Prebid BannerAdUnit) and bannerView (a GAMBannerView),
+// both already initialized:
 - (void)loadPrebidAdWithTargetingData:(OptableTargeting * _Nullable)optableTargeting {
     // Pass Optable data to Prebid, or clear it when there is none:
     [Targeting.shared setGlobalORTBConfig:optableTargeting.ortb2];
@@ -260,11 +262,10 @@ If you use [Prebid Mobile](https://docs.prebid.org/prebid-mobile/prebid-mobile.h
     GAMRequest *adRequest = [GAMRequest request];
     adRequest.customTargeting = optableTargeting.gamTargetingKeywords;
 
-    // We assume self.bannerAdUnit is a Prebid BannerAdUnit and self.bannerView a GAMBannerView
-    // that have already been initialized:
+    __weak typeof(self) weakSelf = self;
     [self.bannerAdUnit fetchDemandWithAdObject:adRequest completion:^(enum ResultCode result) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.bannerView loadRequest:adRequest];
+            [weakSelf.bannerView loadRequest:adRequest];
         });
     }];
 }
