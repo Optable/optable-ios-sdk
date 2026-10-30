@@ -114,11 +114,13 @@ If you don't set them, the SDK reads the values that an IAB-compliant consent ma
 | Config property | `NSUserDefaults` fallback key | Sent as |
 |---|---|---|
 | `gdpr` + `gdprConsent` | `IABTCF_gdprApplies` + `IABTCF_TCString` | `gdpr`, `gdpr_consent` |
-| `gpp` | `IABGPP_2_TCString` | `gpp` |
-| `gppSid` | none | `gpp_sid` |
+| `gpp` | `IABGPP_HDR_GppString` | `gpp` |
+| `gppSid` | `IABGPP_GppSID` | `gpp_sid` |
 | `reg` | none | `reg` |
 
-`gdpr` and `gdprConsent` are used together: if either one is missing from the config, the SDK ignores both and uses the `NSUserDefaults` values instead. `gppSid` has no `NSUserDefaults` fallback, so if you rely on your CMP for `gpp`, set `gppSid` yourself.
+`gdpr` and `gdprConsent` are used together: if either one is missing from the config, the SDK ignores both and uses the `NSUserDefaults` values instead. `gppSid` falls back to `IABGPP_GppSID` only when `gpp` also comes from `NSUserDefaults`, so the section IDs always match the string they describe: if you set `gpp` in the config, set `gppSid` too. The CMP stores section IDs separated by underscores (`2_7`); the SDK sends them comma-separated (`2,7`).
+
+If `IABGPP_HDR_GppString` is not set, the SDK also reads `gpp` from `IABGPP_2_TCString`, a key that earlier versions of the SDK used.
 
 ### Identify API
 
