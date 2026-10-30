@@ -83,6 +83,43 @@ By default the SDK does not send an `Origin` HTTP header. If your DCN expects on
 config.origin = @"https://www.acmeco.com";
 ```
 
+### Configuration options
+
+Besides `tenant`, `originSlug` and `host`, `OptableConfig` has the following optional properties. All of them can be set after the config is created.
+
+| Property | Default | Description |
+|---|---|---|
+| `path` | `@"v2"` | The API path, used to build request URLs such as `https://na.edge.optable.co/v2/identify`. You should not normally need to change it. |
+| `insecure` | `NO` | Use HTTP instead of HTTPS. Only for testing against a local DCN. |
+| `apiKey` | `nil` | A Service Account API key, sent as an `Authorization: Bearer` header. Required when the API endpoint is configured as private. |
+| `customUserAgent` | `nil` | A `User-Agent` to send instead of the one detected from `WKWebView`. |
+| `origin` | `nil` | A value sent as the `Origin` HTTP header. |
+| `skipAdvertisingIdDetection` | `NO` | When `YES`, the SDK never adds the device IDFA to `identify` and `targeting` requests. |
+| `cacheTTL` | 24 hours | How long, in seconds, cached targeting data stays valid. |
+
+#### Privacy and consent
+
+The SDK forwards consent signals with every request. You can set them explicitly as properties on `OptableConfig`:
+
+```objective-c
+config.reg = @"gdpr";                 // privacy regulation override: "gdpr", "can" or "us"
+config.gdpr = @1;                     // whether GDPR applies: 1 or 0
+config.gdprConsent = @"<TCF string>"; // TCF EU v2 consent string
+config.gpp = @"<GPP string>";         // GPP consent string
+config.gppSid = @"2,7";               // GPP section IDs that apply, required when gpp is set
+```
+
+If you don't set them, the SDK reads the values that an IAB-compliant consent management platform (CMP) stores in `NSUserDefaults`:
+
+| Config property | `NSUserDefaults` fallback key | Sent as |
+|---|---|---|
+| `gdpr` + `gdprConsent` | `IABTCF_gdprApplies` + `IABTCF_TCString` | `gdpr`, `gdpr_consent` |
+| `gpp` | `IABGPP_2_TCString` | `gpp` |
+| `gppSid` | none | `gpp_sid` |
+| `reg` | none | `reg` |
+
+`gdpr` and `gdprConsent` are used together: if either one is missing from the config, the SDK ignores both and uses the `NSUserDefaults` values instead. `gppSid` has no `NSUserDefaults` fallback, so if you rely on your CMP for `gpp`, set `gppSid` yourself.
+
 ### Identify API
 
 To associate a user device with an authenticated identifier such as an Email address, or with other known IDs such as the Apple ID for Advertising (IDFA), or even your own vendor or app level `PPID`, you can call the `identify` API as follows:
@@ -104,6 +141,29 @@ Note that `error` will be set only in case of an internal SDK exception. Otherwi
 The SDK automatically adds the Apple ID for Advertising (IDFA) to the identifiers sent by `identify` and `targeting` whenever the user has authorized tracking. You don't need to pass it yourself. To turn this off, set `skipAdvertisingIdDetection` to `YES` on your `OptableConfig`.
 
 > :warning: **IDFA requires user authorization**: Apple requires permission to use IDFA via the [AppTrackingTransparency](https://developer.apple.com/app-store/user-privacy-and-data-use/) framework. The SDK only reads the current authorization status and **does not** show the ATT prompt itself. Your application must request authorization, for example with `[ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:]`, and must set the _Privacy - Tracking Usage Description_ (`NSUserTrackingUsageDescription`) string in its `Info.plist`. Until the user authorizes tracking, no IDFA is sent.
+
+#### Normalization before hashing
+
+The SDK computes the SHA-256 hash of email addresses and phone numbers on the device, so they are **not** sent in plain text.
+
+Before hashing, the SDK removes all whitespace and lowercases the value. It does **not** otherwise reformat it. In particular, phone numbers are not converted to [E.164](https://en.wikipedia.org/wiki/E.164), so `@"+1 555-123-4567"`, `@"+15551234567"` and `@"5551234567"` produce three different hashes. Pass phone numbers in E.164 format (for example, `@"+15551234567"`) so that they match the identifiers in your DCN.
+
+#### Already-hashed identifiers
+
+If you already have the SHA-256 hash of an email address or phone number, for example from your backend, pass it with the `OptableSDKIdentifierType_HEM` or `OptableSDKIdentifierType_HashedPhoneNumber` type so that the SDK doesn't hash it a second time:
+
+```objective-c
+NSArray *ids = @[
+    [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_HEM value:@"<sha256 of the normalized email address>"],
+    [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_HashedPhoneNumber value:@"<sha256 of the E.164 phone number>"],
+];
+
+[OPTABLE identify: ids error: &error];
+```
+
+The value must be a 64-character hexadecimal SHA-256 digest, computed with the same normalization the SDK uses (whitespace removed, lowercased). The SDK lowercases the digest but does not hash it again. Values that aren't a valid SHA-256 digest are dropped and not sent, so a plain-text email address or phone number passed by mistake never leaves the device.
+
+Do not pass a hash with the `OptableSDKIdentifierType_EmailAddress` or `OptableSDKIdentifierType_PhoneNumber` types: those types always hash their value, so the DCN would receive a hash of the hash. Already-hashed identifiers work the same way with `targeting`.
 
 ### Profile API
 
@@ -202,6 +262,16 @@ config.cacheTTL = 60 * 60; // expire cached targeting data after one hour
 
 The default is `OptableConfig.defaultCacheTTL`, which is 24 hours. Setting `cacheTTL` to `0` effectively disables the cache, since every entry is then already expired by the time it is read.
 
+#### The OptableTargeting result
+
+`targeting`, `profile` and `targetingFromCache` all return an `OptableTargeting` object with three properties:
+
+| Property | Type | Description |
+|---|---|---|
+| `targetingData` | `NSDictionary *` | The full targeting response from the DCN. |
+| `gamTargetingKeywords` | `NSDictionary *` (nullable) | Key-values ready to use as Google Ad Manager custom targeting. For each audience in the response, the key is the audience's `keyspace` and the value is its audience IDs, joined with commas. `nil` when the response has no `audience` field, and empty when it has no audiences with a `keyspace`. |
+| `ortb2` | `NSString *` (nullable) | The response's `ortb2` object as a JSON string, ready to pass to Prebid Mobile. `nil` when the response contains no `ortb2` object. |
+
 ### Witness API
 
 To send real-time event data from the user's device to the DCN for eventual audience assembly, you can call the witness API as follows:
@@ -240,6 +310,37 @@ We also extend the `targetingErr` delegate handler to load a GAM ad without targ
 ```
 
 It's assumed in the above code snippet that `self.bannerView` is a pointer to a `GAMBannerView` instance which resides in your delegate and which has already been initialized and configured by a view controller. Delegate methods are always called on the main thread, so the ad can be loaded directly from them.
+
+### Integrating Prebid Mobile
+
+If you use [Prebid Mobile](https://docs.prebid.org/prebid-mobile/prebid-mobile.html), pass the `ortb2` string from the `OptableTargeting` result to Prebid as its global ORTB config, so that Optable data is included in bid requests. You can also add `gamTargetingKeywords` to the Google Ad Manager request that Prebid adds its bids to. If targeting fails, or the result has no `ortb2`, clear the global ORTB config so that stale data isn't sent.
+
+```objective-c
+@import GoogleMobileAds;
+@import PrebidMobile;
+...
+
+// In the class that owns bannerAdUnit (a Prebid BannerAdUnit) and bannerView (a GAMBannerView),
+// both already initialized:
+- (void)loadPrebidAdWithTargetingData:(OptableTargeting * _Nullable)optableTargeting {
+    // Pass Optable data to Prebid, or clear it when there is none:
+    [Targeting.shared setGlobalORTBConfig:optableTargeting.ortb2];
+
+    GAMRequest *adRequest = [GAMRequest request];
+    adRequest.customTargeting = optableTargeting.gamTargetingKeywords;
+
+    __weak typeof(self) weakSelf = self;
+    [self.bannerAdUnit fetchDemandWithAdObject:adRequest completion:^(enum ResultCode result) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf.bannerView loadRequest:adRequest];
+        });
+    }];
+}
+```
+
+Call `loadPrebidAdWithTargetingData:` from your delegate's `targetingOk:` with the result, and from `targetingErr:` with `nil`. Delegate methods are always called on the main thread.
+
+A working example is available in the demo application (`OptableSDKDelegate.m`).
 
 ### Identifying visitors arriving from Email newsletters
 
