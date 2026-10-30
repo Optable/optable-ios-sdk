@@ -262,6 +262,16 @@ config.cacheTTL = 60 * 60; // expire cached targeting data after one hour
 
 The default is `OptableConfig.defaultCacheTTL`, which is 24 hours. Setting `cacheTTL` to `0` effectively disables the cache, since every entry is then already expired by the time it is read.
 
+#### The OptableTargeting result
+
+`targeting`, `profile` and `targetingFromCache` all return an `OptableTargeting` object with three properties:
+
+| Property | Type | Description |
+|---|---|---|
+| `targetingData` | `NSDictionary *` | The full targeting response from the DCN. |
+| `gamTargetingKeywords` | `NSDictionary *` (nullable) | Key-values ready to use as Google Ad Manager custom targeting. For each audience in the response, the key is the audience's `keyspace` and the value is its audience IDs, joined with commas. `nil` when the response has no `audience` field, and empty when it has no audiences with a `keyspace`. |
+| `ortb2` | `NSString *` (nullable) | The response's `ortb2` object as a JSON string, ready to pass to Prebid Mobile. `nil` when the response contains no `ortb2` object. |
+
 ### Witness API
 
 To send real-time event data from the user's device to the DCN for eventual audience assembly, you can call the witness API as follows:
@@ -300,6 +310,37 @@ We also extend the `targetingErr` delegate handler to load a GAM ad without targ
 ```
 
 It's assumed in the above code snippet that `self.bannerView` is a pointer to a `GAMBannerView` instance which resides in your delegate and which has already been initialized and configured by a view controller. Delegate methods are always called on the main thread, so the ad can be loaded directly from them.
+
+### Integrating Prebid Mobile
+
+If you use [Prebid Mobile](https://docs.prebid.org/prebid-mobile/prebid-mobile.html), pass the `ortb2` string from the `OptableTargeting` result to Prebid as its global ORTB config, so that Optable data is included in bid requests. You can also add `gamTargetingKeywords` to the Google Ad Manager request that Prebid adds its bids to. If targeting fails, or the result has no `ortb2`, clear the global ORTB config so that stale data isn't sent.
+
+```objective-c
+@import GoogleMobileAds;
+@import PrebidMobile;
+...
+
+// In the class that owns bannerAdUnit (a Prebid BannerAdUnit) and bannerView (a GAMBannerView),
+// both already initialized:
+- (void)loadPrebidAdWithTargetingData:(OptableTargeting * _Nullable)optableTargeting {
+    // Pass Optable data to Prebid, or clear it when there is none:
+    [Targeting.shared setGlobalORTBConfig:optableTargeting.ortb2];
+
+    GAMRequest *adRequest = [GAMRequest request];
+    adRequest.customTargeting = optableTargeting.gamTargetingKeywords;
+
+    __weak typeof(self) weakSelf = self;
+    [self.bannerAdUnit fetchDemandWithAdObject:adRequest completion:^(enum ResultCode result) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf.bannerView loadRequest:adRequest];
+        });
+    }];
+}
+```
+
+Call `loadPrebidAdWithTargetingData:` from your delegate's `targetingOk:` with the result, and from `targetingErr:` with `nil`. Delegate methods are always called on the main thread.
+
+A working example is available in the demo application (`OptableSDKDelegate.m`).
 
 ### Identifying visitors arriving from Email newsletters
 

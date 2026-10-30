@@ -287,6 +287,16 @@ OPTABLE = OptableSDK(config: config)
 
 The default is `OptableConfig.defaultCacheTTL`, which is 24 hours. Setting `cacheTTL` to `0` effectively disables the cache, since every entry is then already expired by the time it is read.
 
+#### The OptableTargeting result
+
+`targeting`, `profile` and `targetingFromCache` all return an `OptableTargeting` object with three properties:
+
+| Property | Type | Description |
+|---|---|---|
+| `targetingData` | `[String: Any]` | The full targeting response from the DCN. |
+| `gamTargetingKeywords` | `[String: Any]?` | Key-values ready to use as Google Ad Manager custom targeting. For each audience in the response, the key is the audience's `keyspace` and the value is its audience IDs, joined with commas. `nil` when the response has no `audience` field, and empty when it has no audiences with a `keyspace`. |
+| `ortb2` | `String?` | The response's `ortb2` object as a JSON string, ready to pass to Prebid Mobile. `nil` when the response contains no `ortb2` object. |
+
 ### Witness API
 
 > :information_source: For more info check:
@@ -312,6 +322,23 @@ do {
 The specified event type and properties are associated with the logged event and which can be used for matching during audience assembly.
 
 Note that event properties are of type `NSDictionary` and should consist of key value pairs, where the keys are strings and the values are either strings, numbers, or booleans.
+
+### Async/await
+
+Every API that takes a completion handler also has an `async` version, which returns the result or throws the error instead:
+
+```swift
+do {
+    let response = try await OPTABLE!.identify([.emailAddress("some.email@address.com")])
+    let optableTargeting = try await OPTABLE!.targeting()
+    let profileTargeting = try await OPTABLE!.profile(traits: ["hasAccount": true])
+    let witnessResponse = try await OPTABLE!.witness(event: "example.event.type", properties: ["example": "value"])
+} catch {
+    // handle API failure in `error`
+}
+```
+
+`identify` and `witness` return an `HTTPURLResponse`, while `targeting` and `profile` return an `OptableTargeting`. The `async` versions take the same optional parameters as the completion handler versions, such as `hids` for `targeting` and `id` and `neighbors` for `profile`.
 
 ### Integrating GAM360
 
@@ -356,6 +383,36 @@ do {
 The example above uses the class names from version 12 and later of the Google Mobile Ads SDK (`BannerView`, `AdManagerRequest`). Earlier versions name them `GAMBannerView` and `GAMRequest`.
 
 A working example is available in the demo application.
+
+### Integrating Prebid Mobile
+
+If you use [Prebid Mobile](https://docs.prebid.org/prebid-mobile/prebid-mobile.html), pass the `ortb2` string from the `OptableTargeting` result to Prebid as its global ORTB config, so that Optable data is included in bid requests. You can also add `gamTargetingKeywords` to the Google Ad Manager request that Prebid adds its bids to. If targeting fails, or the result has no `ortb2`, clear the global ORTB config so that stale data isn't sent.
+
+```swift
+import GoogleMobileAds
+import PrebidMobile
+...
+
+// In the class that owns bannerAdUnit (a Prebid BannerAdUnit) and bannerView (a GAM AdManagerBannerView),
+// both already initialized:
+func loadPrebidAd(_ optableTargeting: OptableTargeting?) {
+    // Pass Optable data to Prebid, or clear it when there is none:
+    Targeting.shared.setGlobalORTBConfig(optableTargeting?.ortb2)
+
+    let adRequest = AdManagerRequest()
+    adRequest.customTargeting = optableTargeting?.gamTargetingKeywords as? [String: Any]
+
+    bannerAdUnit.fetchDemand(adObject: adRequest) { [weak self] _ in
+        DispatchQueue.main.async {
+            self?.bannerView.load(adRequest)
+        }
+    }
+}
+```
+
+Call `loadPrebidAd` from the main thread. The `targeting()` completion handler is not called on the main thread, so wrap the call in `DispatchQueue.main.async` there.
+
+A working example is available in the demo application (`PrebidBannerViewController`).
 
 ### Identifying visitors arriving from Email newsletters
 
