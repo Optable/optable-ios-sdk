@@ -215,7 +215,7 @@ The default is `OptableConfig.defaultCacheTTL`, which is 24 hours. Setting `cach
 | Property | Type | Description |
 |---|---|---|
 | `targetingData` | `[String: Any]` | The full targeting response from the DCN. |
-| `gamTargetingKeywords` | `[String: Any]?` | Key-values ready to use as Google Ad Manager custom targeting. For each audience in the response, the key is the audience's `keyspace` and the value is its audience IDs, joined with commas. `nil` when the response contains no audiences. |
+| `gamTargetingKeywords` | `[String: Any]?` | Key-values ready to use as Google Ad Manager custom targeting. For each audience in the response, the key is the audience's `keyspace` and the value is its audience IDs, joined with commas. `nil` when the response has no `audience` field, and empty when it has no audiences with a `keyspace`. |
 | `ortb2` | `String?` | The response's `ortb2` object as a JSON string, ready to pass to Prebid Mobile. `nil` when the response contains no `ortb2` object. |
 
 ### Witness API
