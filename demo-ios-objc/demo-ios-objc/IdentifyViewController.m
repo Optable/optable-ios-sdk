@@ -11,6 +11,7 @@
 #import "AppDelegate.h"
 #import "demo_ios_objc-Swift.h"
 
+@import AppTrackingTransparency;
 @import OptableSDK;
 
 @interface IdentifyViewController ()
@@ -51,18 +52,23 @@
     
     _identifyOutput.text = output;
     
-    NSError *error = nil;
-    
-    [OPTABLE identify: @[
-        [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_EmailAddress value:email],
-        [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_PhoneNumber value:@"+1234567890"],
-        [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_AppleIDFA value:@"06DE8C6A-A431-4235-A262-E3A9C2CCEB34"],
-        [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_GoogleGAID value:@"D04BB8C3-5A3E-4964-9757-D38365F59E6A"],
-        [OptableSDKIdentifier identifierWithRawType:@"c" value:@"new-custom.ABC"],
-        [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_Custom value:@"custom-7" customIdx:@7],
-        [OptableSDKIdentifier identifierWithString:@"c9:custom-9-id"],
-    ]
-                error: &error];
+    // If the user gives consent to be tracked - IDFA will be added
+    // automatically to the list of identifiers,
+    // either in the `identify` or `targeting` calls
+    [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSError *error = nil;
+            
+            [OPTABLE identify: @[
+                [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_EmailAddress value:email],
+                [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_PhoneNumber value:@"+1234567890"],
+                [OptableSDKIdentifier identifierWithRawType:@"c" value:@"new-custom.ABC"],
+                [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_Custom value:@"custom-7" customIdx:@7],
+                [OptableSDKIdentifier identifierWithString:@"c9:custom-9-id"],
+            ]
+                        error: &error];
+        });
+    }];
 }
 
 // MARK: - UITextFieldDelegate
