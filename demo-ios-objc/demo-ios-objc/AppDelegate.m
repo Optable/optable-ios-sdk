@@ -14,8 +14,23 @@
 @import PrebidMobile;
 @import GoogleMobileAds;
 
+#import <CommonCrypto/CommonDigest.h>
 
 OptableSDK *OPTABLE = nil;
+
+NSString *OptableDemoSHA256Email(NSString *email) {
+    NSArray<NSString *> *parts = [email componentsSeparatedByCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+    NSData *data = [[[parts componentsJoinedByString:@""] lowercaseString] dataUsingEncoding:NSUTF8StringEncoding];
+
+    unsigned char digest[CC_SHA256_DIGEST_LENGTH];
+    CC_SHA256(data.bytes, (CC_LONG)data.length, digest);
+
+    NSMutableString *hex = [NSMutableString stringWithCapacity:CC_SHA256_DIGEST_LENGTH * 2];
+    for (int i = 0; i < CC_SHA256_DIGEST_LENGTH; i++) {
+        [hex appendFormat:@"%02x", digest[i]];
+    }
+    return hex;
+}
 
 @interface AppDelegate ()
 @end

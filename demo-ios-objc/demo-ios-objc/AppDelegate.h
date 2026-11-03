@@ -11,5 +11,8 @@
 
 extern OptableSDK *OPTABLE;
 
+/// SHA256 of the Email, normalized the way the SDK does it for OptableSDKIdentifierType_EmailAddress: whitespace removed, lowercased.
+NSString *OptableDemoSHA256Email(NSString *email);
+
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 @end

@@ -24,6 +24,10 @@
     [super viewDidLoad];
     
     _identifyInput.delegate = self;
+    _identifyURLInput.delegate = self;
+    
+    // A link like the ones in a newsletter Email, carrying the SHA256 of the reader's Email address
+    _identifyURLInput.text = [NSString stringWithFormat:@"https://example.com/newsletter?oeid=%@", OptableDemoSHA256Email(@"some.email@address.com")];
     
     OptableSDKDelegate *delegate = (OptableSDKDelegate *)OPTABLE.delegate;
     delegate.identifyOutput = self.identifyOutput;
@@ -69,6 +73,27 @@
                         error: &error];
         });
     }];
+}
+
+// dispatchIdentifyHashed: sends the Email as a SHA256 hashed in the app, as you would with a hash from your own backend.
+// OptableSDKIdentifierType_HEM sends it as given; passing a hash as OptableSDKIdentifierType_EmailAddress would hash it a second time.
+- (IBAction)dispatchIdentifyHashed:(id)sender {
+    [self.view endEditing: TRUE];
+    
+    NSError *error = nil;
+    [OPTABLE identify: @[
+        [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_HEM value:OptableDemoSHA256Email(_identifyInput.text ?: @"")],
+    ]
+                error: &error];
+}
+
+// dispatchIdentifyFromURL: passes a link to tryIdentifyFromURL:, as you would from a universal link handler.
+// If the link has an `oeid` query parameter holding a SHA256, the SDK calls /identify with it; otherwise it does nothing.
+- (IBAction)dispatchIdentifyFromURL:(id)sender {
+    [self.view endEditing: TRUE];
+    
+    NSError *error = nil;
+    [OPTABLE tryIdentifyFromURL: _identifyURLInput.text ?: @"" error: &error];
 }
 
 // MARK: - UITextFieldDelegate
