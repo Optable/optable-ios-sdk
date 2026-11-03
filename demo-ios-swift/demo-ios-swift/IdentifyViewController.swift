@@ -41,7 +41,7 @@ class IdentifyViewController: UIViewController {
     @IBAction func dispatchIdentify(_ sender: UIButton) {
         view.endEditing(true)
         
-        // If еру user gives consent to be tracked - IDFA will be added
+        // If the user gives consent to be tracked - IDFA will be added
         // automatically to the list of identifiers,
         // either in the `identify` or `targeting` calls
         ATTrackingManager.requestTrackingAuthorization { [self] _ in

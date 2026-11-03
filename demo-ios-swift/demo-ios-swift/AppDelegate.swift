@@ -20,7 +20,7 @@ import PrebidMobile
 var OPTABLE: OptableSDK?
 
 // MARK: - AppDelegate
-@UIApplicationMain
+@main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -31,7 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let config = OptableConfig(
             tenant: "prebidtest",
             originSlug: "ios-sdk",
-            host: "ca.edge.optable.co",
+            host: "na.edge.optable.co",
             origin: "https://demo-ios-swift.optable.co",
             skipAdvertisingIdDetection: false
         )
