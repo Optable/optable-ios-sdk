@@ -9,6 +9,7 @@
 import OptableSDK
 import UIKit
 import AppTrackingTransparency
+import CryptoKit
 
 // MARK: - IdentifyViewController
 class IdentifyViewController: UIViewController {
@@ -16,6 +17,7 @@ class IdentifyViewController: UIViewController {
     @IBOutlet var identifyInput: UITextField!
     @IBOutlet var identifyButton: UIButton!
     @IBOutlet var identifyOutput: UITextView!
+    @IBOutlet var identifyURLInput: UITextField!
 
     // Logging
     private var networkLogObserver: (any NSObjectProtocol)?
@@ -23,6 +25,10 @@ class IdentifyViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         identifyInput.delegate = self
+        identifyURLInput.delegate = self
+
+        // A link like the ones in a newsletter Email, carrying the SHA256 of the reader's Email address
+        identifyURLInput.text = "https://example.com/newsletter?oeid=\(sha256Email("some.email@address.com"))"
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -71,6 +77,49 @@ class IdentifyViewController: UIViewController {
             }
         }
         
+    }
+
+    // dispatchIdentifyHashed() sends the Email as a SHA256 hashed in the app, as you would with a hash from your own backend.
+    // `.hem` sends it as given; passing a hash to `.emailAddress` would hash it a second time.
+    @IBAction func dispatchIdentifyHashed(_ sender: UIButton) {
+        view.endEditing(true)
+
+        do {
+            let email = identifyInput.text ?? ""
+            try OPTABLE!.identify([.hem(sha256Email(email))]) { result in
+                switch result {
+                case .success:
+                    print("[OptableSDK] ✅ Success on /identify API call with a hashed Email")
+                case let .failure(error):
+                    print("[OptableSDK] 🚫 Error on /identify API call: \(error)")
+                }
+            }
+        } catch {
+            print("[OptableSDK] 🚫 Exception on /identify API call: \(error)")
+            identifyOutput.text += "🚫 EXCEPTION: \(error)"
+        }
+    }
+
+    // dispatchIdentifyFromURL() passes a link to tryIdentifyFromURL(), as you would from a universal link handler.
+    // If the link has an `oeid` query parameter holding a SHA256, the SDK calls /identify with it; otherwise it does nothing.
+    @IBAction func dispatchIdentifyFromURL(_ sender: UIButton) {
+        view.endEditing(true)
+
+        do {
+            try OPTABLE!.tryIdentifyFromURL(identifyURLInput.text ?? "")
+        } catch {
+            print("[OptableSDK] 🚫 Exception on tryIdentifyFromURL: \(error)")
+            identifyOutput.text += "🚫 EXCEPTION: \(error)"
+        }
+    }
+}
+
+// MARK: - Helpers
+private extension IdentifyViewController {
+    /// SHA256 of the Email, normalized the way the SDK does it for `.emailAddress`: whitespace removed, lowercased.
+    func sha256Email(_ email: String) -> String {
+        let normalized = email.components(separatedBy: .whitespacesAndNewlines).joined().lowercased()
+        return SHA256.hash(data: Data(normalized.utf8)).map { String(format: "%02x", $0) }.joined()
     }
 }
 
