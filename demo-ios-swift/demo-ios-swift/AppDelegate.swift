@@ -31,7 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let config = OptableConfig(
             tenant: "prebidtest",
             originSlug: "ios-sdk",
-            host: "ca.edge.optable.co",
+            host: "na.edge.optable.co",
             origin: "https://demo-ios-swift.optable.co",
             skipAdvertisingIdDetection: false
         )
