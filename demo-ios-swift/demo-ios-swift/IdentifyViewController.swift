@@ -84,8 +84,14 @@ class IdentifyViewController: UIViewController {
     @IBAction func dispatchIdentifyHashed(_ sender: UIButton) {
         view.endEditing(true)
 
+        // An empty Email would otherwise be sent as the SHA256 of an empty string
+        let email = (identifyInput.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !email.isEmpty else {
+            identifyOutput.text = "Enter an Email to send it hashed."
+            return
+        }
+
         do {
-            let email = identifyInput.text ?? ""
             try OPTABLE!.identify([.hem(sha256Email(email))]) { result in
                 switch result {
                 case .success:
