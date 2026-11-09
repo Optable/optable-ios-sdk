@@ -80,9 +80,16 @@
 - (IBAction)dispatchIdentifyHashed:(id)sender {
     [self.view endEditing: TRUE];
     
+    // An empty Email would otherwise be sent as the SHA256 of an empty string
+    NSString *email = [_identifyInput.text ?: @"" stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+    if (email.length == 0) {
+        _identifyOutput.text = @"Enter an Email to send it hashed.";
+        return;
+    }
+    
     NSError *error = nil;
     [OPTABLE identify: @[
-        [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_HEM value:OptableDemoSHA256Email(_identifyInput.text ?: @"")],
+        [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_HEM value:OptableDemoSHA256Email(email)],
     ]
                 error: &error];
 }
