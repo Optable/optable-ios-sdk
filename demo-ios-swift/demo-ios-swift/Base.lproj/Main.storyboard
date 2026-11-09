@@ -51,8 +51,44 @@
                                     <action selector="dispatchIdentify:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Sae-rS-iHh"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hEm-Bt-n01">
+                                <rect key="frame" x="20" y="325" width="353" height="48"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="48" id="hEm-Hc-n04"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <state key="normal" title="Identify (hashed email)"/>
+                                <buttonConfiguration key="configuration" style="tinted" title="Identify (hashed email)">
+                                    <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="20"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="dispatchIdentifyHashed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="hEm-Ac-n16"/>
+                                </connections>
+                            </button>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="https://example.com/?oeid=&lt;sha256&gt;" textAlignment="natural" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="uRl-Tf-n02">
+                                <rect key="frame" x="20" y="403" width="353" height="45"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="45" id="uRl-Hc-n05"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="URL"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uRl-Bt-n03">
+                                <rect key="frame" x="20" y="458" width="353" height="48"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="48" id="uRb-Hc-n06"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <state key="normal" title="Identify from URL"/>
+                                <buttonConfiguration key="configuration" style="tinted" title="Identify from URL">
+                                    <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="20"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="dispatchIdentifyFromURL:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uRb-Ac-n17"/>
+                                </connections>
+                            </button>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="pQa-vV-MeS">
-                                <rect key="frame" x="20" y="330" width="353" height="385"/>
+                                <rect key="frame" x="20" y="521" width="353" height="194"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <color key="textColor" systemColor="labelColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -68,8 +104,17 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="b7v-UN-xAf" secondAttribute="trailing" constant="20" id="IJw-hW-0Hm"/>
                             <constraint firstItem="pQa-vV-MeS" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="MEG-Mb-Lj2"/>
                             <constraint firstItem="b7v-UN-xAf" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="MO0-3A-9Nh"/>
-                            <constraint firstItem="pQa-vV-MeS" firstAttribute="top" secondItem="b7v-UN-xAf" secondAttribute="bottom" constant="15" id="RHm-FX-7iM"/>
+                            <constraint firstItem="pQa-vV-MeS" firstAttribute="top" secondItem="uRl-Bt-n03" secondAttribute="bottom" constant="15" id="RHm-FX-7iM"/>
                             <constraint firstItem="AKp-3F-KNX" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="SNe-0s-I2Q"/>
+                            <constraint firstItem="hEm-Bt-n01" firstAttribute="top" secondItem="b7v-UN-xAf" secondAttribute="bottom" constant="10" id="hEm-Tp-n07"/>
+                            <constraint firstItem="hEm-Bt-n01" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="hEm-Ld-n08"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="hEm-Bt-n01" secondAttribute="trailing" constant="20" id="hEm-Tr-n09"/>
+                            <constraint firstItem="uRl-Tf-n02" firstAttribute="top" secondItem="hEm-Bt-n01" secondAttribute="bottom" constant="30" id="uRl-Tp-n10"/>
+                            <constraint firstItem="uRl-Tf-n02" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="uRl-Ld-n11"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="uRl-Tf-n02" secondAttribute="trailing" constant="20" id="uRl-Tr-n12"/>
+                            <constraint firstItem="uRl-Bt-n03" firstAttribute="top" secondItem="uRl-Tf-n02" secondAttribute="bottom" constant="10" id="uRb-Tp-n13"/>
+                            <constraint firstItem="uRl-Bt-n03" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="uRb-Ld-n14"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="uRl-Bt-n03" secondAttribute="trailing" constant="20" id="uRb-Tr-n15"/>
                             <constraint firstItem="AKp-3F-KNX" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="UII-5h-4Jn"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="pQa-vV-MeS" secondAttribute="trailing" constant="20" id="aUv-ov-L1P"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="pQa-vV-MeS" secondAttribute="bottom" constant="20" id="hrC-Rt-ujv"/>
@@ -81,6 +126,7 @@
                         <outlet property="identifyButton" destination="b7v-UN-xAf" id="JgO-1H-l2i"/>
                         <outlet property="identifyInput" destination="0Py-KR-2hS" id="Uda-2S-GRy"/>
                         <outlet property="identifyOutput" destination="pQa-vV-MeS" id="XQe-0Z-PkW"/>
+                        <outlet property="identifyURLInput" destination="uRl-Tf-n02" id="uRl-Ot-n19"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
