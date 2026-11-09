@@ -136,6 +136,69 @@ class EdgeAPITests: XCTestCase {
         UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_2_TCString)
     }
 
+    func test_url_generation_privacy_regulations_global_legacyGPPKey_ignoresGlobalGPPSid() throws {
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_HDR_GppString)
+        UserDefaults.standard.set("2_7", forKey: IABConsent.Keys.IABGPP_GppSID)
+        UserDefaults.standard.set("legacyGPP", forKey: IABConsent.Keys.IABGPP_2_TCString)
+
+        let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK)
+        let generatedURL = OptableSDK(config: config).api.buildEdgeAPIURL(endpoint: T.api.endpoint.identify)
+        let generatedURLComponents = URLComponents(url: generatedURL!, resolvingAgainstBaseURL: false)!
+
+        XCTAssertEqual(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp" })?.value, "legacyGPP")
+        XCTAssertNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp_sid" }))
+
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_GppSID)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_2_TCString)
+    }
+
+    func test_url_generation_privacy_regulations_global_blankGPP_fallsBackToLegacyGPPKey() throws {
+        UserDefaults.standard.set("", forKey: IABConsent.Keys.IABGPP_HDR_GppString)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_GppSID)
+        UserDefaults.standard.set("legacyGPP", forKey: IABConsent.Keys.IABGPP_2_TCString)
+
+        let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK)
+        let generatedURL = OptableSDK(config: config).api.buildEdgeAPIURL(endpoint: T.api.endpoint.identify)
+        let generatedURLComponents = URLComponents(url: generatedURL!, resolvingAgainstBaseURL: false)!
+
+        XCTAssertEqual(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp" })?.value, "legacyGPP")
+
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_HDR_GppString)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_2_TCString)
+    }
+
+    func test_url_generation_privacy_regulations_global_blankGPPSid() throws {
+        UserDefaults.standard.set("globalGPP", forKey: IABConsent.Keys.IABGPP_HDR_GppString)
+        UserDefaults.standard.set("", forKey: IABConsent.Keys.IABGPP_GppSID)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_2_TCString)
+
+        let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK)
+        let generatedURL = OptableSDK(config: config).api.buildEdgeAPIURL(endpoint: T.api.endpoint.identify)
+        let generatedURLComponents = URLComponents(url: generatedURL!, resolvingAgainstBaseURL: false)!
+
+        XCTAssertEqual(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp" })?.value, "globalGPP")
+        XCTAssertNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp_sid" }))
+
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_HDR_GppString)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_GppSID)
+    }
+
+    func test_url_generation_privacy_regulations_global_blankGPPKeys() throws {
+        UserDefaults.standard.set("", forKey: IABConsent.Keys.IABGPP_HDR_GppString)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_GppSID)
+        UserDefaults.standard.set("  ", forKey: IABConsent.Keys.IABGPP_2_TCString)
+
+        let config = OptableConfig(tenant: T.api.tenant.prebidtest, originSlug: T.api.slug.iosSDK)
+        let generatedURL = OptableSDK(config: config).api.buildEdgeAPIURL(endpoint: T.api.endpoint.identify)
+        let generatedURLComponents = URLComponents(url: generatedURL!, resolvingAgainstBaseURL: false)!
+
+        XCTAssertNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp" }))
+        XCTAssertNil(generatedURLComponents.queryItems?.first(where: { $0.name == "gpp_sid" }))
+
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_HDR_GppString)
+        UserDefaults.standard.set(nil, forKey: IABConsent.Keys.IABGPP_2_TCString)
+    }
+
     func test_url_generation_privacy_regulations_explicitGPP_ignoresGlobalGPPSid() throws {
         UserDefaults.standard.set("globalGPP", forKey: IABConsent.Keys.IABGPP_HDR_GppString)
         UserDefaults.standard.set("2_7", forKey: IABConsent.Keys.IABGPP_GppSID)

@@ -34,13 +34,22 @@ enum IABConsent {
     }
 
     static var gppTC: String? {
-        UserDefaults.standard.string(forKey: Keys.IABGPP_HDR_GppString)
-            ?? UserDefaults.standard.string(forKey: Keys.IABGPP_2_TCString)
+        nonBlankString(forKey: Keys.IABGPP_HDR_GppString)
+            ?? nonBlankString(forKey: Keys.IABGPP_2_TCString)
     }
 
     /// The CMP stores section IDs separated by underscores ("2_7"); the Edge API takes them comma-separated ("2,7").
+    /// Only read when `IABGPP_HDR_GppString` is set: the section IDs describe the CMP's own string and must never be sent with `IABGPP_2_TCString`.
     static var gppSid: String? {
-        UserDefaults.standard.string(forKey: Keys.IABGPP_GppSID)?
+        guard nonBlankString(forKey: Keys.IABGPP_HDR_GppString) != nil else { return nil }
+        return nonBlankString(forKey: Keys.IABGPP_GppSID)?
             .replacingOccurrences(of: "_", with: ",")
+    }
+
+    /// A blank value (empty or whitespace only) counts as unset.
+    private static func nonBlankString(forKey key: String) -> String? {
+        guard let value = UserDefaults.standard.string(forKey: key),
+              !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+        return value
     }
 }
