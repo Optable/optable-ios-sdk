@@ -93,6 +93,28 @@ class OptableSDKHelpersIdentifiersEnrichmentTests: XCTestCase {
         }
     }
 
+    func test_idfa_detection_enabled_enrich_system_idfa_same_as_lowercased_user_idfa_prepend() {
+        ATT.advertisingIdentifierAvailable_DebugOverride = true
+        ATT.advertisingIdentifier_DebugOverride = UUID(uuidString: systemIDFA)
+
+        var identifiers = buildIdentifiers()
+        identifiers.append(.appleIDFA(" " + systemIDFA.lowercased()))
+
+        let sdk = buildSDK()
+        sdk.config.skipAdvertisingIdDetection = false
+        sdk.enrichIfNeeded(ids: &identifiers)
+
+        if case let .appleIDFA(value) = identifiers[0] {
+            XCTAssert(value == systemIDFA, "Prepended IDFA is not the same as system provided")
+        } else {
+            XCTFail("System IDFA is not prepended")
+        }
+
+        if identifiers.count(where: { if case .appleIDFA = $0 { return true } else { return false } }) > 1 {
+            XCTFail("User IDFA persists. (duplicate)")
+        }
+    }
+
     func test_idfa_detection_enabled_enrich_system_idfa_user_idfa_persist() {
         ATT.advertisingIdentifierAvailable_DebugOverride = true
         ATT.advertisingIdentifier_DebugOverride = UUID(uuidString: systemIDFA)
