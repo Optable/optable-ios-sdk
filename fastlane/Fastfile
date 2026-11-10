@@ -15,11 +15,7 @@ platform :ios do
 
   desc "Builds the demo-ios-swift application"
   lane :demo_swift do
-    Dir.chdir("../demo-ios-swift/.") do
-      sh("pod install")
-      sh("pod update")
-    end
-    gym(workspace: "demo-ios-swift/demo-ios-swift.xcworkspace",
+    gym(project: "demo-ios-swift/demo-ios-swift.xcodeproj",
         scheme: "demo-ios-swift",
         clean: true,
         skip_codesigning: true,
