@@ -142,6 +142,27 @@ class OptableIdentifierEncoderTests: XCTestCase {
         XCTAssertNotEqual(unexpected, SUT.custom(prefix, "foobarBAZ-01234#98765.!!!"))
     }
 
+    func test_emptyAfterNormalization_isDropped() {
+        let blank = "  \n "
+        let identifiers: [OptableIdentifier] = [
+            .emailAddress(blank), .phoneNumber(blank), .postalCode(blank),
+            .ipv4Address(blank), .ipv6Address(blank),
+            .appleIDFA(blank), .googleGAID(blank), .rokuRIDA(blank), .samsungTIFA(blank), .amazonFireAFAI(blank),
+            .netID(blank), .id5(blank), .utiq(blank),
+            .custom(nil, blank), .custom(2, blank), .optableVID(blank),
+            .hem(blank), .hashedPhoneNumber(blank),
+        ]
+
+        for identifier in identifiers {
+            XCTAssertEqual("", identifier.extendedIdentifier, "\(identifier) should be dropped")
+        }
+    }
+
+    func test_email_and_phoneNumber_neverSendTheHashOfAnEmptyString() {
+        XCTAssertEqual("", SUT.email("e", ""))
+        XCTAssertEqual("", SUT.phoneNumber("p", " "))
+    }
+
     func test_hem() {
         let prefix = OptableIdentifier.hem("").prefix
         let hem = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
