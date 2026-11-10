@@ -47,6 +47,10 @@ public enum OptableIdentifier: Sendable {
     case hem(String) // e, Hashed Email: SHA256 of the normalized Email address
     case hashedPhoneNumber(String) // p
 
+    // Pre-encoded "type:value" Extended Identifier, for types without a case above.
+    // A known type is checked and normalized like its case ("e" and "p" must already be SHA256 hashes); an unknown one is sent as given.
+    case raw(String) // type
+
     public var prefix: String {
         switch self {
         case .emailAddress: return "e"
@@ -67,6 +71,7 @@ public enum OptableIdentifier: Sendable {
         case .optableVID: return "v"
         case .hem: return "e"
         case .hashedPhoneNumber: return "p"
+        case let .raw(value): return value.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false).first.map(String.init) ?? ""
         }
     }
 

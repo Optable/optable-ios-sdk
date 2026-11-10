@@ -30,8 +30,21 @@ enum OptableIdentifierEncoder {
         case let .optableVID(value): vid(prefix, value)
         case let .hem(value): hem(prefix, value)
         case let .hashedPhoneNumber(value): hashedPhoneNumber(prefix, value)
+        case let .raw(value): raw(value)
         }
         return eid
+    }
+
+    /// Builds Extended Identifier from a pre-encoded "type:value" string.
+    /// A known type is encoded like its case, so an "e" or "p" value that is not a SHA256 digest is dropped.
+    /// An unknown type is sent as given. Returns an empty string when the type or value is missing.
+    static func raw(_ value: String) -> String {
+        if let known = OptableIdentifier(extendedIdentifier: value) {
+            return eid(known)
+        }
+        let parts = value.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+        guard parts.count == 2, parts[0].isEmpty == false, parts[1].isEmpty == false else { return "" }
+        return value
     }
 
     /// Builds Extended Identifier from an already-hashed Email address (HEM).

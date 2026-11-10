@@ -183,6 +183,40 @@ class OptableIdentifierEncoderTests: XCTestCase {
         )
     }
 
+    func test_raw_unknownTypeIsSentAsGiven() {
+        XCTAssertEqual("xyz:Some Value", SUT.raw("xyz:Some Value"))
+        XCTAssertEqual("cookie:abc", SUT.raw("cookie:abc"))
+        XCTAssertEqual("xyz:a:b", SUT.raw("xyz:a:b"))
+    }
+
+    func test_raw_knownTypeIsEncodedLikeItsCase() {
+        let hem = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
+
+        XCTAssertEqual("e:\(hem)", SUT.raw("e:\(hem.uppercased())"))
+        XCTAssertEqual("p:\(hem)", SUT.raw("p: \(hem)"))
+        XCTAssertEqual(OptableIdentifier.ipv4Address(" 8.8.8.8 ").extendedIdentifier, SUT.raw("i4: 8.8.8.8 "))
+        XCTAssertEqual(OptableIdentifier.custom(3, " abc ").extendedIdentifier, SUT.raw("c3: abc "))
+    }
+
+    func test_raw_rejectsPlaintextEmailAndPhoneNumber() {
+        // A plaintext Email or Phone number must never reach the wire.
+        XCTAssertEqual("", SUT.raw("e:test@foobarbaz.com"))
+        XCTAssertEqual("", SUT.raw("p:+15551234567"))
+    }
+
+    func test_raw_rejectsMalformedValues() {
+        XCTAssertEqual("", SUT.raw("xyz"))
+        XCTAssertEqual("", SUT.raw("xyz:"))
+        XCTAssertEqual("", SUT.raw(":abc"))
+        XCTAssertEqual("", SUT.raw(""))
+    }
+
+    func test_raw_prefix() {
+        XCTAssertEqual("xyz", OptableIdentifier.raw("xyz:abc").prefix)
+        XCTAssertEqual("e", OptableIdentifier.raw("e:abc").prefix)
+        XCTAssertEqual("", OptableIdentifier.raw(":abc").prefix)
+    }
+
     // MARK: Legacy
     func test_eidFromURL_isCorrect() {
         let url = "http://some.domain.com/some/path?some=query&something=else&oeid=a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3&foo=bar&baz"
