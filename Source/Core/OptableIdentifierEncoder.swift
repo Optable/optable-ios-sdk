@@ -37,13 +37,15 @@ enum OptableIdentifierEncoder {
 
     /// Builds Extended Identifier from a pre-encoded "type:value" string.
     /// A known type is encoded like its case, so an "e" or "p" value that is not a SHA256 digest is dropped.
-    /// An unknown type is sent as given. Returns an empty string when the type or value is missing.
+    /// An unknown type is sent as given. Returns an empty string when the type or value is missing or only whitespace.
     static func raw(_ value: String) -> String {
         if let known = OptableIdentifier(extendedIdentifier: value) {
             return eid(known)
         }
         let parts = value.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
-        guard parts.count == 2, parts[0].isEmpty == false, parts[1].isEmpty == false else { return "" }
+        guard parts.count == 2,
+              parts[0].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false,
+              parts[1].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false else { return "" }
         return value
     }
 

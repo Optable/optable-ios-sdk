@@ -209,6 +209,8 @@ class OptableIdentifierEncoderTests: XCTestCase {
         XCTAssertEqual("", SUT.raw("xyz:"))
         XCTAssertEqual("", SUT.raw(":abc"))
         XCTAssertEqual("", SUT.raw(""))
+        XCTAssertEqual("", SUT.raw("xyz:   "))
+        XCTAssertEqual("", SUT.raw("  :abc"))
     }
 
     func test_raw_prefix() {

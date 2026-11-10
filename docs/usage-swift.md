@@ -167,7 +167,7 @@ let ids: [OptableIdentifier] = [
 ]
 ```
 
-If the type is one the SDK knows, the value is checked and normalized as its case would be: `e` and `p` values must already be SHA-256 digests, like `.hem` and `.hashedPhoneNumber`, so a plain-text email address or phone number is dropped and never sent. A value of an unknown type is sent as given. Values without both a type and a value are dropped. `.raw` works the same way with `identify()`, `targeting()` and its `hids`.
+If the type is one the SDK knows, the value is checked and normalized as its case would be: `e` and `p` values must already be SHA-256 digests, like `.hem` and `.hashedPhoneNumber`, so a plain-text email address or phone number is dropped and never sent. A value of an unknown type is sent as given. Values without both a type and a value, or where either is only whitespace, are dropped. `.raw` works the same way with `identify()`, `targeting()` and its `hids`.
 
 ### Profile API
 
