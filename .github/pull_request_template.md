@@ -22,4 +22,4 @@
 <!-- Tradeoffs, edge cases, migration steps, follow-ups -->
 
 - [ ] Breaking change
-- [ ] Requires release <!-- a vX.Y.Z tag should be published after merge -->
+- [ ] Requires release <!-- a bare X.Y.Z release tag (e.g. 2.0.0) should be published after merge -->

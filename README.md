@@ -17,19 +17,13 @@ Once you have your Swift package set up, you can add this SDK as a dependency. A
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/Optable/optable-ios-sdk", from: "1.3.0")
+    .package(url: "https://github.com/Optable/optable-ios-sdk", from: "2.0.0")
 ]
 ```
 
 ### CocoaPods
 
-[CocoaPods](https://cocoapods.org/) is a dependency manager for Cocoa projects. For usage and installation instructions, visit their website.
-
-To integrate this SDK into your Xcode project using CocoaPods, specify it in your Podfile:
-
-```ruby
-pod 'OptableSDK'
-```
+Version 1.4.0 is the last version of the SDK published to [CocoaPods](https://cocoapods.org/), whose trunk became read-only on December 2, 2026. Later versions are available through Swift Package Manager only.
 
 ## Usage
 
