@@ -368,6 +368,16 @@ class EdgeAPITests: XCTestCase {
     /**
      For more info check: [](https://docs.optable.co/optable-documentation/guides/real-time-api-integrations-guide/optable-real-time-api-endpoints/profile)
      */
+    func test_targeting_request_drops_blank_identifiers() throws {
+        let postalCode: OptableIdentifier = .postalCode("H2X 1Y4")
+        let blank: OptableIdentifier = .postalCode("   ")
+        let urlRequest = try sdk.api.targeting(ids: [postalCode, blank], hids: [postalCode, blank])
+        let queryItems = URLComponents(url: urlRequest!.url!, resolvingAgainstBaseURL: false)!.queryItems ?? []
+
+        XCTAssertEqual(queryItems.filter({ $0.name == "id" }).map(\.value), [postalCode.extendedIdentifier])
+        XCTAssertEqual(queryItems.filter({ $0.name == "hid" }).map(\.value), [postalCode.extendedIdentifier])
+    }
+
     func test_profile_request_generation() throws {
         let urlRequest = try sdk.api.profile(traits: ["test-key": "test-value"], id: "c:id2", neighbors: ["c:id1", "c:id3"])
         

@@ -31,6 +31,9 @@ enum OptableIdentifierEncoder {
         case let .hem(value): hem(prefix, value)
         case let .hashedPhoneNumber(value): hashedPhoneNumber(prefix, value)
         }
+
+        // An identifier whose value is empty once normalized is dropped rather than sent as "prefix:"
+        guard let separator = eid.firstIndex(of: ":"), eid.index(after: separator) < eid.endIndex else { return "" }
         return eid
     }
 
@@ -50,16 +53,20 @@ enum OptableIdentifierEncoder {
     }
 
     /// Builds Extended Identifier from Email address
+    /// Returns an empty string when nothing is left to hash, so the SHA256 of an empty string is never sent.
     static func email(_ prefix: String, _ email: String) -> String {
-        let normalizedData = Data(email.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased().utf8)
-        let identifier = sha256(data: normalizedData)
+        let normalized = email.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased()
+        guard normalized.isEmpty == false else { return "" }
+        let identifier = sha256(data: Data(normalized.utf8))
         return "\(prefix):\(identifier)"
     }
 
     /// Builds Extended Identifier from Phone number
+    /// Returns an empty string when nothing is left to hash, so the SHA256 of an empty string is never sent.
     static func phoneNumber(_ prefix: String, _ phoneNumber: String) -> String {
-        let normalizedData = Data(phoneNumber.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased().utf8)
-        let identifier = sha256(data: normalizedData)
+        let normalized = phoneNumber.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined().lowercased()
+        guard normalized.isEmpty == false else { return "" }
+        let identifier = sha256(data: Data(normalized.utf8))
         return "\(prefix):\(identifier)"
     }
 
