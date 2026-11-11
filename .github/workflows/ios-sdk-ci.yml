@@ -46,12 +46,6 @@ jobs:
       - name: Build Demo Swift
         id: build-demo-swift
         run: bundle exec fastlane demo_swift
-      - name: Store Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: demo-swift
-          path: ./demo-ios-swift/Pods
-          retention-days: 1
       - name: Store build log
         uses: actions/upload-artifact@v4
         with:

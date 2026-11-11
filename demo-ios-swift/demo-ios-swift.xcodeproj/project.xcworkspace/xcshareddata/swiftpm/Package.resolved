@@ -1,0 +1,42 @@
+{
+  "originHash" : "c3116483301715e895f00f5d11a28fdc5ac1ba4bc85792a679c0a85a7219a2c2",
+  "pins" : [
+    {
+      "identity" : "applovin-max-swift-package",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/AppLovin/AppLovin-MAX-Swift-Package.git",
+      "state" : {
+        "revision" : "ddf923e9b9de295d1c2425053cf14b32735246a8",
+        "version" : "13.7.0"
+      }
+    },
+    {
+      "identity" : "prebid-mobile-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/prebid/prebid-mobile-ios.git",
+      "state" : {
+        "revision" : "2d07f25ea964ac4e027beed9164ce8d2ab7a98d4",
+        "version" : "3.4.1"
+      }
+    },
+    {
+      "identity" : "swift-package-manager-google-mobile-ads",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/googleads/swift-package-manager-google-mobile-ads.git",
+      "state" : {
+        "revision" : "f6308a186913b186bdc8baf87d098206ecd75ace",
+        "version" : "13.12.0"
+      }
+    },
+    {
+      "identity" : "swift-package-manager-google-user-messaging-platform",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git",
+      "state" : {
+        "revision" : "13b248eaa73b7826f0efb1bcf455e251d65ecb1b",
+        "version" : "3.1.0"
+      }
+    }
+  ],
+  "version" : 3
+}
