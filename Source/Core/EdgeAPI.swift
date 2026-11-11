@@ -81,7 +81,8 @@ final class EdgeAPI: Sendable {
             .compactMap({ URLQueryItem(name: "id", value: $0) })
         
         let hidQueryItems = hids
-            .compactMap({ $0.extendedIdentifier })
+            .map({ $0.extendedIdentifier })
+            .filter({ $0.isEmpty == false })
             .compactMap({ URLQueryItem(name: "hid", value: $0) })
 
         queryItems.append(contentsOf: hidQueryItems)

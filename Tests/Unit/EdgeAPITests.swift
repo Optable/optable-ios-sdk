@@ -340,6 +340,16 @@ class EdgeAPITests: XCTestCase {
         }
     }
 
+    func test_targeting_request_raw_identifiers() throws {
+        let raw: OptableIdentifier = .raw("xyz:abc")
+        let plaintextEmail: OptableIdentifier = .raw("e:test@foobarbaz.com")
+        let urlRequest = try sdk.api.targeting(ids: [raw, plaintextEmail], hids: [raw, plaintextEmail])
+        let queryItems = URLComponents(url: urlRequest!.url!, resolvingAgainstBaseURL: false)!.queryItems ?? []
+
+        XCTAssertEqual(queryItems.filter({ $0.name == "id" }).map(\.value), ["xyz:abc"])
+        XCTAssertEqual(queryItems.filter({ $0.name == "hid" }).map(\.value), ["xyz:abc"])
+    }
+
     func test_targeting_request_percent_encodes_plus_in_query_values() throws {
         // The edge decodes a literal `+` in the query as a space, which would corrupt
         // base64 values such as the ID5 signature; it must go out as %2B on the wire.
