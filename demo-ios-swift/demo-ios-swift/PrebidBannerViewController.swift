@@ -55,25 +55,18 @@ final class PrebidBannerViewController: UIViewController { // Outlets
     }
 
     // MARK: Actions
+    // This screen uses the async/await API; the GAM Banner screen shows the same flow with a completion handler.
     @IBAction func loadBannerWithTargeting(_ sender: UIButton) {
-        do {
-            try OPTABLE!.targeting { [weak self] result in
-                // The completion handler is not called on the main thread, and ads must be loaded on it.
-                DispatchQueue.main.async {
-                    switch result {
-                    case let .success(optableTargeting):
-                        print("[OptableSDK] ✅ Success on /targeting API call: \(optableTargeting)")
-                        self?.loadBanner(optableTargeting)
-
-                    case let .failure(error):
-                        print("[OptableSDK] 🚫 Error on /targeting API call: \(error)")
-                        self?.loadBanner()
-                    }
-                }
+        // The Task inherits the main actor from this action, so the banner is loaded on the main thread.
+        Task {
+            do {
+                let optableTargeting = try await OPTABLE!.targeting()
+                print("[OptableSDK] ✅ Success on /targeting API call: \(optableTargeting)")
+                loadBanner(optableTargeting)
+            } catch {
+                print("[OptableSDK] 🚫 Error on /targeting API call: \(error)")
+                loadBanner()
             }
-        } catch {
-            print("[OptableSDK] 🚫 Exception on /targeting API call: \(error)")
-            targetingLog = "🚫 EXCEPTION: \(error)"
         }
     }
 
@@ -153,8 +146,12 @@ private extension PrebidBannerViewController {
 
     func profile() {
         do {
+            // `id` and `neighbors` are sent as given, so build them with `.extendedIdentifier`,
+            // which hashes Email addresses and phone numbers before they leave the device.
             try OPTABLE!.profile(
-                traits: ["example": "value", "anotherExample": 123, "thirdExample": true]
+                traits: ["example": "value", "anotherExample": 123, "thirdExample": true],
+                id: OptableIdentifier.custom(nil, "demo-user-1234").extendedIdentifier,
+                neighbors: [OptableIdentifier.emailAddress("some.email@address.com").extendedIdentifier]
             ) { result in
                 switch result {
                 case let .success(optableTargeting):

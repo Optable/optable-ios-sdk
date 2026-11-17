@@ -12,6 +12,9 @@
 @property (weak, nonatomic) IBOutlet UITextField *identifyInput;
 @property (weak, nonatomic) IBOutlet UIButton *identifyButton;
 @property (weak, nonatomic) IBOutlet UITextView *identifyOutput;
+@property (weak, nonatomic) IBOutlet UITextField *identifyURLInput;
 
 - (IBAction)dispatchIdentify:(id)sender;
+- (IBAction)dispatchIdentifyHashed:(id)sender;
+- (IBAction)dispatchIdentifyFromURL:(id)sender;
 @end
