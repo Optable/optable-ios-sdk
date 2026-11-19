@@ -33,7 +33,6 @@
 			);
 			publicHeaders = (
 				OptableSDK.h,
-				Public/ObjCSupport/OptableSDKIdentifier.h,
 			);
 			target = 6352AAFA24EAD403002E66EB /* OptableSDK */;
 		};
