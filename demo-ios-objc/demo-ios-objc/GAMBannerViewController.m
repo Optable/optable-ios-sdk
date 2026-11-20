@@ -65,10 +65,9 @@
     [OPTABLE witnessWithEvent: @"GAMBannerViewController.loadBannerClicked"
                    properties: @{ @"example": @"value" }
                         error: &error];
-    // `id` and `neighbors` are sent as given, so Email addresses and phone numbers must be hashed first.
     [OPTABLE profileWithTraits: @{ @"example": @"value", @"anotherExample": @123, @"thirdExample": @YES }
-                            id: @"c:demo-user-1234"
-                     neighbors: @[[@"e:" stringByAppendingString:OptableDemoSHA256Email(@"some.email@address.com")]]
+                            id: [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_Custom value:@"demo-user-1234"]
+                     neighbors: @[[OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_EmailAddress value:@"some.email@address.com"]]
                          error: &error];
 }
 
@@ -86,10 +85,9 @@
     [OPTABLE witnessWithEvent: @"GAMBannerViewController.loadBannerClicked"
                    properties: @{ @"example": @"value" }
                         error: &error];
-    // `id` and `neighbors` are sent as given, so Email addresses and phone numbers must be hashed first.
     [OPTABLE profileWithTraits: @{ @"example": @"value", @"anotherExample": @123, @"thirdExample": @YES }
-                            id: @"c:demo-user-1234"
-                     neighbors: @[[@"e:" stringByAppendingString:OptableDemoSHA256Email(@"some.email@address.com")]]
+                            id: [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_Custom value:@"demo-user-1234"]
+                     neighbors: @[[OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_EmailAddress value:@"some.email@address.com"]]
                          error: &error];
 }
 

@@ -235,53 +235,54 @@ public extension OptableSDK {
 
 // MARK: - Profile
 public extension OptableSDK {
+    /// The most neighbors the DCN accepts in one profile call; a call with more fails.
+    @objc
+    static let maxProfileNeighbors: Int = 64
+
     /**
-     profile(traits, id, neighbors, completion) calls the Optable Sandbox Profile API to associate the provided
-     traits (key-value pairs) with the user/device. You can optionally include a specific id and neighbor ids.
+     profile(traits, id?, neighbors?, hids?, completion) calls the Optable Sandbox Profile API to associate the provided
+     traits (key-value pairs) with the user/device, for eventual audience assembly, and returns the targeting data
+     for the profile.
 
-     On completion, the handler receives:
-     - .success(OptableTargeting) on success
-     - .failure(Error) on failure
+     On the DCN, profile works like an identify call followed by a targeting call: `neighbors` are linked to the
+     profile, then targeting is resolved for it. The identifiers are encoded like `identify`, and the request carries
+     the same app information, user agent and ID5 signature as `targeting`.
 
-     The resulting OptableTargeting is also cached for targetingFromCache().
+     - Parameters:
+        - traits: key-value pairs, where the values are strings, numbers or booleans.
+        - id: the identifier that traits and neighbors are linked to. It takes precedence over the passport if
+          provided. If it is dropped when encoded (for example a `.hem` that isn't a SHA256 digest), the call throws
+          without being sent rather than attaching the traits to the passport.
+        - neighbors: identifiers to link to the `id` or passport. At most `maxProfileNeighbors` (64) are sent; the
+          rest are dropped.
+        - hids: hint identifiers for resolver-specific identity resolution, as in `targeting`.
+        - completion: on completion, the handler receives:
+           - .success(OptableTargeting) on success
+           - .failure(Error) on failure
+
+     Unless `skipAdvertisingIdDetection` is set in the config, the device IDFA is automatically prepended to both
+     `neighbors` and `hids` when ad tracking is authorized.
+
+     On success, the result is cached like a `targeting` result, so targetingFromCache() returns whichever of the
+     two calls completed last.
      */
     @preconcurrency
-    func profile(traits: [String: Any], id: String? = nil, neighbors: [String]? = nil, _ completion: @escaping @Sendable (Result<OptableTargeting, Error>) -> Void) throws {
-        try _profile(traits: traits, id: id, neighbors: neighbors, completion: completion)
+    func profile(traits: [String: Any], id: OptableIdentifier? = nil, neighbors: [OptableIdentifier]? = nil, hids: [OptableIdentifier]? = nil, _ completion: @escaping @Sendable (Result<OptableTargeting, Error>) -> Void) throws {
+        try _profile(traits: traits, id: id, neighbors: neighbors, hids: hids, completion: completion)
     }
 
     // MARK: Async/Await support
     /**
-     This is the Swift Concurrency compatible version of the `profile(traits, completion)` API.
+     This is the Swift Concurrency compatible version of the `profile(traits, id, neighbors, hids, completion)` API.
 
      Instead of completion callbacks, results are returned via async/await.
      */
-    func profile(traits: [String: Any], id: String? = nil, neighbors: [String]? = nil) async throws -> OptableTargeting {
+    func profile(traits: [String: Any], id: OptableIdentifier? = nil, neighbors: [OptableIdentifier]? = nil, hids: [OptableIdentifier]? = nil) async throws -> OptableTargeting {
         return try await withCheckedThrowingContinuation({ [unowned self] continuation in
             do {
-                try self._profile(traits: traits, id: id, neighbors: neighbors, completion: { continuation.resume(with: $0) })
+                try self._profile(traits: traits, id: id, neighbors: neighbors, hids: hids, completion: { continuation.resume(with: $0) })
             } catch {
                 continuation.resume(throwing: error)
-            }
-        })
-    }
-
-    // MARK: Objective-C support
-    /**
-     This is the Objective-C compatible version of the `profile(traits, completion)` API.
-
-     Instead of completion callbacks, delegate methods are called.
-     */
-    @objc
-    func profile(traits: [String: Any], id: String? = nil, neighbors: [String]? = nil) throws {
-        try _profile(traits: traits, id: id, neighbors: neighbors, completion: { result in
-            Task { @MainActor in
-                switch result {
-                case let .success(response):
-                    self.delegate?.profileOk(response)
-                case let .failure(error as NSError):
-                    self.delegate?.profileErr(error)
-                }
             }
         })
     }
@@ -400,8 +401,20 @@ extension OptableSDK {
         }).resume()
     }
 
-    func _profile(traits: [String: Any], id: String?, neighbors: [String]?, completion: @escaping @Sendable (Result<OptableTargeting, Error>) -> Void) throws {
-        guard let request = try api.profile(traits: traits, id: id, neighbors: neighbors) else {
+    func _profile(traits: [String: Any], id: OptableIdentifier?, neighbors: [OptableIdentifier]?, hids: [OptableIdentifier]?, completion: @escaping @Sendable (Result<OptableTargeting, Error>) -> Void) throws {
+        // Without its id the call would attach the traits to the passport; the error names the type, never the value
+        if let id, id.extendedIdentifier.isEmpty {
+            let type = Mirror(reflecting: id).children.first?.label ?? id.prefix
+            throw OptableError.profile("Profile id is not a valid \(type) identifier")
+        }
+
+        var neighbors = neighbors ?? []
+        var hids = hids ?? []
+
+        enrichIfNeeded(ids: &neighbors)
+        enrichIfNeeded(ids: &hids)
+
+        guard let request = try api.profile(traits: traits, id: id, neighbors: neighbors, hids: hids) else {
             throw OptableError.profile("Failed to create profile request")
         }
 
@@ -425,6 +438,7 @@ extension OptableSDK {
 
                 /// We cache the latest targeting result in client storage for targetingFromCache() users:
                 self.api.storage.setTargeting(optableTargeting)
+                self.api.storage.setID5Signature(optableTargeting.id5Signature)
 
                 completion(.success(optableTargeting))
             } catch {
