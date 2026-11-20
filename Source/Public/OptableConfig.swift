@@ -160,7 +160,7 @@ public final class OptableConfig: NSObject, Sendable {
     /**
      A comma-separated list of up to two sections applicable in a given GPP privacy string. This value is required when gpp is present.
 
-     > If not set and `gpp` is read from UserDefaults, SDK will also read `IABGPP_GppSID` from UserDefaults, as stated in [](https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/Core/CMP%20API%20Specification.md)
+     > If not set and `gpp` is read from UserDefaults `IABGPP_HDR_GppString`, SDK will also read `IABGPP_GppSID` from UserDefaults, as stated in [](https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/Core/CMP%20API%20Specification.md)
      */
     @objc
     public var gppSid: String? {
