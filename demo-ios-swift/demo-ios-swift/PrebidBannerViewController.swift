@@ -146,12 +146,10 @@ private extension PrebidBannerViewController {
 
     func profile() {
         do {
-            // `id` and `neighbors` are sent as given, so build them with `.extendedIdentifier`,
-            // which hashes Email addresses and phone numbers before they leave the device.
             try OPTABLE!.profile(
                 traits: ["example": "value", "anotherExample": 123, "thirdExample": true],
-                id: OptableIdentifier.custom(nil, "demo-user-1234").extendedIdentifier,
-                neighbors: [OptableIdentifier.emailAddress("some.email@address.com").extendedIdentifier]
+                id: .custom(nil, "demo-user-1234"),
+                neighbors: [.emailAddress("some.email@address.com")]
             ) { result in
                 switch result {
                 case let .success(optableTargeting):

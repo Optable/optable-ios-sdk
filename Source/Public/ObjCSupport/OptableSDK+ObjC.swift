@@ -66,4 +66,39 @@ public extension OptableSDK {
             }
         })
     }
+
+    /**
+     This is the Objective-C compatible version of the `profile(traits, id, neighbors, completion)` API.
+
+     Instead of completion callbacks, delegate methods are called.
+     */
+    @objc(profileWithTraits:id:neighbors:error:)
+    func profile(traits: [String: Any], id: OptableSDKIdentifier?, neighbors: [OptableSDKIdentifier]?) throws {
+        try profile(traits: traits, id: id, neighbors: neighbors, hids: nil)
+    }
+
+    /**
+     This is the Objective-C compatible version of the `profile(traits, id, neighbors, hids, completion)` API:
+     `neighbors` are linked to the `id` or passport, while `hids` are hint identifiers driving resolver-specific
+     identity resolution such as ID5 Mobile In-App, as in `targeting`.
+
+     Instead of completion callbacks, delegate methods are called.
+     */
+    @objc(profileWithTraits:id:neighbors:hids:error:)
+    func profile(traits: [String: Any], id: OptableSDKIdentifier?, neighbors: [OptableSDKIdentifier]?, hids: [OptableSDKIdentifier]?) throws {
+        let bridgedId = id.flatMap({ OptableIdentifier(objc: $0) })
+        let bridgedNeighbors = neighbors?.compactMap({ OptableIdentifier(objc: $0) })
+        let bridgedHIds = hids?.compactMap({ OptableIdentifier(objc: $0) })
+
+        try self._profile(traits: traits, id: bridgedId, neighbors: bridgedNeighbors, hids: bridgedHIds, completion: { result in
+            Task { @MainActor in
+                switch result {
+                case let .success(optableTargeting):
+                    self.delegate?.profileOk(optableTargeting)
+                case let .failure(error as NSError):
+                    self.delegate?.profileErr(error)
+                }
+            }
+        })
+    }
 }

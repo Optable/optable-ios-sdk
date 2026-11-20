@@ -94,7 +94,7 @@ Besides `tenant`, `originSlug` and `host`, `OptableConfig` has the following opt
 | `apiKey` | `nil` | A Service Account API key, sent as an `Authorization: Bearer` header. Required when the API endpoint is configured as private. |
 | `customUserAgent` | `nil` | A `User-Agent` to send instead of the one detected from `WKWebView`. |
 | `origin` | `nil` | A value sent as the `Origin` HTTP header. |
-| `skipAdvertisingIdDetection` | `NO` | When `YES`, the SDK never adds the device IDFA to `identify` and `targeting` requests. |
+| `skipAdvertisingIdDetection` | `NO` | When `YES`, the SDK never adds the device IDFA to `identify`, `targeting` and `profile` requests. |
 | `cacheTTL` | 24 hours | How long, in seconds, cached targeting data stays valid. |
 
 #### Privacy and consent
@@ -140,7 +140,7 @@ NSArray *ids = @[
 
 Note that `error` will be set only in case of an internal SDK exception. Otherwise, any configured delegate `identifyOk` or `identifyErr` will be invoked to signal success or failure, respectively.
 
-The SDK automatically adds the Apple ID for Advertising (IDFA) to the identifiers sent by `identify` and `targeting` whenever the user has authorized tracking. You don't need to pass it yourself. To turn this off, set `skipAdvertisingIdDetection` to `YES` on your `OptableConfig`.
+The SDK automatically adds the Apple ID for Advertising (IDFA) to the identifiers sent by `identify`, `targeting` and `profile` whenever the user has authorized tracking. You don't need to pass it yourself. To turn this off, set `skipAdvertisingIdDetection` to `YES` on your `OptableConfig`.
 
 > :warning: **IDFA requires user authorization**: Apple requires permission to use IDFA via the [AppTrackingTransparency](https://developer.apple.com/app-store/user-privacy-and-data-use/) framework. The SDK only reads the current authorization status and **does not** show the ATT prompt itself. Your application must request authorization, for example with `[ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:]`, and must set the _Privacy - Tracking Usage Description_ (`NSUserTrackingUsageDescription`) string in its `Info.plist`. Until the user authorizes tracking, no IDFA is sent.
 
@@ -176,14 +176,29 @@ To associate key value traits with the device, for eventual audience assembly, y
 ...
 NSError *error = nil;
 [OPTABLE profileWithTraits: @{ @"gender": @"F", @"age": @38, @"hasAccount": @YES }
-                        id: @"c:2", // NULL-able
-                 neighbors: @[@"c:1", @"c:3"], // NULL-able
+                        id: nil
+                 neighbors: nil
                      error: &error];
 ```
 
-On success, the delegate's `profileOk` receives the updated `OptableTargeting` for the device, which is also cached for `targetingFromCache`.
+On success, the delegate's `profileOk` receives the `OptableTargeting` for the profile, which is also cached for `targetingFromCache`.
 
-> :warning: Unlike `identify` and `targeting`, `id` and `neighbors` are plain type-prefixed strings (such as `c:2`) that are sent exactly as given: the SDK does **not** normalize or hash them. Never pass a plain-text email address or phone number here; hash it first.
+You can optionally pass an `id` to associate the traits with instead of the device's passport, a list of `neighbors` (related identifiers to link to it), and hint identifiers (`hids`), as in `targeting`. They are `OptableSDKIdentifier` values, encoded the same way as for `identify`, so Email addresses and phone numbers are hashed before they leave the device:
+
+```objective-c
+[OPTABLE profileWithTraits: @{ @"hasAccount": @YES }
+                        id: [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_Custom value:@"user-1234"]
+                 neighbors: @[
+                     [OptableSDKIdentifier identifierWithType:OptableSDKIdentifierType_EmailAddress value:@"some.email@address.com"]
+                 ]
+                      hids: nil
+                     error: &error];
+```
+
+On the DCN, `profile` works like an `identify` call followed by a `targeting` call: the `neighbors` are linked to the profile, then targeting is resolved for the `id`, or for the device's passport when no `id` is given. The request carries the same [resolver-specific parameters](#resolver-specific-parameters) as `targeting`, and the device IDFA is added to both `neighbors` and `hids` under the same rules.
+
+- If the `id` is dropped when encoded, for example an `OptableSDKIdentifierType_HEM` identifier that isn't a SHA-256 digest, `profile` returns `NO` with an error without sending the request, so the traits are never attached to the passport instead. The error names the identifier type, not its value.
+- The DCN rejects a whole call that has more than 64 neighbors, so the SDK sends at most `OptableSDK.maxProfileNeighbors` (64), the IDFA first, and drops the rest. Neighbors and `hids` that are dropped when encoded are left out, as with `identify`.
 
 ### Targeting API
 
@@ -216,20 +231,20 @@ You may optionally supply hint identifiers (`hids`) which are forwarded as resol
 
 #### Resolver-Specific Parameters
 
-On every targeting call the SDK automatically attaches the parameters required by resolver-specific integrations such as ID5 Mobile In-App:
+On every targeting and profile call the SDK automatically attaches the parameters required by resolver-specific integrations such as ID5 Mobile In-App:
 
 - `bundle`: the application's bundle identifier.
 - `ver`: the application's version (`CFBundleShortVersionString`).
 - `ua`: the user agent of the device's default browser, detected asynchronously via `WKWebView` at SDK initialization. If a targeting call happens before detection completes, the parameter is omitted; set the `customUserAgent` configuration parameter to guarantee it is always present.
-- `id5_signature`: the ID5 signature cached from a previous targeting response, when available.
+- `id5_signature`: the ID5 signature cached from a previous targeting or profile response, when available.
 
-When a targeting response contains an ID5 EID, the SDK extracts the associated signature and caches it in client storage. The cached signature persists across app restarts, is sent as `id5_signature` on subsequent targeting calls to improve ID5 resolve rates, and is removed by `targetingClearCache`. A targeting response that contains no ID5 signature removes any previously cached one, so the SDK never sends a stale signature.
+When a targeting or profile response contains an ID5 EID, the SDK extracts the associated signature and caches it in client storage. The cached signature persists across app restarts, is sent as `id5_signature` on subsequent targeting and profile calls to improve ID5 resolve rates, and is removed by `targetingClearCache`. A targeting or profile response that contains no ID5 signature removes any previously cached one, so the SDK never sends a stale signature.
 
 In addition, unless `skipAdvertisingIdDetection` is set in the configuration, the device IDFA is automatically added to both `ids` and `hids` when ad tracking is authorized by the user.
 
 #### Caching Targeting Data
 
-The `targeting:error:` and `targetingWithIds:hids:error:` methods automatically cache the resulting `OptableTargeting` in client storage on success. You can subsequently retrieve the cached key value data as follows:
+The targeting and profile methods automatically cache the resulting `OptableTargeting` in client storage on success, so `targetingFromCache` returns the result of whichever of the two calls completed last. You can subsequently retrieve the cached key value data as follows:
 
 ```objective-c
 @import OptableSDK;
