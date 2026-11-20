@@ -440,11 +440,9 @@ extension OptableSDK {
            ATT.advertisingIdentifier != UUID(uuid: uuid_t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) {
             let systemIDFA = ATT.advertisingIdentifier.uuidString
 
-            // Remove all matching systemIDFA (deduplicate)
-            ids.removeAll { id in
-                if case let .appleIDFA(value) = id { return value == systemIDFA }
-                return false
-            }
+            // Remove all matching systemIDFA (deduplicate), compared as encoded so case and whitespace don't matter
+            let systemEID = OptableIdentifier.appleIDFA(systemIDFA).extendedIdentifier
+            ids.removeAll { $0.extendedIdentifier == systemEID }
 
             // Prepend all identifiers with systemIDFA
             ids.insert(.appleIDFA(systemIDFA), at: ids.startIndex)
