@@ -34,6 +34,11 @@ enum OptableIdentifierEncoder {
 
         // An identifier whose value is empty once normalized is dropped rather than sent as "prefix:"
         guard let separator = eid.firstIndex(of: ":"), eid.index(after: separator) < eid.endIndex else { return "" }
+
+        // An all-zero device ID is the placeholder the OS returns when tracking isn't allowed, shared by every such device
+        if deviceIDPrefixes.contains(prefix), eid[eid.index(after: separator)...].allSatisfy({ $0 == "0" || $0 == "-" }) {
+            return ""
+        }
         return eid
     }
 
@@ -187,6 +192,9 @@ enum OptableIdentifierEncoder {
 
     // MARK: - Private
     private static let sha256HexCharacters = CharacterSet(charactersIn: "0123456789abcdef")
+
+    /// Advertising ID types whose all-zero value is a placeholder: IDFA, GAID, RIDA, TIFA and AFAI.
+    private static let deviceIDPrefixes: Set<String> = ["a", "g", "r", "s", "f"]
 
     /// Normalizes an already-hashed value, returning nil unless it is a SHA256 hex digest.
     private static func validSHA256(_ hash: String) -> String? {

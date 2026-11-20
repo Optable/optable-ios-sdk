@@ -158,6 +158,25 @@ class OptableIdentifierEncoderTests: XCTestCase {
         }
     }
 
+    func test_allZeroDeviceIDs_areDropped() {
+        let zeros = "00000000-0000-0000-0000-000000000000"
+        let identifiers: [OptableIdentifier] = [
+            .appleIDFA(zeros), .googleGAID(zeros), .rokuRIDA(zeros), .samsungTIFA(zeros), .amazonFireAFAI(zeros),
+            .appleIDFA(" " + zeros + " "), .googleGAID("00000000000000000000000000000000"),
+        ]
+
+        for identifier in identifiers {
+            XCTAssertEqual("", identifier.extendedIdentifier, "\(identifier) should be dropped")
+        }
+    }
+
+    func test_deviceIDs_withSomeZeros_areKept() {
+        XCTAssertEqual("a:00000000-0000-0000-0000-000000000001", OptableIdentifier.appleIDFA("00000000-0000-0000-0000-000000000001").extendedIdentifier)
+        // Only device ID types treat all zeros as a placeholder
+        XCTAssertEqual("c:0000", OptableIdentifier.custom(nil, "0000").extendedIdentifier)
+        XCTAssertEqual("z:00000", OptableIdentifier.postalCode("00000").extendedIdentifier)
+    }
+
     func test_email_and_phoneNumber_neverSendTheHashOfAnEmptyString() {
         XCTAssertEqual("", SUT.email("e", ""))
         XCTAssertEqual("", SUT.phoneNumber("p", " "))
