@@ -27,7 +27,7 @@ class OptableIdentifiersTests: XCTestCase {
             .id5("ID5*UDWnp3JOtWV0ky-bHvEeU4xOVHXCmYeg24YigF8iAymUHplfYSElM3fy79h8p-Fg"),
             .utiq("496f5db5-681f-4392-acd5-0d4f6e2f6b88"),
             .custom(nil, "d29c551097b9dd0b82423827f65161232efaf7fc"),
-            .custom(2, ""),
+            .custom(2, "two"),
             .custom(1, "AaaZza.dh012"),
             .custom(1, "another c1"),
         ]
@@ -52,7 +52,7 @@ class OptableIdentifiersTests: XCTestCase {
         XCTAssertTrue(decodedData.contains(where: { $0 == "f:6e853799-ef31-4a30-8706-9742be254d38" }))
         XCTAssertTrue(decodedData.contains(where: { $0 == "n:_YV2v2Uhx3vqeH47Rrhzgr-4c3VNsxis4M1WY9qn--QTbVapax5VM2HJykoGAyWcwS5lKQ" }))
         XCTAssertTrue(decodedData.contains(where: { $0 == "c:d29c551097b9dd0b82423827f65161232efaf7fc" }))
-        XCTAssertTrue(decodedData.contains(where: { $0 == "c2:" }))
+        XCTAssertTrue(decodedData.contains(where: { $0 == "c2:two" }))
         XCTAssertTrue(decodedData.contains(where: { $0 == "c1:AaaZza.dh012" }))
 
         // Test multiple similar ids existance ( double c1 )
@@ -62,7 +62,7 @@ class OptableIdentifiersTests: XCTestCase {
 
         let c_Idx = try XCTUnwrap(decodedData.firstIndex(of: "c:d29c551097b9dd0b82423827f65161232efaf7fc"))
         let c1_Idx = try XCTUnwrap(decodedData.firstIndex(of: "c1:AaaZza.dh012"))
-        let c2_Idx = try XCTUnwrap(decodedData.firstIndex(of: "c2:"))
+        let c2_Idx = try XCTUnwrap(decodedData.firstIndex(of: "c2:two"))
 
         XCTAssert(c_Idx < c2_Idx)
         XCTAssert(c2_Idx < c1_Idx)
