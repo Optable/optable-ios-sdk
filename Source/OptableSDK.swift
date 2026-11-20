@@ -442,10 +442,7 @@ extension OptableSDK {
 
             // Remove all matching systemIDFA (deduplicate), compared as encoded so case and whitespace don't matter
             let systemEID = OptableIdentifier.appleIDFA(systemIDFA).extendedIdentifier
-            ids.removeAll { id in
-                if case .appleIDFA = id { return id.extendedIdentifier == systemEID }
-                return false
-            }
+            ids.removeAll { $0.extendedIdentifier == systemEID }
 
             // Prepend all identifiers with systemIDFA
             ids.insert(.appleIDFA(systemIDFA), at: ids.startIndex)
