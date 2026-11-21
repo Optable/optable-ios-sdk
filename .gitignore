@@ -6,7 +6,6 @@ build/
 xcuserdata
 **/xcuserdata/*
 Pods/
-demo-ios-swift.xcworkspace
 demo-ios-objc.xcworkspace
 fastlane/README.md
 fastlane/report.xml

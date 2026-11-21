@@ -65,13 +65,15 @@ The demo apps depend on the [GAM Mobile Ads SDK for iOS](https://developers.goog
 
 **Build**
 
-[Cocoapods](https://cocoapods.org/) is required to build the `demo-ios-swift` and `demo-ios-objc` applications. After cloning the repo, simply `cd` into either of the two demo app directories and run:
+`demo-ios-swift` uses Swift Package Manager: open `demo-ios-swift/demo-ios-swift.xcodeproj` in [Xcode](https://developer.apple.com/xcode/), which fetches the dependencies, and build and run from there.
+
+[Cocoapods](https://cocoapods.org/) is required to build `demo-ios-objc`. After cloning the repo, `cd` into its directory and run:
 
 ```bash
-cd demo-ios-swift
+cd demo-ios-objc
 
 # Install dependencies
 pod install
 ```
 
-Then open the generated `demo-ios-swift.xcworkspace` or `demo-ios-objc.xcworkspace` in [Xcode](https://developer.apple.com/xcode/), and build and run from there.
+Then open the generated `demo-ios-objc.xcworkspace` in [Xcode](https://developer.apple.com/xcode/), and build and run from there.
