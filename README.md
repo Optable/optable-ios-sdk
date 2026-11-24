@@ -17,7 +17,7 @@ Once you have your Swift package set up, you can add this SDK as a dependency. A
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/Optable/optable-ios-sdk", from: "1.3.0")
+    .package(url: "https://github.com/Optable/optable-ios-sdk", from: "1.4.0")
 ]
 ```
 
