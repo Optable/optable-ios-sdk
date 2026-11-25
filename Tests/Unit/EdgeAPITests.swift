@@ -442,8 +442,17 @@ class EdgeAPITests: XCTestCase {
     }
 
     func test_profile_request_generation() throws {
-        let urlRequest = try sdk.api.profile(traits: ["test-key": "test-value"], id: "c:id2", neighbors: ["c:id1", "c:id3"])
-        
+        sdk.api.storage.setID5Signature("id5-sig-abc123")
+
+        let email: OptableIdentifier = .emailAddress("12345")
+        let utiq: OptableIdentifier = .utiq("496f5db5-681f-4392-acd5-0d4f6e2f6b88")
+        let urlRequest = try sdk.api.profile(
+            traits: ["test-key": "test-value"],
+            id: .custom(nil, "id2"),
+            neighbors: [.custom(nil, "id1"), email, .hem("not-a-hash")],
+            hids: [utiq, .hem("not-a-hash")]
+        )
+
         // Method
         XCTAssertEqual(urlRequest?.httpMethod, HTTPMethod.POST.rawValue)
 
@@ -451,17 +460,60 @@ class EdgeAPITests: XCTestCase {
         let urlComponents = URLComponents(url: urlRequest!.url!, resolvingAgainstBaseURL: false)!
         XCTAssert(urlComponents.path.contains("profile"))
 
-        // Body
+        // Body: identifiers are encoded like identify (email is SHA-256 hashed), and empty ones are dropped
         if let body = urlRequest?.httpBody {
             if let jsonObj = try JSONSerialization.jsonObject(with: body) as? NSDictionary {
                 XCTAssertEqual(jsonObj["id"] as! String, "c:id2")
-                XCTAssertEqual(jsonObj["neighbors"] as! [String], ["c:id1", "c:id3"])
+                XCTAssertEqual(jsonObj["neighbors"] as! [String], ["c:id1", email.extendedIdentifier])
                 XCTAssertEqual(jsonObj["traits"] as! NSDictionary, ["test-key": "test-value"])
             } else {
                 XCTFail("Not a valid JSON object")
             }
         } else {
             XCTFail("No body")
+        }
+
+        // Query: hints and the same resolver context as targeting
+        XCTAssertEqual(urlComponents.queryItems?.filter({ $0.name == "hid" }).map({ $0.value }), [utiq.extendedIdentifier])
+        XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "ua" })?.value, T.api.userAgent)
+        XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "id5_signature" })?.value, "id5-sig-abc123")
+
+        if let bundle = Bundle.main.bundleIdentifier {
+            XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "bundle" })?.value, bundle)
+        }
+
+        if let ver = Bundle.main.appVersionString {
+            XCTAssertEqual(urlComponents.queryItems?.first(where: { $0.name == "ver" })?.value, ver)
+        }
+    }
+
+    func test_profile_request_omits_empty_id_and_neighbors() throws {
+        let urlRequest = try sdk.api.profile(traits: ["test-key": "test-value"])
+        let jsonObj = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(urlRequest?.httpBody)) as? NSDictionary)
+
+        XCTAssertNil(jsonObj["id"])
+        XCTAssertNil(jsonObj["neighbors"])
+
+        let urlComponents = URLComponents(url: urlRequest!.url!, resolvingAgainstBaseURL: false)!
+        XCTAssertNil(urlComponents.queryItems?.first(where: { $0.name == "hid" }))
+    }
+
+    func test_profile_request_sends_at_most_maxProfileNeighbors() throws {
+        let neighbors = (0 ... OptableSDK.maxProfileNeighbors).map({ OptableIdentifier.custom(nil, "id\($0)") })
+        let urlRequest = try sdk.api.profile(traits: [:], neighbors: neighbors)
+        let jsonObj = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(urlRequest?.httpBody)) as? NSDictionary)
+
+        // The first ones are kept, in order
+        XCTAssertEqual(jsonObj["neighbors"] as? [String], neighbors.prefix(OptableSDK.maxProfileNeighbors).map({ $0.extendedIdentifier }))
+    }
+
+    func test_profile_throws_without_sending_when_id_is_dropped() {
+        let plainEmail = "not.a.hash@example.com"
+
+        XCTAssertThrowsError(try sdk.profile(traits: [:], id: .hem(plainEmail), { _ in XCTFail("Should not be sent") })) { error in
+            let message = (error as NSError).localizedDescription
+            XCTAssertEqual(message, "Profile id is not a valid hem identifier")
+            XCTAssertFalse(message.contains(plainEmail))
         }
     }
 

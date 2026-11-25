@@ -165,7 +165,7 @@ class OptableSDKTests: XCTestCase {
     }
 
     func test_profile_delegate() throws {
-        try sdk.profile(traits: ["integration-test-profile": "integration-test-profile-value"])
+        try sdk.profile(traits: ["integration-test-profile": "integration-test-profile-value"], id: nil, neighbors: [OptableSDKIdentifier(type: .emailAddress, value: "test@test.com", customIdx: nil)])
         wait(for: [profileExpectation], timeout: 10)
     }
 }

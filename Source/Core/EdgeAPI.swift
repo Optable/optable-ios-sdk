@@ -55,18 +55,33 @@ final class EdgeAPI: Sendable {
         return request
     }
 
-    func profile(traits: [String: Any], id: String? = nil, neighbors: [String]? = nil) throws -> URLRequest? {
-        guard let url = buildEdgeAPIURL(endpoint: "profile") else { return nil }
+    func profile(traits: [String: Any], id: OptableIdentifier? = nil, neighbors: [OptableIdentifier] = [], hids: [OptableIdentifier] = []) throws -> URLRequest? {
+        guard var url = buildEdgeAPIURL(endpoint: "profile") else { return nil }
 
         var payload: [String: Any] = ["traits": traits]
 
-        if let id {
+        if let id = id?.extendedIdentifier, id.isEmpty == false {
             payload["id"] = id
         }
 
-        if let neighbors, neighbors.isEmpty == false {
-            payload["neighbors"] = neighbors
+        // The DCN rejects the whole call over the limit, so the extra neighbors are dropped instead
+        let neighbors = neighbors
+            .map({ $0.extendedIdentifier })
+            .filter({ $0.isEmpty == false })
+            .prefix(OptableSDK.maxProfileNeighbors)
+
+        if neighbors.isEmpty == false {
+            payload["neighbors"] = Array(neighbors)
         }
+
+        var queryItems = hids
+            .map({ $0.extendedIdentifier })
+            .filter({ $0.isEmpty == false })
+            .compactMap({ URLQueryItem(name: "hid", value: $0) })
+
+        queryItems.append(contentsOf: resolverContextQueryItems())
+
+        url.compatAppend(queryItems: queryItems)
 
         let request = try buildRequest(.POST, url: url, headers: resolveHeaders(), obj: payload)
         return request
@@ -86,22 +101,7 @@ final class EdgeAPI: Sendable {
             .compactMap({ URLQueryItem(name: "hid", value: $0) })
 
         queryItems.append(contentsOf: hidQueryItems)
-
-        if let bundle = Bundle.main.bundleIdentifier {
-            queryItems.append(URLQueryItem(name: "bundle", value: bundle))
-        }
-        
-        if let ver = Bundle.main.appVersionString {
-            queryItems.append(URLQueryItem(name: "ver", value: ver))
-        }
-        
-        if let userAgent {
-            queryItems.append(URLQueryItem(name: "ua", value: userAgent))
-        }
-        
-        if let id5Signature = storage.getID5Signature() {
-            queryItems.append(URLQueryItem(name: "id5_signature", value: id5Signature))
-        }
+        queryItems.append(contentsOf: resolverContextQueryItems())
 
         url.compatAppend(queryItems: queryItems)
 
@@ -178,6 +178,29 @@ extension EdgeAPI {
 
         let userAgent = try? await webView.evaluateJavaScript("navigator.userAgent")
         return (userAgent as? String) ?? ""
+    }
+
+    /// The app, user agent and ID5 signature that targeting and profile send for identity resolution on the DCN.
+    func resolverContextQueryItems() -> [URLQueryItem] {
+        var queryItems: [URLQueryItem] = []
+
+        if let bundle = Bundle.main.bundleIdentifier {
+            queryItems.append(URLQueryItem(name: "bundle", value: bundle))
+        }
+
+        if let ver = Bundle.main.appVersionString {
+            queryItems.append(URLQueryItem(name: "ver", value: ver))
+        }
+
+        if let userAgent {
+            queryItems.append(URLQueryItem(name: "ua", value: userAgent))
+        }
+
+        if let id5Signature = storage.getID5Signature() {
+            queryItems.append(URLQueryItem(name: "id5_signature", value: id5Signature))
+        }
+
+        return queryItems
     }
 
     func resolveHeaders() -> HTTPHeaders {

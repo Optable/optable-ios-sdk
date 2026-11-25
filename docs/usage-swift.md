@@ -71,7 +71,7 @@ Besides `tenant`, `originSlug` and `host`, `OptableConfig` accepts the following
 | `apiKey` | `nil` | A Service Account API key, sent as an `Authorization: Bearer` header. Required when the API endpoint is configured as private. |
 | `customUserAgent` | `nil` | A `User-Agent` to send instead of the one detected from `WKWebView`. |
 | `origin` | `nil` | A value sent as the `Origin` HTTP header. |
-| `skipAdvertisingIdDetection` | `false` | When `true`, the SDK never adds the device IDFA to `identify` and `targeting` requests. |
+| `skipAdvertisingIdDetection` | `false` | When `true`, the SDK never adds the device IDFA to `identify`, `targeting` and `profile` requests. |
 | `cacheTTL` | 24 hours | How long, in seconds, cached targeting data stays valid. |
 
 #### Privacy and consent
@@ -129,7 +129,7 @@ The SDK `identify()` method will asynchronously connect to the configured DCN an
 >
 > The email address / phone number is **not** sent by the device in plain text.
 
-The SDK automatically adds the Apple ID for Advertising (IDFA) to the identifiers sent by `identify()` and `targeting()` whenever the user has authorized tracking. You don't need to pass it yourself. To turn this off, set `skipAdvertisingIdDetection` to `true` in `OptableConfig`.
+The SDK automatically adds the Apple ID for Advertising (IDFA) to the identifiers sent by `identify()`, `targeting()` and `profile()` whenever the user has authorized tracking. You don't need to pass it yourself. To turn this off, set `skipAdvertisingIdDetection` to `true` in `OptableConfig`.
 
 > :warning: **IDFA requires user authorization**: Apple requires permission to use IDFA via the [AppTrackingTransparency](https://developer.apple.com/app-store/user-privacy-and-data-use/) framework. The SDK only reads the current authorization status and **does not** show the ATT prompt itself. Your application must request authorization, for example with `ATTrackingManager.requestTrackingAuthorization`, and must set the _Privacy - Tracking Usage Description_ (`NSUserTrackingUsageDescription`) string in its `Info.plist`. Until the user authorizes tracking, no IDFA is sent.
 
@@ -169,8 +169,8 @@ do {
     try OPTABLE!.profile(traits: ["gender": "F", "age": 38, "hasAccount": true]) { result in
         switch (result) {
         case .success(let optableTargeting):
-            // profile API success, optableTargeting is the updated OptableTargeting
-            // for the device, also cached for targetingFromCache()
+            // profile API success, optableTargeting is the targeting data for the profile,
+            // also cached for targetingFromCache()
         case .failure(let error):
             // handle profile API failure in `error`
         }
@@ -184,20 +184,22 @@ The specified traits are associated with the user's device and can be matched du
 
 Note that the traits are of type `[String: Any]` and should consist of key value pairs, where the keys are strings and the values are either strings, numbers, or booleans.
 
-You can optionally pass an `id` to profile and a list of `neighbors` (related identifiers) along with the traits:
+You can optionally pass an `id` to associate the traits with instead of the device's passport, a list of `neighbors` (related identifiers to link to it), and hint identifiers (`hids`), as in `targeting()`. They are `OptableIdentifier` values, encoded the same way as for `identify()`, so Email addresses and phone numbers are hashed before they leave the device:
 
 ```swift
-let id = OptableIdentifier.custom(nil, "user-1234").extendedIdentifier // "c:user-1234"
-let neighbors = [
-    OptableIdentifier.emailAddress("some.email@address.com").extendedIdentifier // "e:<sha256>"
-]
-
-try OPTABLE!.profile(traits: ["hasAccount": true], id: id, neighbors: neighbors) { result in
+try OPTABLE!.profile(
+    traits: ["hasAccount": true],
+    id: .custom(nil, "user-1234"),
+    neighbors: [.emailAddress("some.email@address.com")]
+) { result in
     // ...
 }
 ```
 
-> :warning: Unlike `identify()` and `targeting()`, `id` and `neighbors` are plain type-prefixed strings that are sent exactly as given: the SDK does **not** normalize or hash them. Build them from `OptableIdentifier` values with `.extendedIdentifier`, as above, so that email addresses and phone numbers are hashed before they leave the device.
+On the DCN, `profile` works like an `identify` call followed by a `targeting` call: the `neighbors` are linked to the profile, then targeting is resolved for the `id`, or for the device's passport when no `id` is given. The request carries the same [resolver-specific parameters](#resolver-specific-parameters) as `targeting`, and the device IDFA is added to both `neighbors` and `hids` under the same rules.
+
+- If the `id` is dropped when encoded, for example a `.hem` that isn't a SHA-256 digest, `profile` throws without sending the request, so the traits are never attached to the passport instead. The error names the identifier type, not its value.
+- The DCN rejects a whole call that has more than 64 neighbors, so the SDK sends at most `OptableSDK.maxProfileNeighbors` (64), the IDFA first, and drops the rest. Neighbors and `hids` that are dropped when encoded are left out, as with `identify`.
 
 ### Targeting API
 
@@ -247,20 +249,20 @@ try OPTABLE!.targeting(ids, hids: hids) { result in
 
 #### Resolver-Specific Parameters
 
-On every `targeting()` call the SDK automatically attaches the parameters required by resolver-specific integrations such as ID5 Mobile In-App:
+On every `targeting()` and `profile()` call the SDK automatically attaches the parameters required by resolver-specific integrations such as ID5 Mobile In-App:
 
 - `bundle`: the application's bundle identifier.
 - `ver`: the application's version (`CFBundleShortVersionString`).
 - `ua`: the user agent of the device's default browser, detected asynchronously via `WKWebView` at SDK initialization. If a targeting call happens before detection completes, the parameter is omitted; set `customUserAgent` in `OptableConfig` to guarantee it is always present.
-- `id5_signature`: the ID5 signature cached from a previous targeting response, when available.
+- `id5_signature`: the ID5 signature cached from a previous targeting or profile response, when available.
 
-When a targeting response contains an ID5 EID, the SDK extracts the associated signature and caches it in client storage. The cached signature persists across app restarts, is sent as `id5_signature` on subsequent targeting calls to improve ID5 resolve rates, and is removed by `targetingClearCache()`. A targeting response that contains no ID5 signature removes any previously cached one, so the SDK never sends a stale signature.
+When a targeting or profile response contains an ID5 EID, the SDK extracts the associated signature and caches it in client storage. The cached signature persists across app restarts, is sent as `id5_signature` on subsequent targeting and profile calls to improve ID5 resolve rates, and is removed by `targetingClearCache()`. A targeting or profile response that contains no ID5 signature removes any previously cached one, so the SDK never sends a stale signature.
 
 In addition, unless `skipAdvertisingIdDetection` is set in `OptableConfig`, the device IDFA is automatically added to both `ids` and `hids` when ad tracking is authorized by the user.
 
 #### Caching Targeting Data
 
-The `targeting` API will automatically cache resulting key value data in client storage on success. You can subsequently retrieve the cached key value data as follows:
+The `targeting` and `profile` APIs automatically cache the resulting key value data in client storage on success, so `targetingFromCache()` returns the result of whichever of the two calls completed last. You can subsequently retrieve the cached key value data as follows:
 
 ```swift
 if let cachedOptableTargeting = OPTABLE!.targetingFromCache() {
@@ -340,7 +342,7 @@ do {
 }
 ```
 
-`identify` and `witness` return an `HTTPURLResponse`, while `targeting` and `profile` return an `OptableTargeting`. The `async` versions take the same optional parameters as the completion handler versions, such as `hids` for `targeting` and `id` and `neighbors` for `profile`.
+`identify` and `witness` return an `HTTPURLResponse`, while `targeting` and `profile` return an `OptableTargeting`. The `async` versions take the same optional parameters as the completion handler versions, such as `hids` for `targeting` and `id`, `neighbors` and `hids` for `profile`.
 
 ### Integrating GAM360
 
