@@ -157,6 +157,18 @@ The value must be a 64-character hexadecimal SHA-256 digest, computed with the s
 
 Do not pass a hash to `.emailAddress` or `.phoneNumber`: those cases always hash their value, so the DCN would receive a hash of the hash. Already-hashed identifiers work the same way with `targeting()`.
 
+#### Pre-encoded identifiers
+
+To send an identifier type that has no case in `OptableIdentifier`, pass it already encoded as `"type:value"` with `.raw`:
+
+```swift
+let ids: [OptableIdentifier] = [
+    .raw("xyz:some-value")
+]
+```
+
+If the type is one the SDK knows, the value is checked and normalized as its case would be: `e` and `p` values must already be SHA-256 digests, like `.hem` and `.hashedPhoneNumber`, so a plain-text email address or phone number is dropped and never sent. A value of an unknown type is sent as given. Values without both a type and a value, or where either is only whitespace, are dropped. `.raw` works the same way with `identify()`, `targeting()` and its `hids`.
+
 ### Profile API
 
 > :information_source: For more info check:
